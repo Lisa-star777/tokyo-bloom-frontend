@@ -20,7 +20,6 @@
     <section class="catalog-products-section">
       <div class="container">
         <div class="about-content">
-          <h2 class="about-subtitle">ПОДАРОЧНЫЕ СЕРТИФИКАТЫ</h2>
           
           <!-- Текстовая часть -->
           <div class="about-text">
@@ -37,9 +36,7 @@
             >
               <div class="certificate-value">{{ formatPrice(certificate.value) }} ₽</div>
               <div class="certificate-description">{{ certificate.description }}</div>
-              <button class="certificate-button" @click="buyCertificate(certificate.id)">
-                Выбрать
-              </button>
+              
             </div>
           </div>
 
@@ -140,10 +137,9 @@ export default {
 
 .about-text {
   text-align: left;
-  background-color: #B8B8B8;
+  background-color: #ffffff;
   border-radius: 12px;
   padding: 50px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   margin-bottom: 50px;
 }
 
@@ -202,7 +198,7 @@ export default {
 .certificate-description {
   font-family: 'Albert Sans', sans-serif;
   font-size: 16px;
-  color: #666;
+  color: #5c5b5b;
   margin-bottom: 20px;
   line-height: 1.4;
   min-height: 45px;
@@ -237,11 +233,11 @@ export default {
   background-color: #292966;
   color: white;
   border: none;
-  padding: 15px 30px;
+  padding: 30px 45px;
   border-radius: 8px;
   font-family: 'Albert Sans', sans-serif;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 20px;

@@ -28,7 +28,6 @@
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
             <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
-            <button class="product-button" @click.stop="addToCart(product.id)">Заказать</button>
           </div>
         </div>
       </div>
@@ -42,14 +41,14 @@ export default {
   data() {
     return {
       giftProducts: [
-        { id: 1, title: '25 плечевидных роз', price: 7777, description: 'Роскошный букет из 25 свежих плечевидных роз' },
-        { id: 2, title: '26 плечевидных роз', price: 7777, description: 'Эксклюзивный букет из 26 плечевидных роз' },
-        { id: 3, title: 'Люкс букет роз', price: 9999, description: 'Премиальный букет из отборных роз' },
-        { id: 4, title: 'Романтичная композиция', price: 8550, description: 'Нежная композиция для особых моментов' },
-        { id: 5, title: 'Свадебный букет', price: 12000, description: 'Изысканный букет для невесты' },
-        { id: 6, title: 'Праздничная композиция', price: 6800, description: 'Яркая композиция для праздников' },
-        { id: 7, title: 'Экзотические цветы', price: 15000, description: 'Редкие и экзотические цветы' },
-        { id: 8, title: 'Классический букет', price: 5500, description: 'Традиционный букет для любого повода' }
+        { id: 1, title: 'Огромный плюшевый медведь Степан', price: 7777, description: 'Медведь, котрой понравиться каждому' },
+        { id: 2, title: 'Корзина "Red"', price: 2777, description: 'Корзина для души сладкоежки' },
+        { id: 3, title: 'Свеча ароматическая 100 мл', price: 1400, description: 'Премиальная свеча на любой запах' },
+        { id: 4, title: 'Корзина "Tea Time"', price: 4550, description: 'Корзина подходящаяя для лучшего чаепития' },
+        { id: 5, title: 'Плитка бельгийского шоколада', price: 1000, description: 'Изысканный шоколад для самых близких' },
+        { id: 6, title: 'Сырное плато S', price: 2800, description: 'Яркая композиция для романтического вечера' },
+        { id: 7, title: 'Связка гелиевых шаров "So this is love"', price: 1500, description: 'Лучшее дополнение для лучших поздравлений' },
+        { id: 8, title: 'Связка гелиевых шаров "Красотка"', price: 2500, description: 'Для того, чтобы порадовать свою любимую крастоку' }
       ]
     }
   },

@@ -28,7 +28,6 @@
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
             <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
-            <button class="product-button" @click.stop="addToCart(product.id)">Заказать</button>
           </div>
         </div>
       </div>
@@ -42,14 +41,14 @@ export default {
   data() {
     return {
       boxProducts: [
-        { id: 17, title: 'Красные розы в шляпной коробке', price: 7200, description: 'Элегантные красные розы в стильной шляпной коробке', materials: 'Декоративный флористический материал' },
-        { id: 18, title: 'Нежные пионы в коробке', price: 6800, description: 'Пушистые пионы в романтичной упаковке', materials: 'Декоративный флористический материал' },
-        { id: 19, title: 'Сборный букет в деревянной коробке', price: 8900, description: 'Разнообразие цветов в экологичной деревянной коробке', materials: 'Декоративный флористический материал' },
-        { id: 20, title: 'Тюльпаны в прозрачной коробке', price: 5500, description: 'Яркие тюльпаны в современной прозрачной упаковке', materials: 'Декоративный флористический материал' },
-        { id: 21, title: 'Белоснежные розы в коробке', price: 7500, description: 'Чистые белые розы в минималистичной коробке', materials: 'Декоративный флористический материал' },
-        { id: 22, title: 'Суккуленты в геометрической коробке', price: 6200, description: 'Модные суккуленты в стильной геометрической упаковке', materials: 'Декоративный флористический материал' },
-        { id: 23, title: 'Розовые герберы в коробке', price: 5800, description: 'Яркие герберы в праздничной упаковке', materials: 'Декоративный флористический материал' },
-        { id: 24, title: 'Экзотические орхидеи в коробке', price: 9500, description: 'Изысканные орхидеи в премиальной коробке', materials: 'Декоративный флористический материал' }
+        { id: 17, title: '"Дейнерис"', price: 7200, description: 'Элегантные белые розы в стильной коробке', materials: 'Бокс' },
+        { id: 18, title: '«Батори»', price: 6800, description: 'Пушистые розы в романтичной упаковке', materials: 'Бокс' },
+        { id: 19, title: '"Монако"', price: 8900, description: 'Разнообразие цветов в стильной коробке', materials: 'Бокс' },
+        { id: 20, title: '"La Crème"', price: 5500, description: 'Яркие и разные цветы в современной прозрачной упаковке', materials: 'Бокс' },
+        { id: 21, title: '"Moon"', price: 7500, description: 'Чистые белые хризантемы в минималистичной коробке', materials: 'Бокс' },
+        { id: 22, title: 'Сумочка "Сюрприз"', price: 6200, description: 'Модные цветы в интересной упаковке', materials: 'Бокс' },
+        { id: 23, title: '«Мишель»', price: 5800, description: 'Яркие розы в праздничной упаковке', materials: 'Бокс' },
+        { id: 24, title: '«Мия»', price: 9500, description: 'Изысканный набор цветов в премиальной коробке', materials: 'Бокс' }
       ]
     }
   },

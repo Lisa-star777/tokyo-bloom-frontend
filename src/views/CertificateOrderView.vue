@@ -75,7 +75,7 @@
           </div>
 
           <div class="placeholder-card" v-else>
-            <div class="placeholder-icon">🎁</div>
+            <div class="placeholder-icon">ꕤ</div>
             <h3 class="placeholder-title">Выберите сертификат</h3>
             <p class="placeholder-description">Выберите один из вариантов сертификата слева для продолжения оформления</p>
           </div>
@@ -89,7 +89,7 @@
         <button class="close-button" @click="hideCertificateModal">×</button>
         
         <div class="certificate-header">
-          <div class="certificate-success-icon">✅</div>
+          <div class="certificate-success-icon">✓</div>
           <h3>Сертификат успешно создан!</h3>
         </div>
 
@@ -98,7 +98,7 @@
             <div class="number-label">Номер сертификата:</div>
             <div class="certificate-number">{{ certificateNumber }}</div>
             <button class="copy-button" @click="copyCertificateNumber">
-              📋 Копировать
+               Копировать
             </button>
           </div>
 
@@ -123,27 +123,27 @@
           
           <div class="contact-info">
             <div class="contact-item">
-              <span class="contact-label">📞 Телефон:</span>
+              <span class="contact-label">✦ Телефон:</span>
               <span class="contact-value">+7 (800) 555-35-35</span>
             </div>
             <div class="contact-item">
-              <span class="contact-label">📧 Email:</span>
+              <span class="contact-label">✦ Email:</span>
               <span class="contact-value">certificates@tokusbloom.ru</span>
             </div>
             <div class="contact-item">
-              <span class="contact-label">📍 Адрес:</span>
+              <span class="contact-label">✦ Адрес:</span>
               <span class="contact-value">г. Владивосток, ул. Шепеткого, д. 14</span>
             </div>
             <div class="contact-item">
-              <span class="contact-label">🕒 Время работы:</span>
+              <span class="contact-label">✦ Время работы:</span>
               <span class="contact-value">Ежедневно с 9:00 до 21:00</span>
             </div>
           </div>
         </div>
 
         <div class="modal-notes">
-          <p class="note">⚠️ <strong>Сохраните номер сертификата!</strong> Он потребуется для активации после оплаты.</p>
-          <p class="note">Сертификат действителен в течение 6 месяцев с момента активации.</p>
+          <p class="note"> <strong>Сохраните номер сертификата!</strong> Он потребуется для активации после оплаты.</p>
+          <p class="note"><strong> Сертификат действителен в течение 6 месяцев с момента активации.</strong></p>
         </div>
 
         <div class="modal-actions">
@@ -803,7 +803,7 @@ export default {
 }
 
 .back-button {
-  background-color: #A3A3CC;
+  background-color: #292966;
   color: white;
 }
 

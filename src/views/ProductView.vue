@@ -6,9 +6,9 @@
         <nav class="breadcrumb">
           <router-link to="/">Главная</router-link>
           <span class="divider">/</span>
-          <router-link to="/bouquets">Букеты</router-link>
+          <router-link :to="breadcrumbLink">{{ breadcrumbCategory }}</router-link>
           <span class="divider">/</span>
-          <span class="current">25 желтых тюльпанов</span>
+          <span class="current">{{ currentProduct.title }}</span>
         </nav>
       </div>
     </section>
@@ -19,36 +19,30 @@
         <div class="product-layout">
           <!-- Изображение товара -->
           <div class="product-image">
-            <div class="image-placeholder">
-              25 желтых тюльпанов
-            </div>
+            <img :src="currentProduct.image" :alt="currentProduct.title">
           </div>
 
           <!-- Информация о товаре -->
           <div class="product-info">
-            <h1 class="product-title">25 желтых тюльпанов</h1>
+            <h1 class="product-title">{{ currentProduct.title }}</h1>
             
             <div class="availability">
               <span class="available">В наличии</span>
             </div>
 
             <div class="product-price">
-              2.500 ₽
+              {{ formatPrice(currentProduct.price) }} ₽
             </div>
 
-            <div class="product-category">
-              <strong>Цветы</strong>
-              <p>25 желтых тюльпанов</p>
-            </div>
+            
 
             <div class="product-materials">
               <strong>Материалы</strong>
-              <p>Декоративный флористический материал</p>
+              <p>{{ currentProduct.materials }}</p>
             </div>
 
-            <button class="order-button" @click="goToCheckout">
-              ЗАКАЗАТЬ
-            </button>
+          
+
           </div>
         </div>
       </div>
@@ -60,15 +54,15 @@
         <h2 class="recommended-title">К букету можно добавить</h2>
         
         <div class="recommended-grid">
-          <div v-for="product in recommendedProducts" :key="product.id" class="recommended-card">
+          <div v-for="product in recommendedProducts" :key="product.id" class="recommended-card" @click="goToProduct(product.id)">
             <div class="recommended-badge" v-if="product.isTop">TOP</div>
             <div class="recommended-image">
-              <div class="image-placeholder-small">{{ product.title }}</div>
+              <img :src="product.image" :alt="product.title">
             </div>
             <h3 class="recommended-product-title">{{ product.title }}</h3>
-            <div class="recommended-price">{{ product.price }} ₽</div>
-            <button class="recommended-order-button" @click="goToCheckout">
-              Заказать
+            <div class="recommended-price">{{ formatPrice(product.price) }} ₽</div>
+            <button class="recommended-order-button" @click="goToProduct(product.id)">
+              Посмотреть
             </button>
           </div>
         </div>
@@ -82,23 +76,109 @@ export default {
   name: 'ProductView',
   data() {
     return {
+      // Все товары из всех категорий
+      allProducts: [
+        // Букеты (id: 9-16)
+        { id: 9, title: '"Cotton candy"', price: 6550, description: 'Нежные розы для романтического настроения' },
+        { id: 10, title: '«Утро в Париже»', price: 4900, description: 'Яркие цветы в естественной композиции' },
+        { id: 11, title: '"Кружева"', price: 8200, description: 'Редкие цветы для особого случая' },
+        { id: 12, title: '"Passion"', price: 5800, description: 'Элегантные розы' },
+        { id: 13, title: '"Milkshake”', price: 4500, description: 'Свежие розы - символ нежности' },
+        { id: 14, title: '"Apple Jack"', price: 12500, description: 'Букет из премиальных роз' },
+        { id: 15, title: '"Coco Choco"', price: 6700, description: 'Яркая композиция из сезонных цветов' },
+        { id: 16, title: 'Букет из бело-розовых гортензий с эвкалиптом', price: 5200, description: '' },
+
+        // Подарки (id: 1-8)
+        { id: 1, title: 'Огромный плюшевый медведь Степан', price: 7777, description: 'Медведь, котрой понравиться каждому' },
+        { id: 2, title: 'Корзина "Red"', price: 2777, description: 'Корзина для души сладкоежки' },
+        { id: 3, title: 'Свеча ароматическая 100 мл', price: 1400, description: 'Премиальная свеча на любой запах' },
+        { id: 4, title: 'Корзина "Tea Time"', price: 4550, description: 'Корзина подходящаяя для лучшего чаепития' },
+        { id: 5, title: 'Плитка бельгийского шоколада', price: 1000, description: 'Изысканный шоколад для самых близких' },
+        { id: 6, title: 'Сырное плато S', price: 2800, description: 'Яркая композиция для романтического вечера' },
+        { id: 7, title: 'Связка гелиевых шаров "So this is love"', price: 1500, description: 'Лучшее дополнение для лучших поздравлений' },
+        { id: 8, title: 'Связка гелиевых шаров "Красотка"', price: 2500, description: 'Для того, чтобы порадовать свою любимую крастоку' },
+
+        // Цветы в коробках (id: 17-24)
+        { id: 17, title: '"Дейнерис"', price: 7200, description: 'Элегантные белые розы в стильной коробке', materials: 'Бокс' },
+        { id: 18, title: '«Батори»', price: 6800, description: 'Пушистые розы в романтичной упаковке', materials: 'Бокс' },
+        { id: 19, title: '"Монако"', price: 8900, description: 'Разнообразие цветов в стильной коробке', materials: 'Бокс' },
+        { id: 20, title: '"La Crème"', price: 5500, description: 'Яркие и разные цветы в современной прозрачной упаковке', materials: 'Бокс' },
+        { id: 21, title: '"Moon"', price: 7500, description: 'Чистые белые хризантемы в минималистичной коробке', materials: 'Бокс' },
+        { id: 22, title: 'Сумочка "Сюрприз"', price: 6200, description: 'Модные цветы в интересной упаковке', materials: 'Бокс' },
+        { id: 23, title: '«Мишель»', price: 5800, description: 'Яркие розы в праздничной упаковке', materials: 'Бокс' },
+        { id: 24, title: '«Мия»', price: 9500, description: 'Изысканный набор цветов в премиальной коробке', materials: 'Бокс' }
+      ],
+      
+      // Рекомендуемые товары (можно менять логику подбора)
       recommendedProducts: [
-        { id: 1, title: '25 пионовидных роз', price: '7777', isTop: true },
-        { id: 2, title: '25 пионовидных роз', price: '7777', isTop: false },
-        { id: 3, title: '25 пионовидных роз', price: '7777', isTop: false },
-        { id: 4, title: '25 пионовидных роз', price: '7777', isTop: false },
-        { id: 5, title: '25 пионовидных роз', price: '7777', isTop: false }
+        { id: 3, title: 'Свеча ароматическая 100 мл', price: 1400, description: 'Премиальная свеча на любой запах' },
+        { id: 4, title: 'Корзина "Tea Time"', price: 4550, description: 'Корзина подходящаяя для лучшего чаепития' },
+        { id: 5, title: 'Плитка бельгийского шоколада', price: 1000, description: 'Изысканный шоколад для самых близких' },
+        { id: 6, title: 'Сырное плато S', price: 2800, description: 'Яркая композиция для романтического вечера' },
+        { id: 7, title: 'Связка гелиевых шаров "So this is love"', price: 1500, description: 'Лучшее дополнение для лучших поздравлений' },
       ]
     }
   },
+  computed: {
+    // Текущий товар на основе ID из URL
+    currentProduct() {
+      const productId = parseInt(this.$route.params.id);
+      const product = this.allProducts.find(p => p.id === productId);
+      
+      // Если товар не найден, показываем заглушку
+      return product || {
+        id: 0,
+        title: 'Товар не найден',
+        price: 0,
+        description: 'Извините, товар не найден',
+        category: 'Неизвестно',
+        materials: 'Не указано',
+        fullDescription: 'Запрошенный товар не существует или был удален',
+        image: '/images/products/not-found.jpg'
+      };
+    },
+    
+    // Ссылка для хлебных крошек
+    breadcrumbLink() {
+      const category = this.currentProduct.category;
+      switch(category) {
+        case 'Букеты': return '/bouquets';
+        case 'Подарки': return '/gifts';
+        case 'Цветы в коробках': return '/box-flowers';
+        default: return '/';
+      }
+    },
+    
+    // Название категории для хлебных крошек
+    breadcrumbCategory() {
+      return this.currentProduct.category;
+    }
+  },
   methods: {
+    formatPrice(price) {
+      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    },
+    
+    goToProduct(productId) {
+      this.$router.push(`/product/${productId}`);
+    },
+    
     goToCheckout() {
-      this.$router.push('/checkout')
+      this.$router.push('/checkout');
+    }
+  },
+  watch: {
+    // При изменении ID в URL перезагружаем данные
+    '$route.params.id': {
+      handler() {
+        // Здесь можно добавить логику загрузки данных
+        console.log('ID товара изменен:', this.$route.params.id);
+      },
+      immediate: true
     }
   }
 }
 </script>
-
 
 <style scoped>
 .product-page {
@@ -162,17 +242,10 @@ export default {
   aspect-ratio: 1/1;
 }
 
-.image-placeholder {
+.product-image img {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 24px;
-  font-weight: 600;
-  background-color: #A3A3CC;
+  object-fit: cover;
 }
 
 .product-info {
@@ -211,12 +284,14 @@ export default {
 }
 
 .product-category,
-.product-materials {
+.product-materials,
+.product-description {
   margin-bottom: 25px;
 }
 
 .product-category strong,
-.product-materials strong {
+.product-materials strong,
+.product-description strong {
   font-family: 'Albert Sans', sans-serif;
   font-size: 18px;
   color: #292966;
@@ -226,7 +301,8 @@ export default {
 }
 
 .product-category p,
-.product-materials p {
+.product-materials p,
+.product-description p {
   font-family: 'Albert Sans', sans-serif;
   font-size: 16px;
   color: #666;
@@ -248,6 +324,7 @@ export default {
   width: 100%;
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin-top: 30px;
 }
 
 .order-button:hover {
@@ -286,6 +363,7 @@ export default {
   position: relative;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
 }
 
 .recommended-card:hover {
@@ -318,18 +396,15 @@ export default {
   overflow: hidden;
 }
 
-.image-placeholder-small {
+.recommended-image img {
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-  padding: 10px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.recommended-card:hover .recommended-image img {
+  transform: scale(1.05);
 }
 
 .recommended-product-title {
@@ -370,94 +445,6 @@ export default {
 .recommended-order-button:hover {
   background-color: #9292c2;
   transform: translateY(-2px);
-}
-
-/* Модальное окно контактов */
-.contacts-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(5px);
-}
-
-.modal-content {
-  background-color: white;
-  padding: 40px;
-  border-radius: 15px;
-  max-width: 500px;
-  width: 90%;
-  position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.close-button {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 30px;
-  cursor: pointer;
-  color: #666;
-  transition: color 0.3s ease;
-}
-
-.close-button:hover {
-  color: #292966;
-}
-
-.modal-content h3 {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 24px;
-  color: #292966;
-  margin-bottom: 25px;
-  text-align: center;
-  font-weight: 600;
-}
-
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
-.contact-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.contact-label {
-  font-family: 'Albert Sans', sans-serif;
-  font-weight: 600;
-  color: #292966;
-  font-size: 14px;
-}
-
-.contact-value {
-  font-family: 'Albert Sans', sans-serif;
-  color: #666;
-  font-size: 16px;
-  text-align: right;
-}
-
-.modal-note {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 14px;
-  color: #666;
-  text-align: center;
-  font-style: italic;
-  margin-top: 20px;
 }
 
 /* Адаптивность */
@@ -506,10 +493,6 @@ export default {
   .recommended-title {
     font-size: 24px;
   }
-  
-  .modal-content {
-    padding: 30px 25px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -534,16 +517,6 @@ export default {
   .order-button {
     padding: 16px 30px;
     font-size: 16px;
-  }
-  
-  .contact-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-  }
-  
-  .contact-value {
-    text-align: left;
   }
 }
 </style>

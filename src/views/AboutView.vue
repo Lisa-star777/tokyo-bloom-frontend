@@ -34,19 +34,19 @@
             <h3 class="contact-title">Контакты</h3>
             <div class="contact-info">
               <div class="contact-item">
-                <span class="contact-label">📞 Телефон:</span>
+                <span class="contact-label">✦ Телефон:</span>
                 <span class="contact-value">+7 (800) 555-35-35</span>
               </div>
               <div class="contact-item">
-                <span class="contact-label">📧 Email:</span>
+                <span class="contact-label">✦ Email:</span>
                 <span class="contact-value">info@tokusbloom.ru</span>
               </div>
               <div class="contact-item">
-                <span class="contact-label">📍 Адрес:</span>
+                <span class="contact-label">✦ Адрес:</span>
                 <span class="contact-value">г. Владивосток, ул. Шепеткого, д. 14</span>
               </div>
               <div class="contact-item">
-                <span class="contact-label">🕒 Время работы:</span>
+                <span class="contact-label">✦ Время работы:</span>
                 <span class="contact-value">Ежедневно с 9:00 до 21:00</span>
               </div>
             </div>
@@ -115,10 +115,9 @@
 
 .about-text {
   text-align: left;
-  background-color: #B8B8B8;
+  background-color: #ffffff;
   border-radius: 12px;
   padding: 50px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   margin-bottom: 50px;
 }
 
@@ -240,7 +239,7 @@
   font-weight: 600;
   color: #292966;
   margin-bottom: 5px;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .contact-value {

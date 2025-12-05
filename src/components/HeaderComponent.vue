@@ -2,7 +2,7 @@
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <router-link to="/" class="logo">Токuo Bloom</router-link>
+        <router-link to="/" class="logo">Тоkyo Bloom</router-link>
         
         <nav>
           <ul class="nav-menu">

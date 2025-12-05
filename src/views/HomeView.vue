@@ -24,7 +24,6 @@
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
             <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
-            <button class="product-button" @click.stop="addToCart(product.id)">Заказать</button>
           </div>
         </div>
       </div>
@@ -42,7 +41,6 @@
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
             <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
-            <button class="product-button" @click.stop="addToCart(product.id)">Заказать</button>
           </div>
         </div>
         <div class="section-footer">
@@ -63,7 +61,6 @@
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
             <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
-            <button class="product-button" @click.stop="addToCart(product.id)">Заказать</button>
           </div>
         </div>
         <div class="section-footer">
@@ -84,7 +81,6 @@
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
             <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
-            <button class="product-button" @click.stop="addToCart(product.id)">Заказать</button>
           </div>
         </div>
         <div class="section-footer">
@@ -107,34 +103,34 @@ export default {
         { id: 4, title: '25 плечевидных роз', price: 7777, description: 'Праздничная композиция' }
       ],
       bouquetProducts: [
-        { id: 9, title: 'Романтичный букет роз', price: 6550, description: 'Нежные розы для романтического настроения' },
-        { id: 10, title: 'Свежий полевой букет', price: 4900, description: 'Яркие полевые цветы в естественной композиции' },
-        { id: 11, title: 'Экзотические цветы', price: 8200, description: 'Редкие тропические цветы для особого случая' },
-        { id: 12, title: 'Классические хризантемы', price: 5800, description: 'Элегантные хризантемы в традиционной композиции' },
-        { id: 13, title: 'Весенний тюльпановый букет', price: 4500, description: 'Свежие тюльпаны - символ весны и нежности' },
-        { id: 14, title: 'Свадебная композиция', price: 12500, description: 'Изысканный букет для самого важного дня' },
-        { id: 15, title: 'Летнее разноцветье', price: 6700, description: 'Яркая композиция из сезонных цветов' },
-        { id: 16, title: 'Минималистичный букет', price: 5200, description: 'Современный букет в стиле минимализм' }
+        { id: 9, title: '"Cotton candy"', price: 6550, description: 'Нежные розы для романтического настроения' },
+        { id: 10, title: '«Утро в Париже»', price: 4900, description: 'Яркие цветы в естественной композиции' },
+        { id: 11, title: '"Кружева"', price: 8200, description: 'Редкие цветы для особого случая' },
+        { id: 12, title: '"Passion"', price: 5800, description: 'Элегантные розы' },
+        { id: 13, title: '"Milkshake”', price: 4500, description: 'Свежие розы - символ нежности' },
+        { id: 14, title: '"Apple Jack"', price: 12500, description: 'Букет из премиальных роз' },
+        { id: 15, title: '"Coco Choco"', price: 6700, description: 'Яркая композиция из сезонных цветов' },
+        { id: 16, title: 'Букет из бело-розовых гортензий с эвкалиптом', price: 5200, description: '' }
       ],
       giftProducts: [
-        { id: 1, title: '25 плечевидных роз', price: 7777, description: 'Роскошный букет из 25 свежих плечевидных роз' },
-        { id: 2, title: '26 плечевидных роз', price: 7777, description: 'Эксклюзивный букет из 26 плечевидных роз' },
-        { id: 3, title: 'Люкс букет роз', price: 9999, description: 'Премиальный букет из отборных роз' },
-        { id: 4, title: 'Романтичная композиция', price: 8550, description: 'Нежная композиция для особых моментов' },
-        { id: 5, title: 'Свадебный букет', price: 12000, description: 'Изысканный букет для невесты' },
-        { id: 6, title: 'Праздничная композиция', price: 6800, description: 'Яркая композиция для праздников' },
-        { id: 7, title: 'Экзотические цветы', price: 15000, description: 'Редкие и экзотические цветы' },
-        { id: 8, title: 'Классический букет', price: 5500, description: 'Традиционный букет для любого повода' }
+        { id: 1, title: 'Огромный плюшевый медведь Степан', price: 7777, description: 'Медведь, котрой понравиться каждому' },
+        { id: 2, title: 'Корзина "Red"', price: 2777, description: 'Корзина для души сладкоежки' },
+        { id: 3, title: 'Свеча ароматическая 100 мл', price: 1400, description: 'Премиальная свеча на любой запах' },
+        { id: 4, title: 'Корзина "Tea Time"', price: 4550, description: 'Корзина подходящаяя для лучшего чаепития' },
+        { id: 5, title: 'Плитка бельгийского шоколада', price: 1000, description: 'Изысканный шоколад для самых близких' },
+        { id: 6, title: 'Сырное плато S', price: 2800, description: 'Яркая композиция для романтического вечера' },
+        { id: 7, title: 'Связка гелиевых шаров "So this is love"', price: 1500, description: 'Лучшее дополнение для лучших поздравлений' },
+        { id: 8, title: 'Связка гелиевых шаров "Красотка"', price: 2500, description: 'Для того, чтобы порадовать свою любимую крастоку' }
       ],
       boxProducts: [
-        { id: 17, title: 'Красные розы в шляпной коробке', price: 7200, description: 'Элегантные красные розы в стильной шляпной коробке' },
-        { id: 18, title: 'Нежные пионы в коробке', price: 6800, description: 'Пушистые пионы в романтичной упаковке' },
-        { id: 19, title: 'Сборный букет в деревянной коробке', price: 8900, description: 'Разнообразие цветов в экологичной деревянной коробке' },
-        { id: 20, title: 'Тюльпаны в прозрачной коробке', price: 5500, description: 'Яркие тюльпаны в современной прозрачной упаковке' },
-        { id: 21, title: 'Белоснежные розы в коробке', price: 7500, description: 'Чистые белые розы в минималистичной коробке' },
-        { id: 22, title: 'Суккуленты в геометрической коробке', price: 6200, description: 'Модные суккуленты в стильной геометрической упаковке' },
-        { id: 23, title: 'Розовые герберы в коробке', price: 5800, description: 'Яркие герберы в праздничной упаковке' },
-        { id: 24, title: 'Экзотические орхидеи в коробке', price: 9500, description: 'Изысканные орхидеи в премиальной коробке' }
+        { id: 17, title: '"Дейнерис"', price: 7200, description: 'Элегантные белые розы в стильной коробке', materials: 'Бокс' },
+        { id: 18, title: '«Батори»', price: 6800, description: 'Пушистые розы в романтичной упаковке', materials: 'Бокс' },
+        { id: 19, title: '"Монако"', price: 8900, description: 'Разнообразие цветов в стильной коробке', materials: 'Бокс' },
+        { id: 20, title: '"La Crème"', price: 5500, description: 'Яркие и разные цветы в современной прозрачной упаковке', materials: 'Бокс' },
+        { id: 21, title: '"Moon"', price: 7500, description: 'Чистые белые хризантемы в минималистичной коробке', materials: 'Бокс' },
+        { id: 22, title: 'Сумочка "Сюрприз"', price: 6200, description: 'Модные цветы в интересной упаковке', materials: 'Бокс' },
+        { id: 23, title: '«Мишель»', price: 5800, description: 'Яркие розы в праздничной упаковке', materials: 'Бокс' },
+        { id: 24, title: '«Мия»', price: 9500, description: 'Изысканный набор цветов в премиальной коробке', materials: 'Бокс' }
       ]
     }
   },
@@ -170,20 +166,7 @@ export default {
   z-index: 2;
 }
 
-.hero-image {
-  width: 300px;
-  height: 200px;
-  margin: 0 auto 30px;
-  background-color: #A3A3CC;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 18px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
+
 
 .hero h1 {
   font-size: 48px;

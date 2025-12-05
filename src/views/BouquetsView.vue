@@ -28,7 +28,6 @@
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
             <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
-            <button class="product-button" @click.stop="addToCart(product.id)">Заказать</button>
           </div>
         </div>
       </div>
@@ -42,14 +41,14 @@ export default {
   data() {
     return {
       bouquetProducts: [
-        { id: 9, title: 'Романтичный букет роз', price: 6550, description: 'Нежные розы для романтического настроения' },
-        { id: 10, title: 'Свежий полевой букет', price: 4900, description: 'Яркие полевые цветы в естественной композиции' },
-        { id: 11, title: 'Экзотические цветы', price: 8200, description: 'Редкие тропические цветы для особого случая' },
-        { id: 12, title: 'Классические хризантемы', price: 5800, description: 'Элегантные хризантемы в традиционной композиции' },
-        { id: 13, title: 'Весенний тюльпановый букет', price: 4500, description: 'Свежие тюльпаны - символ весны и нежности' },
-        { id: 14, title: 'Свадебная композиция', price: 12500, description: 'Изысканный букет для самого важного дня' },
-        { id: 15, title: 'Летнее разноцветье', price: 6700, description: 'Яркая композиция из сезонных цветов' },
-        { id: 16, title: 'Минималистичный букет', price: 5200, description: 'Современный букет в стиле минимализм' }
+        { id: 9, title: '"Cotton candy"', price: 6550, description: 'Нежные розы для романтического настроения' },
+        { id: 10, title: '«Утро в Париже»', price: 4900, description: 'Яркие цветы в естественной композиции' },
+        { id: 11, title: '"Кружева"', price: 8200, description: 'Редкие цветы для особого случая' },
+        { id: 12, title: '"Passion"', price: 5800, description: 'Элегантные розы' },
+        { id: 13, title: '"Milkshake”', price: 4500, description: 'Свежие розы - символ нежности' },
+        { id: 14, title: '"Apple Jack"', price: 12500, description: 'Букет из премиальных роз' },
+        { id: 15, title: '"Coco Choco"', price: 6700, description: 'Яркая композиция из сезонных цветов' },
+        { id: 16, title: 'Букет из бело-розовых гортензий с эвкалиптом', price: 5200, description: '' }
       ]
     }
   },
@@ -57,15 +56,12 @@ export default {
     formatPrice(price) {
       return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     },
-    addToCart(productId) {
-      alert('Товар добавлен в корзину! ID: ' + productId)
-      console.log('Добавлен товар с ID:', productId)
     },
     goToProduct(productId) {
       this.$router.push(`/product/${productId}`)
     }
   }
-}
+
 </script>
 
 <style scoped>
