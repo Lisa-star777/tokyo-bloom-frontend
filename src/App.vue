@@ -49,4 +49,9 @@ body {
   margin: 0 auto;
   padding: 0 15px;
 }
+
+.product-card {
+  background-color: #9887bc63 !important;
+  border-radius: 5px !important;
+}  
 </style>

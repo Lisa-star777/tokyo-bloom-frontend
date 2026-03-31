@@ -18,7 +18,7 @@
         <!-- Левая колонка - Выбор сертификата -->
         <div class="certificate-selection-section">
           <h1 class="page-title">Выберите сертификат</h1>
-          <p class="page-subtitle">Подарите возможность выбора - подарочный сертификат от Токус Bloom</p>
+          <p class="page-subtitle">Подарите возможность выбора - подарочный сертификат от Tokyo Bloom</p>
 
           <div class="certificates-grid">
             <div 
@@ -31,8 +31,8 @@
               <div class="certificate-value">{{ formatPrice(certificate.value) }} ₽</div>
               <div class="certificate-description">{{ certificate.description }}</div>
               <div class="certificate-features">
-                <div v-for="feature in certificate.features" :key="feature" class="feature">
-                  ✓ {{ feature }}
+                <div class="feature">
+                  Срок действия: {{ certificate.validity }}
                 </div>
               </div>
               <button class="select-button" :class="{ 'selected': selectedCertificate?.id === certificate.id }">
@@ -42,17 +42,17 @@
           </div>
         </div>
 
-        <!-- Правая колонка - Информация о заказе -->
+        <!-- Правая колонка - Информация о заказе и оплата -->
         <div class="order-info-section">
           <div class="order-summary-card" v-if="selectedCertificate">
             <h2 class="summary-title">Ваш заказ</h2>
             
             <div class="selected-certificate">
               <div class="certificate-preview">
-                <div class="certificate-icon">🎁</div>
                 <div class="certificate-details">
                   <div class="certificate-name">Подарочный сертификат</div>
                   <div class="certificate-amount">{{ formatPrice(selectedCertificate.value) }} ₽</div>
+                  <div class="certificate-validity">Срок действия: {{ selectedCertificate.validity }}</div>
                 </div>
               </div>
             </div>
@@ -64,19 +64,75 @@
               <span class="summary-value">{{ formatPrice(selectedCertificate.value) }} ₽</span>
             </div>
 
+            <!-- Форма оплаты картой -->
+            <div class="payment-section">
+              <h3 class="payment-title">Оплата банковской картой</h3>
+              
+              <div class="payment-form">
+                <div class="form-group">
+                  <label class="form-label">Номер карты</label>
+                  <input 
+                    type="text" 
+                    class="payment-input" 
+                    v-model="payment.cardNumber"
+                    placeholder="0000 0000 0000 0000"
+                    maxlength="19"
+                    @input="formatCardNumber"
+                  >
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group half">
+                    <label class="form-label">Срок действия</label>
+                    <input 
+                      type="text" 
+                      class="payment-input" 
+                      v-model="payment.expiry"
+                      placeholder="MM/YY"
+                      maxlength="5"
+                      @input="formatExpiry"
+                    >
+                  </div>
+                  <div class="form-group half">
+                    <label class="form-label">CVV/CVC</label>
+                    <input 
+                      type="password" 
+                      class="payment-input" 
+                      v-model="payment.cvv"
+                      placeholder="***"
+                      maxlength="3"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Имя держателя</label>
+                  <input 
+                    type="text" 
+                    class="payment-input" 
+                    v-model="payment.cardHolder"
+                    placeholder="IVAN IVANOV"
+                  >
+                </div>
+              </div>
+            </div>
+
             <div class="summary-total">
               <span class="total-label">К оплате:</span>
               <span class="total-value">{{ formatPrice(selectedCertificate.value) }} ₽</span>
             </div>
 
-            <button class="submit-order-button" @click="generateCertificate">
-              Оформить сертификат
+            <button 
+              class="submit-order-button" 
+              @click="generateCertificate" 
+              :disabled="isGenerating"
+            >
+              {{ isGenerating ? 'Создание...' : 'Оформить сертификат' }}
             </button>
           </div>
-
+          
           <div class="placeholder-card" v-else>
-            <div class="placeholder-icon">ꕤ</div>
-            <h3 class="placeholder-title">Выберите сертификат</h3>
+            <div class="placeholder-title">Выберите сертификат</div>
             <p class="placeholder-description">Выберите один из вариантов сертификата слева для продолжения оформления</p>
           </div>
         </div>
@@ -90,7 +146,8 @@
         
         <div class="certificate-header">
           <div class="certificate-success-icon">✓</div>
-          <h3>Сертификат успешно создан!</h3>
+          <h3>Оплата прошла успешно!</h3>
+          <p class="modal-subtitle">Сертификат успешно создан</p>
         </div>
 
         <div class="certificate-details-card">
@@ -98,7 +155,7 @@
             <div class="number-label">Номер сертификата:</div>
             <div class="certificate-number">{{ certificateNumber }}</div>
             <button class="copy-button" @click="copyCertificateNumber">
-               Копировать
+              Копировать
             </button>
           </div>
 
@@ -108,42 +165,22 @@
               <span class="info-value">{{ formatPrice(selectedCertificate.value) }} ₽</span>
             </div>
             <div class="info-row">
+              <span class="info-label">Срок действия:</span>
+              <span class="info-value">{{ selectedCertificate.validity }}</span>
+            </div>
+            <div class="info-row">
               <span class="info-label">Дата создания:</span>
               <span class="info-value">{{ currentDate }}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Статус:</span>
-              <span class="info-status">Ожидает оплаты</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="contacts-section">
-          <h4 class="contacts-title">Для согласования и оплаты свяжитесь с нами:</h4>
-          
-          <div class="contact-info">
-            <div class="contact-item">
-              <span class="contact-label">✦ Телефон:</span>
-              <span class="contact-value">+7 (800) 555-35-35</span>
-            </div>
-            <div class="contact-item">
-              <span class="contact-label">✦ Email:</span>
-              <span class="contact-value">certificates@tokusbloom.ru</span>
-            </div>
-            <div class="contact-item">
-              <span class="contact-label">✦ Адрес:</span>
-              <span class="contact-value">г. Владивосток, ул. Шепеткого, д. 14</span>
-            </div>
-            <div class="contact-item">
-              <span class="contact-label">✦ Время работы:</span>
-              <span class="contact-value">Ежедневно с 9:00 до 21:00</span>
+              <span class="info-status">Активен</span>
             </div>
           </div>
         </div>
 
         <div class="modal-notes">
-          <p class="note"> <strong>Сохраните номер сертификата!</strong> Он потребуется для активации после оплаты.</p>
-          <p class="note"><strong> Сертификат действителен в течение 6 месяцев с момента активации.</strong></p>
+          <p class="note">Сохраните номер сертификата! Он потребуется для активации при заказе.</p>
         </div>
 
         <div class="modal-actions">
@@ -157,6 +194,8 @@
 </template>
 
 <script>
+import { cartStore } from '@/stores/cart'
+
 export default {
   name: 'CertificateOrderView',
   data() {
@@ -164,39 +203,31 @@ export default {
       selectedCertificate: null,
       showCertificateModal: false,
       certificateNumber: '',
+      payment: {
+        cardNumber: '',
+        expiry: '',
+        cvv: '',
+        isGenerating: false,  // флаг загрузки
+        cardHolder: ''
+      },
       certificates: [
         {
           id: 1,
           value: 3000,
           description: 'Идеально для небольшого сюрприза',
-          features: [
-            'Небольшой букет или композиция',
-            'Доставка в пределах города',
-            'Срок действия 6 месяцев'
-          ]
+          validity: '6 месяцев'
         },
         {
           id: 2,
           value: 5000,
           description: 'Популярный выбор для любых поводов',
-          features: [
-            'Стандартный букет премиум-класса',
-            'Бесплатная доставка',
-            'Персональное поздравление',
-            'Срок действия 6 месяцев'
-          ]
+          validity: '6 месяцев'
         },
         {
           id: 3,
           value: 10000,
           description: 'Роскошный подарок для особых случаев',
-          features: [
-            'Эксклюзивная цветочная композиция',
-            'Премиум упаковка',
-            'Бесплатная доставка 24/7',
-            'Видео-открытка',
-            'Срок действия 12 месяцев'
-          ]
+          validity: '12 месяцев'
         }
       ]
     }
@@ -208,6 +239,15 @@ export default {
         month: '2-digit',
         year: 'numeric'
       })
+    },
+    isPaymentValid() {
+      // Простая валидация для демонстрации
+      const cardNumber = this.payment.cardNumber.replace(/\s/g, '')
+      const expiryValid = /^\d{2}\/\d{2}$/.test(this.payment.expiry)
+      const cvvValid = /^\d{3}$/.test(this.payment.cvv)
+      const cardHolderValid = this.payment.cardHolder.trim().length >= 3
+      
+      return cardNumber.length === 16 && expiryValid && cvvValid && cardHolderValid
     }
   },
   methods: {
@@ -215,23 +255,52 @@ export default {
       return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     },
     
+    formatCardNumber(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 16) value = value.slice(0, 16)
+      value = value.replace(/(\d{4})/g, '$1 ').trim()
+      this.payment.cardNumber = value
+    },
+    
+    formatExpiry(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 4) value = value.slice(0, 4)
+      if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2)
+      }
+      this.payment.expiry = value
+    },
+    
     selectCertificate(certificate) {
       this.selectedCertificate = certificate
     },
     
-    generateCertificate() {
-      if (!this.selectedCertificate) return
-      
-      // Генерация номера сертификата: CERT-XXXXXX
-      const randomNum = Math.floor(100000 + Math.random() * 900000)
-      this.certificateNumber = `CERT-${randomNum}`
-      
-      this.showCertificateModal = true
-    },
+    async generateCertificate() {
+  if (!this.selectedCertificate) return
+  
+  // Показываем индикатор загрузки
+  this.isGenerating = true
+  
+  try {
+    const newCertificate = await cartStore.createCertificate({
+      value: this.selectedCertificate.value,
+      ownerEmail: null,
+      buyerName: this.currentUser?.name
+    })
     
-    hideCertificateModal() {
-      this.showCertificateModal = false
-    },
+    if (newCertificate) {
+      this.certificateNumber = newCertificate.code
+      this.showCertificateModal = true
+    } else {
+      alert('Ошибка при создании сертификата. Попробуйте позже.')
+    }
+  } catch (error) {
+    console.error('Ошибка:', error)
+    alert('Произошла ошибка. Попробуйте позже.')
+  } finally {
+    this.isGenerating = false
+  }
+},
     
     copyCertificateNumber() {
       navigator.clipboard.writeText(this.certificateNumber)
@@ -239,7 +308,6 @@ export default {
           alert('Номер сертификата скопирован в буфер обмена!')
         })
         .catch(() => {
-          // Fallback для старых браузеров
           const textArea = document.createElement('textarea')
           textArea.value = this.certificateNumber
           document.body.appendChild(textArea)
@@ -248,10 +316,6 @@ export default {
           document.body.removeChild(textArea)
           alert('Номер сертификата скопирован в буфер обмена!')
         })
-    },
-    
-    printCertificate() {
-      window.print()
     },
     
     goToCertificates() {
@@ -317,11 +381,10 @@ export default {
 }
 
 .page-title {
-  font-family: 'Albert Sans', sans-serif;
+  font-family: 'Russo One', sans-serif;
   font-size: 32px;
   color: #292966;
   margin-bottom: 15px;
-  font-weight: 600;
 }
 
 .page-subtitle {
@@ -374,14 +437,13 @@ export default {
   font-family: 'Albert Sans', sans-serif;
   font-size: 16px;
   color: #666;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   font-weight: 500;
   line-height: 1.4;
 }
 
 .certificate-features {
   margin-bottom: 25px;
-  text-align: left;
 }
 
 .feature {
@@ -444,21 +506,11 @@ export default {
 }
 
 .certificate-preview {
-  display: flex;
-  align-items: center;
-  gap: 15px;
   padding: 20px;
   background: white;
   border-radius: 10px;
   border: 2px dashed #A3A3CC;
-}
-
-.certificate-icon {
-  font-size: 40px;
-}
-
-.certificate-details {
-  flex: 1;
+  text-align: center;
 }
 
 .certificate-name {
@@ -470,10 +522,17 @@ export default {
 }
 
 .certificate-amount {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 20px;
+  font-family: 'Russo One', sans-serif;
+  font-size: 28px;
   color: #292966;
-  font-weight: 700;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.certificate-validity {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  color: #666;
 }
 
 .summary-divider {
@@ -502,6 +561,65 @@ export default {
   font-weight: 500;
 }
 
+/* Секция оплаты */
+.payment-section {
+  margin: 20px 0;
+  padding-top: 15px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.payment-title {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 18px;
+  color: #292966;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.payment-form {
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group.half {
+  width: 48%;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+}
+
+.form-label {
+  display: block;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  color: #292966;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.payment-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.payment-input:focus {
+  outline: none;
+  border-color: #A3A3CC;
+  box-shadow: 0 0 0 3px rgba(163, 163, 204, 0.1);
+}
+
 .summary-total {
   display: flex;
   justify-content: space-between;
@@ -526,25 +644,30 @@ export default {
 }
 
 .submit-order-button {
+  width: 100%;
+  padding: 18px 30px;
   background-color: #292966;
   color: white;
   border: none;
-  padding: 18px 30px;
   border-radius: 10px;
   font-family: 'Albert Sans', sans-serif;
   font-weight: 700;
   font-size: 18px;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 100%;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
-.submit-order-button:hover {
+.submit-order-button:hover:not(:disabled) {
   background-color: #1a1a4d;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(41, 41, 102, 0.3);
+}
+
+.submit-order-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .placeholder-card {
@@ -553,11 +676,6 @@ export default {
   padding: 40px 30px;
   border: 2px dashed #A3A3CC;
   text-align: center;
-}
-
-.placeholder-icon {
-  font-size: 48px;
-  margin-bottom: 20px;
 }
 
 .placeholder-title {
@@ -575,7 +693,7 @@ export default {
   line-height: 1.5;
 }
 
-/* Модальное окно сертификата */
+/* Модальное окно */
 .certificate-modal {
   position: fixed;
   top: 0;
@@ -594,12 +712,24 @@ export default {
   background-color: white;
   padding: 40px;
   border-radius: 15px;
-  max-width: 600px;
+  max-width: 450px;
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .close-button {
@@ -608,9 +738,9 @@ export default {
   right: 20px;
   background: none;
   border: none;
-  font-size: 30px;
+  font-size: 28px;
   cursor: pointer;
-  color: #666;
+  color: #999;
   transition: color 0.3s ease;
 }
 
@@ -624,15 +754,30 @@ export default {
 }
 
 .certificate-success-icon {
-  font-size: 48px;
-  margin-bottom: 15px;
+  width: 60px;
+  height: 60px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
 }
 
 .certificate-header h3 {
   font-family: 'Albert Sans', sans-serif;
-  font-size: 28px;
+  font-size: 24px;
   color: #292966;
   font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.modal-subtitle {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  color: #666;
 }
 
 .certificate-details-card {
@@ -657,11 +802,12 @@ export default {
 
 .certificate-number {
   font-family: 'Russo One', sans-serif;
-  font-size: 24px;
+  font-size: 20px;
   color: #292966;
   margin-bottom: 15px;
   font-weight: bold;
   letter-spacing: 1px;
+  word-break: break-all;
 }
 
 .copy-button {
@@ -710,79 +856,35 @@ export default {
 .info-status {
   font-family: 'Albert Sans', sans-serif;
   font-size: 16px;
-  color: #ff6b35;
+  color: #4CAF50;
   font-weight: 600;
-}
-
-.contacts-section {
-  margin-bottom: 25px;
-}
-
-.contacts-title {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 18px;
-  color: #292966;
-  margin-bottom: 20px;
-  font-weight: 600;
-}
-
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.contact-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.contact-label {
-  font-family: 'Albert Sans', sans-serif;
-  font-weight: 600;
-  color: #292966;
-  font-size: 14px;
-}
-
-.contact-value {
-  font-family: 'Albert Sans', sans-serif;
-  color: #666;
-  font-size: 16px;
-  text-align: right;
 }
 
 .modal-notes {
-  background-color: #fff9e6;
+  background-color: #f8f9fa;
   border-radius: 8px;
-  padding: 20px;
+  padding: 15px;
   margin-bottom: 25px;
-  border-left: 4px solid #ffd043;
 }
 
 .note {
   font-family: 'Albert Sans', sans-serif;
   font-size: 14px;
   color: #666;
-  margin-bottom: 10px;
-  line-height: 1.4;
-}
-
-.note:last-child {
   margin-bottom: 0;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .modal-actions {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  justify-content: center;
 }
 
-.print-button,
 .back-button {
-  padding: 15px 20px;
+  padding: 12px 24px;
+  background-color: #292966;
+  color: white;
   border: none;
   border-radius: 8px;
   font-family: 'Albert Sans', sans-serif;
@@ -790,21 +892,6 @@ export default {
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-}
-
-.print-button {
-  background-color: #292966;
-  color: white;
-}
-
-.print-button:hover {
-  background-color: #1a1a4d;
-  transform: translateY(-2px);
-}
-
-.back-button {
-  background-color: #292966;
-  color: white;
 }
 
 .back-button:hover {
@@ -815,7 +902,7 @@ export default {
 /* Адаптивность */
 @media (max-width: 1200px) {
   .certificates-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -851,12 +938,17 @@ export default {
     font-size: 16px;
   }
   
-  .modal-content {
-    padding: 30px 25px;
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
   }
   
-  .certificate-header h3 {
-    font-size: 24px;
+  .form-group.half {
+    width: 100%;
+  }
+  
+  .modal-content {
+    padding: 30px 25px;
   }
 }
 
@@ -865,48 +957,12 @@ export default {
     margin-top: 160px;
   }
   
-  .contact-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+  .certificate-amount {
+    font-size: 24px;
   }
   
-  .contact-value {
-    text-align: left;
-  }
-  
-  .modal-actions {
-    gap: 10px;
-  }
-  
-  .print-button,
-  .back-button {
-    padding: 12px 15px;
-    font-size: 14px;
-  }
-}
-
-@media print {
-  .breadcrumb-section,
-  .certificate-selection-section,
-  .order-info-section,
-  .close-button,
-  .modal-actions {
-    display: none !important;
-  }
-  
-  .certificate-modal {
-    position: static;
-    background: white;
-  }
-  
-  .modal-content {
-    max-width: none;
-    width: auto;
-    height: auto;
-    max-height: none;
-    box-shadow: none;
-    padding: 20px;
+  .total-value {
+    font-size: 24px;
   }
 }
 </style>

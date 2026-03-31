@@ -22,19 +22,31 @@
             <h2 class="form-section-title">1. Контакты получателя</h2>
             
             <div class="form-group">
-              <label class="form-label">Имя получателя</label>
-              <input type="text" class="form-input" placeholder="Иван Иванов">
+              <label class="form-label">Имя получателя *</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                v-model="form.recipientName" 
+                placeholder="Иван Иванов"
+                required
+              >
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Адрес</label>
-                <input type="text" class="form-input" placeholder="ул. Улицы, 12">
+                <label class="form-label">Адрес *</label>
+                <input 
+                  type="text" 
+                  class="form-input" 
+                  v-model="form.address" 
+                  placeholder="ул. Улицы, 12"
+                  required
+                >
               </div>
               
               <div class="form-group">
-                <label class="form-label">Время</label>
-                <select class="form-select">
+                <label class="form-label">Время доставки</label>
+                <select class="form-select" v-model="form.deliveryTime">
                   <option>6:00 - 9:00</option>
                   <option>9:00 - 12:00</option>
                   <option>12:00 - 15:00</option>
@@ -44,24 +56,24 @@
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Тип</label>
-                <select class="form-select">
-                  <option>Номер телефона</option>
-                  <option>Email</option>
-                </select>
-              </div>
-              
-              <div class="form-group">
-                <label class="form-label">Контакт</label>
-                <input type="text" class="form-input" placeholder="+380 (98) 00 00 000">
-              </div>
+            <div class="form-group">
+              <label class="form-label">Контактный телефон *</label>
+              <input 
+                type="tel" 
+                class="form-input" 
+                v-model="form.recipientPhone" 
+                placeholder="+7 (999) 123-45-67"
+                required
+              >
             </div>
 
             <div class="form-group">
               <label class="form-label">Дата доставки</label>
-              <input type="text" class="form-input" placeholder="22.02.2021">
+              <input 
+                type="date" 
+                class="form-input" 
+                v-model="form.deliveryDate"
+              >
             </div>
           </div>
 
@@ -74,15 +86,25 @@
             
             <div class="form-group">
               <label class="form-label">Имя отправителя</label>
-              <input type="text" class="form-input" placeholder="Иван Иванов">
+              <input 
+                type="text" 
+                class="form-input" 
+                v-model="form.senderName" 
+                placeholder="Иван Иванов"
+              >
             </div>
 
             <div class="form-group">
-              <label class="form-label">Номер телефона</label>
-              <input type="text" class="form-input" placeholder="+380 (98) 00 00 000">
+              <label class="form-label">Номер телефона отправителя *</label>  <!-- ← ЗВЁЗДОЧКА -->
+              <input 
+                type="tel" 
+                class="form-input" 
+                v-model="form.senderPhone" 
+                placeholder="+7 (999) 123-45-67"
+                required
+              >
             </div>
           </div>
-
           <!-- Разделитель -->
           <div class="section-divider"></div>
 
@@ -91,9 +113,15 @@
             <h2 class="form-section-title">3. Детали доставки</h2>
             
             <div class="form-group">
-              <label class="form-label">Открытие</label>
-              <textarea class="form-textarea" placeholder="Текст открытия" rows="3"></textarea>
-              <div class="char-counter">До 70 символов</div>
+              <label class="form-label">Открытка</label>
+              <textarea 
+                class="form-textarea" 
+                v-model="form.postcard" 
+                placeholder="Текст открытки" 
+                rows="3"
+                maxlength="70"
+              ></textarea>
+              <div class="char-counter">{{ form.postcard.length }}/70</div>
             </div>
           </div>
         </div>
@@ -104,9 +132,13 @@
             <h2 class="summary-title">Ваш заказ</h2>
             
             <div class="order-items">
-              <div class="order-item">
-                <span class="item-name">25 розовых плюновидных роз</span>
-                <span class="item-price">777 ₽</span>
+              <div v-for="item in cartItems" :key="item.id" class="order-item">
+                <span class="item-name">{{ item.title }}</span>
+                <span class="item-quantity">x{{ item.quantity }}</span>
+                <span class="item-price">{{ formatPrice(item.price * item.quantity) }} ₽</span>
+              </div>
+              <div v-if="cartItems.length === 0" class="empty-cart-message">
+                Корзина пуста
               </div>
             </div>
 
@@ -114,35 +146,158 @@
 
             <div class="summary-row">
               <span class="summary-label">Сумма заказа</span>
-              <span class="summary-value">6000 ₽</span>
+              <span class="summary-value">{{ formatPrice(subtotal) }} ₽</span>
             </div>
 
             <div class="summary-row">
               <span class="summary-label">Доставка</span>
-              <span class="summary-value">100 ₽</span>
+              <span class="summary-value">{{ formatPrice(deliveryCost) }} ₽</span>
+            </div>
+
+            <!-- ===== СЕРТИФИКАТ ===== -->
+            <div class="promo-block">
+              <div class="promo-header">
+                <span class="promo-title">Подарочный сертификат</span>
+              </div>
+              
+              <div v-if="!appliedCertificate" class="promo-input-group">
+                <input 
+                  type="text" 
+                  class="promo-input" 
+                  placeholder="Введите код сертификата"
+                  v-model="certificateCode"
+                >
+                <button 
+                  class="promo-apply-btn" 
+                  @click="applyCertificate"
+                  :disabled="!certificateCode || isApplyingCertificate"
+                >
+                  {{ isApplyingCertificate ? 'Проверка...' : 'Применить' }}
+                </button>
+              </div>
+              
+              <div v-else class="promo-applied">
+                <span class="promo-success">Применен сертификат на {{ formatPrice(appliedCertificate.value) }} ₽</span>
+                <button class="promo-remove-btn" @click="removeCertificate">Удалить</button>
+              </div>
+              
+              <div v-if="certificateError" class="promo-error">
+                {{ certificateError }}
+              </div>
+            </div>
+
+            <!-- ===== СПИСАТЬ БАЛЛЫ ===== -->
+            <div class="promo-block">
+              <div class="promo-header">
+                <span class="promo-title">Бонусные баллы</span>
+                <span class="promo-balance">Доступно: {{ userBonuses }} баллов</span>
+              </div>
+              
+              <div v-if="!bonusApplied" class="promo-input-group">
+                <input 
+                  type="number" 
+                  class="promo-input" 
+                  placeholder="Сколько баллов списать?"
+                  v-model.number="bonusesToSpend"
+                  :max="maxAvailableBonuses"
+                  min="0"
+                >
+                <button 
+                  class="promo-apply-btn" 
+                  @click="applyBonuses"
+                  :disabled="!bonusesToSpend || bonusesToSpend <= 0 || bonusesToSpend > maxAvailableBonuses"
+                >
+                  Списать
+                </button>
+              </div>
+              
+              <div v-else class="promo-applied">
+                <span class="promo-success">Списано {{ bonusDiscount }} баллов ({{ formatPrice(bonusDiscount) }} ₽)</span>
+                <button class="promo-remove-btn" @click="removeBonuses">Отменить</button>
+              </div>
+              
+              <div v-if="bonusError" class="promo-error">
+                {{ bonusError }}
+              </div>
+            </div>
+
+            <!-- ===== ОПЛАТА КАРТОЙ ===== -->
+            <div class="payment-section">
+              <h3 class="payment-title">Оплата банковской картой</h3>
+              
+              <div class="payment-form">
+                <div class="form-group">
+                  <label class="form-label">Номер карты</label>
+                  <input 
+                    type="text" 
+                    class="payment-input" 
+                    v-model="payment.cardNumber"
+                    placeholder="0000 0000 0000 0000"
+                    maxlength="19"
+                    @input="formatCardNumber"
+                  >
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group half">
+                    <label class="form-label">Срок действия</label>
+                    <input 
+                      type="text" 
+                      class="payment-input" 
+                      v-model="payment.expiry"
+                      placeholder="MM/YY"
+                      maxlength="5"
+                      @input="formatExpiry"
+                    >
+                  </div>
+                  <div class="form-group half">
+                    <label class="form-label">CVV/CVC</label>
+                    <input 
+                      type="password" 
+                      class="payment-input" 
+                      v-model="payment.cvv"
+                      placeholder="***"
+                      maxlength="3"
+                    >
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Имя держателя</label>
+                  <input 
+                    type="text" 
+                    class="payment-input" 
+                    v-model="payment.cardHolder"
+                    placeholder="IVAN IVANOV"
+                  >
+                </div>
+              </div>
+
+              <div class="payment-icons">
+                <span class="payment-icon">💳 Visa</span>
+                <span class="payment-icon">💳 Mastercard</span>
+                <span class="payment-icon">💳 Mir</span>
+              </div>
             </div>
 
             <div class="summary-divider"></div>
 
             <div class="summary-total">
-              <span class="total-label">Всего:</span>
-              <span class="total-value">5 304 ₽</span>
+              <span class="total-label">Итого к оплате:</span>
+              <span class="total-value">{{ formatPrice(finalTotal) }} ₽</span>
             </div>
 
-            <button class="submit-order-button" @click="submitOrder">
-              Оформить заказ
-            </button>
-
-            <!-- Сертификат -->
-            <div class="certificate-section">
-              <h3 class="certificate-title">Применить сертификат</h3>
-              <p class="certificate-description">Введите номер подарочного сертификата</p>
-              
-              <div class="certificate-input-group">
-                <input type="text" class="certificate-input" placeholder="Номер сертификата">
-                <button class="apply-button">Применить</button>
-              </div>
+            <div class="bonus-info" v-if="bonusesToEarn > 0">
+              После оплаты будет начислено {{ bonusesToEarn }} баллов
             </div>
+
+              <button 
+                class="submit-order-button" 
+                @click="submitOrder"
+                :disabled="cartItems.length === 0 || !isFormValid || !isPaymentValid"
+              >
+                Оплатить {{ formatPrice(finalTotal) }} ₽
+              </button>
           </div>
         </div>
       </div>
@@ -152,57 +307,394 @@
     <div v-if="showContactsModal" class="contacts-modal" @click="hideContacts">
       <div class="modal-content" @click.stop>
         <button class="close-button" @click="hideContacts">×</button>
-        <h3>Спасибо за заказ!</h3>
-        <p class="modal-subtitle">Ваш заказ успешно оформлен. Для подтверждения свяжитесь с нами:</p>
+        <div class="success-icon">✓</div>
+        <h3>Заказ успешно оформлен!</h3>
+        <p class="modal-subtitle">Ваш заказ №{{ lastOrder?.id }} принят</p>
         
-        <div class="contact-info">
-          <div class="contact-item">
-            <span class="contact-label">📞 Телефон:</span>
-            <span class="contact-value">+7 (800) 555-35-35</span>
+        <div class="order-summary-modal">
+          <div class="summary-item">
+            <span>Сумма заказа:</span>
+            <span class="summary-value">{{ formatPrice(lastOrder?.total) }} ₽</span>
           </div>
-          <div class="contact-item">
-            <span class="contact-label">📧 Email:</span>
-            <span class="contact-value">info@tokusbloom.ru</span>
-          </div>
-          <div class="contact-item">
-            <span class="contact-label">📍 Адрес:</span>
-            <span class="contact-value">г. Владивосток, ул. Шепеткого, д. 14</span>
-          </div>
-          <div class="contact-item">
-            <span class="contact-label">🕒 Время работы:</span>
-            <span class="contact-value">Ежедневно с 9:00 до 21:00</span>
+          <div class="summary-item">
+            <span>Начислено баллов:</span>
+            <span class="bonus-value">
+              {{ lastOrder?.bonuses_earned ? '+' + lastOrder.bonuses_earned : '+' + (lastOrder?.bonusesEarned || 0) }}
+            </span>
           </div>
         </div>
+
+        <p class="modal-note">Мы позвоним вам для подтверждения заказа, а так же отправим уведомление на почту</p>
         
-        <p class="modal-note">Позвоните или напишите нам для подтверждения заказа!</p>
-        
-        <button class="back-to-home-button" @click="goToHome">
-          Вернуться на главную
-        </button>
+        <div class="modal-actions">
+          <button class="view-orders-btn" @click="goToOrders">Мои заказы</button>
+          <button class="back-to-home-btn" @click="goToHome">На главную</button>
+        </div>
       </div>
     </div>
+
+    <!-- Модальное окно авторизации -->
+    <AuthModal 
+      v-if="showAuthModal" 
+      :initial-tab="'login'"
+      @close="closeAuthModal"
+      @login-success="handleLoginSuccess"
+    />
   </div>
 </template>
 
 <script>
+import { cartStore } from '@/stores/cart'
+import { authStore } from '@/stores/auth'
+import AuthModal from '@/components/AuthModal.vue'
+import emailjs from '@emailjs/browser'
+import { EMAILJS_CONFIG } from '@/config/emailjs'
+
 export default {
   name: 'CheckoutView',
+  components: {
+    AuthModal
+  },
   data() {
     return {
-      showContactsModal: false
+      showContactsModal: false,
+      showAuthModal: false,
+      lastOrder: null,
+      certificateCode: '',
+      appliedCertificate: null,
+      certificateError: '',
+      isApplyingCertificate: false,
+      bonusesToSpend: 0,
+      bonusApplied: false,
+      bonusDiscount: 0,
+      bonusError: '',
+      payment: {
+        cardNumber: '',
+        expiry: '',
+        cvv: '',
+        cardHolder: ''
+      },
+      form: {
+        recipientName: '',
+        address: '',
+        deliveryTime: '9:00 - 12:00',
+        recipientPhone: '',
+        deliveryDate: new Date().toISOString().split('T')[0],
+        senderName: '',
+        senderPhone: '',
+        postcard: ''
+      }
     }
   },
+  computed: {
+    cartItems() {
+      return cartStore.getCart()
+    },
+    subtotal() {
+      return cartStore.getTotal()
+    },
+    deliveryCost() {
+      return this.subtotal > 5000 ? 0 : 300
+    },
+    userBonuses() {
+      return this.currentUser?.bonuses || 0
+    },
+    maxAvailableBonuses() {
+      const maxByOrder = Math.floor((this.subtotal + this.deliveryCost) / 2)
+      return Math.min(this.userBonuses, maxByOrder)
+    },
+    bonusesToEarn() {
+      return Math.floor(this.subtotal * 0.1)
+    },
+    finalTotal() {
+      let total = this.subtotal + this.deliveryCost
+      if (this.appliedCertificate) {
+        total = Math.max(0, total - this.appliedCertificate.value)
+      }
+      if (this.bonusDiscount) {
+        total = Math.max(0, total - this.bonusDiscount)
+      }
+      return total
+    },
+    currentUser() {
+      return authStore.getCurrentUser()
+    },
+    isAuthenticated() {
+      return authStore.isAuthenticated()
+    },
+    isFormValid() {
+      return this.form.recipientName && 
+            this.form.address && 
+            this.form.recipientPhone &&
+            this.form.senderPhone    
+    },
+    isPaymentValid() {
+      const cardNumber = this.payment.cardNumber.replace(/\s/g, '')
+      const expiryValid = /^\d{2}\/\d{2}$/.test(this.payment.expiry)
+      const cvvValid = /^\d{3}$/.test(this.payment.cvv)
+      const cardHolderValid = this.payment.cardHolder.trim().length >= 3
+      return cardNumber.length === 16 && expiryValid && cvvValid && cardHolderValid
+    }
+  },
+  mounted() {
+    // Инициализация EmailJS
+    emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY)
+  },
   methods: {
-    submitOrder() {
-      // Здесь обычно отправка данных на сервер
-      // Показываем контакты после оформления
-      this.showContactsModal = true
+    formatPrice(price) {
+      if (price === undefined || price === null) return '0'
+      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    },
+    formatCardNumber(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 16) value = value.slice(0, 16)
+      value = value.replace(/(\d{4})/g, '$1 ').trim()
+      this.payment.cardNumber = value
+    },
+    formatExpiry(event) {
+      let value = event.target.value.replace(/\D/g, '')
+      if (value.length > 4) value = value.slice(0, 4)
+      if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2)
+      }
+      this.payment.expiry = value
+    },
+
+    // ===== МЕТОДЫ ДЛЯ СЕРТИФИКАТА =====
+    async applyCertificate() {
+      if (!this.certificateCode) return
+      this.isApplyingCertificate = true
+      this.certificateError = ''
+      
+      const result = await cartStore.validateCertificate(this.certificateCode)
+      
+      if (result.valid) {
+        this.appliedCertificate = result.certificate
+        this.certificateCode = ''
+        this.certificateError = ''
+      } else {
+        this.certificateError = result.error
+      }
+      this.isApplyingCertificate = false
+    },
+
+    removeCertificate() {
+      this.appliedCertificate = null
+      this.certificateCode = ''
+      this.certificateError = ''
+    },
+
+    // ===== МЕТОДЫ ДЛЯ БАЛЛОВ =====
+    applyBonuses() {
+      if (!this.bonusesToSpend || this.bonusesToSpend <= 0) {
+        this.bonusError = 'Введите количество баллов'
+        return
+      }
+      if (this.bonusesToSpend > this.maxAvailableBonuses) {
+        this.bonusError = `Можно списать не более ${this.maxAvailableBonuses} баллов`
+        return
+      }
+      this.bonusDiscount = this.bonusesToSpend
+      this.bonusApplied = true
+      this.bonusError = ''
+    },
+
+    removeBonuses() {
+      this.bonusDiscount = 0
+      this.bonusApplied = false
+      this.bonusesToSpend = 0
+      this.bonusError = ''
+    },
+
+    // ===== ОТПРАВКА EMAIL =====
+    async sendOrderConfirmation(order) {
+      try {
+        const userEmail = this.currentUser?.email
+        const userName = this.currentUser?.name
+        
+        if (!userEmail) {
+          console.log('❌ Нет email пользователя')
+          return
+        }
+        
+        // Формируем список товаров для письма
+        const orderItemsHtml = order.items.map(item => `
+          <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
+            <strong>${item.title}</strong> - ${item.quantity} шт. x ${this.formatPrice(item.price)} ₽ = ${this.formatPrice(item.price * item.quantity)} ₽
+          </div>
+        `).join('')
+        
+        const templateParams = {
+          to_email: userEmail,
+          customer_name: userName,
+          order_id: order.id,
+          order_date: new Date().toLocaleString('ru-RU'),
+          order_total: this.formatPrice(order.total),
+          order_items: orderItemsHtml,
+          recipient_name: order.delivery_details?.recipientName || '—',
+          delivery_address: order.delivery_details?.address || '—',
+          recipient_phone: order.delivery_details?.recipientPhone || '—',
+          delivery_time: order.delivery_details?.deliveryTime || '—'
+        }
+        
+        console.log('📧 Отправка email на:', userEmail)
+        
+        await emailjs.send(
+          EMAILJS_CONFIG.SERVICE_ID,
+          'template_44lwinv',  // ← ЗАМЕНИТЕ НА ВАШ TEMPLATE ID
+          templateParams
+        )
+        
+        console.log('✅ Email с подтверждением заказа отправлен на', userEmail)
+      } catch (error) {
+        console.error('❌ Ошибка отправки email:', error)
+      }
+    },
+
+    // ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
+    async submitOrder() {
+      console.log('🔵 submitOrder вызван')
+
+      // Проверка авторизации
+      if (!this.isAuthenticated) {
+        console.log('❌ Не авторизован')
+        this.openAuthModal()
+        return
+      }
+      console.log('✅ Авторизован, пользователь:', this.currentUser?.id)
+
+      // Проверка, что корзина не пуста
+      if (this.cartItems.length === 0) {
+        console.log('❌ Корзина пуста')
+        alert('Корзина пуста')
+        this.$router.push('/')
+        return
+      }
+      console.log('✅ В корзине', this.cartItems.length, 'товаров')
+
+      // Проверка заполнения обязательных полей
+      if (!this.isFormValid) {
+        console.log('❌ Форма невалидна')
+        alert('Пожалуйста, заполните все обязательные поля (отмечены *)')
+        return
+      }
+      console.log('✅ Форма валидна')
+
+      // Проверка данных карты
+      if (!this.isPaymentValid) {
+        console.log('❌ Данные карты невалидны')
+        alert('Пожалуйста, заполните данные карты корректно')
+        return
+      }
+      console.log('✅ Данные карты валидны')
+
+      // Расчёт скидки от сертификата
+      let certificateDiscount = 0
+      let certificateData = null
+      if (this.appliedCertificate) {
+        certificateDiscount = Math.min(this.appliedCertificate.value, this.subtotal + this.deliveryCost)
+        certificateData = {
+          code: this.appliedCertificate.code,
+          discount: certificateDiscount,
+          value: this.appliedCertificate.value
+        }
+        console.log('✅ Применён сертификат на', certificateDiscount, '₽')
+      }
+
+      // Списание баллов
+      let bonusesUsed = 0
+      if (this.bonusDiscount) {
+        bonusesUsed = this.bonusDiscount
+        console.log('✅ Списано баллов:', bonusesUsed)
+      }
+
+      console.log('📊 Итоговая сумма:', this.finalTotal, '₽')
+
+      try {
+        console.log('🔄 Создаём заказ...')
+        
+        const order = await cartStore.createOrderFromCart(this.currentUser.id, {
+          name: this.currentUser.name,
+          email: this.currentUser.email,
+          certificateUsed: certificateData,
+          bonusesUsed: bonusesUsed,
+          paymentMethod: 'card',
+          paymentCard: {
+            last4: this.payment.cardNumber.replace(/\s/g, '').slice(-4),
+            cardHolder: this.payment.cardHolder
+          },
+          deliveryDetails: {
+            recipientName: this.form.recipientName,
+            address: this.form.address,
+            deliveryTime: this.form.deliveryTime,
+            recipientPhone: this.form.recipientPhone,
+            deliveryDate: this.form.deliveryDate,
+            senderName: this.form.senderName,
+            senderPhone: this.form.senderPhone,
+            postcard: this.form.postcard
+          }
+        })
+
+        if (order) {
+          console.log('✅ Заказ создан:', order.id)
+
+          // Использование сертификата
+          if (this.appliedCertificate) {
+            await cartStore.useCertificate(
+              this.appliedCertificate.code,
+              this.currentUser.id,
+              order.id
+            )
+            console.log('✅ Сертификат использован')
+          }
+
+          // Списание баллов
+          if (this.bonusDiscount) {
+            await authStore.spendBonuses(this.bonusDiscount)
+            console.log('✅ Баллы списаны')
+          }
+
+          // Начисление баллов за заказ
+          const bonusesToEarn = Math.floor(this.subtotal * 0.1)
+          await authStore.addBonuses(bonusesToEarn)
+          console.log('✅ Баллы начислены')
+
+          // ===== ОТПРАВКА EMAIL =====
+          await this.sendOrderConfirmation(order)
+
+          this.lastOrder = order
+          this.showContactsModal = true
+          console.log('✅ Модальное окно должно открыться')
+
+        } else {
+          console.log('❌ Заказ не создан (order = null)')
+          alert('Не удалось создать заказ. Попробуйте позже.')
+        }
+
+      } catch (error) {
+        console.error('❌ Ошибка при оформлении заказа:', error)
+        alert('Произошла ошибка при оформлении заказа. Попробуйте позже.')
+      }
+    },
+
+    openAuthModal() {
+      this.showAuthModal = true
+    },
+    closeAuthModal() {
+      this.showAuthModal = false
+    },
+    handleLoginSuccess() {
+      this.closeAuthModal()
+      this.submitOrder()
     },
     hideContacts() {
       this.showContactsModal = false
     },
     goToHome() {
       this.$router.push('/')
+    },
+    goToOrders() {
+      this.$router.push('/orders')
     }
   }
 }
@@ -216,7 +708,6 @@ export default {
   padding-bottom: 60px;
 }
 
-/* Хлебные крошки */
 .breadcrumb-section {
   background-color: #ffffff;
   padding: 20px 0;
@@ -251,25 +742,22 @@ export default {
   color: #999;
 }
 
-/* Основной макет */
 .checkout-layout {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 40px;
 }
 
-/* Левая колонка - Форма */
 .checkout-form-section {
   padding-right: 40px;
   border-right: 1px solid #e0e0e0;
 }
 
 .checkout-title {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 32px;
+  font-family: 'Russo One', sans-serif;
+  font-size: 36px;
   color: #292966;
-  margin-bottom: 40px;
-  font-weight: 600;
+  margin-bottom: 30px;
 }
 
 .form-section {
@@ -280,23 +768,23 @@ export default {
   font-family: 'Albert Sans', sans-serif;
   font-size: 20px;
   color: #292966;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   font-weight: 600;
   padding-bottom: 10px;
   border-bottom: 2px solid #A3A3CC;
 }
 
 .form-group {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .form-label {
   display: block;
   font-family: 'Albert Sans', sans-serif;
   font-size: 14px;
-  color: #666;
+  color: #292966;
   margin-bottom: 8px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .form-input,
@@ -307,10 +795,9 @@ export default {
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   font-family: 'Albert Sans', sans-serif;
-  font-size: 16px;
-  color: #292966;
-  background-color: white;
+  font-size: 15px;
   transition: all 0.3s ease;
+  background-color: white;
 }
 
 .form-input:focus,
@@ -323,7 +810,7 @@ export default {
 
 .form-textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 80px;
 }
 
 .char-counter {
@@ -343,10 +830,9 @@ export default {
 .section-divider {
   height: 1px;
   background-color: #e0e0e0;
-  margin: 40px 0;
+  margin: 30px 0;
 }
 
-/* Правая колонка - Итоги */
 .order-summary-section {
   position: sticky;
   top: 140px;
@@ -354,15 +840,15 @@ export default {
 }
 
 .order-summary-card {
-  background-color: #f8f9fa;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 3px solid #A3A3CC;
+  border-radius: 15px;
   padding: 30px;
-  border: 2px solid #A3A3CC;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 .summary-title {
-  font-family: 'Albert Sans', sans-serif;
+  font-family: 'Russo One', sans-serif;
   font-size: 24px;
   color: #292966;
   margin-bottom: 25px;
@@ -372,28 +858,47 @@ export default {
 
 .order-items {
   margin-bottom: 20px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .order-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 0;
+  padding: 12px 0;
   border-bottom: 1px solid #e0e0e0;
 }
 
 .item-name {
+  flex: 2;
   font-family: 'Albert Sans', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   color: #292966;
-  font-weight: 500;
+}
+
+.item-quantity {
+  flex: 0.5;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
 }
 
 .item-price {
+  flex: 1;
   font-family: 'Albert Sans', sans-serif;
-  font-size: 18px;
-  color: #292966;
+  font-size: 14px;
   font-weight: 600;
+  color: #292966;
+  text-align: right;
+}
+
+.empty-cart-message {
+  text-align: center;
+  padding: 20px;
+  font-family: 'Albert Sans', sans-serif;
+  color: #666;
 }
 
 .summary-divider {
@@ -417,23 +922,195 @@ export default {
 
 .summary-value {
   font-family: 'Albert Sans', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   color: #292966;
   font-weight: 500;
+}
+
+.promo-block {
+  margin: 20px 0;
+  padding: 12px 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+.promo-block:first-child {
+  border-top: none;
+}
+
+.promo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.promo-title {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #292966;
+}
+
+.promo-balance {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 12px;
+  color: #666;
+}
+
+.promo-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.promo-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.promo-input:focus {
+  outline: none;
+  border-color: #A3A3CC;
+}
+
+.promo-apply-btn {
+  padding: 12px 24px;
+  background-color: #292966;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Albert Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.promo-apply-btn:hover:not(:disabled) {
+  background-color: #1a1a4d;
+  transform: translateY(-2px);
+}
+
+.promo-apply-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.promo-applied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+}
+
+.promo-success {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.promo-remove-btn {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.promo-remove-btn:hover {
+  color: #ff5252;
+  text-decoration: underline;
+}
+
+.promo-error {
+  margin-top: 8px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 12px;
+  color: #ff6b6b;
+}
+
+.payment-section {
+  margin: 20px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 2px solid #A3A3CC;
+}
+
+.payment-title {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 18px;
+  color: #292966;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.payment-form {
+  margin-bottom: 20px;
+}
+
+.payment-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.payment-input:focus {
+  outline: none;
+  border-color: #A3A3CC;
+  box-shadow: 0 0 0 3px rgba(163, 163, 204, 0.1);
+}
+
+.payment-icons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.payment-icon {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 12px;
+  color: #666;
+  padding: 4px 8px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
 }
 
 .summary-total {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin: 25px 0;
-  padding-top: 20px;
+  align-items: baseline;
+  margin: 20px 0;
+  padding-top: 15px;
   border-top: 2px solid #292966;
 }
 
 .total-label {
   font-family: 'Albert Sans', sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   color: #292966;
   font-weight: 600;
 }
@@ -445,92 +1122,50 @@ export default {
   font-weight: bold;
 }
 
+.bonus-info {
+  text-align: center;
+  padding: 10px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  color: #4CAF50;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
 .submit-order-button {
+  width: 100%;
+  padding: 18px;
   background-color: #292966;
   color: white;
   border: none;
-  padding: 18px 30px;
   border-radius: 10px;
   font-family: 'Albert Sans', sans-serif;
   font-weight: 700;
   font-size: 18px;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 100%;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 30px;
 }
 
-.submit-order-button:hover {
+.submit-order-button:hover:not(:disabled) {
   background-color: #1a1a4d;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(41, 41, 102, 0.3);
 }
 
-/* Секция сертификата */
-.certificate-section {
-  padding-top: 25px;
-  border-top: 1px solid #e0e0e0;
+.submit-order-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-.certificate-title {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 18px;
-  color: #292966;
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-
-.certificate-description {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 15px;
-}
-
-.certificate-input-group {
-  display: flex;
-  gap: 10px;
-}
-
-.certificate-input {
-  flex: 1;
-  padding: 12px 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 14px;
-  color: #292966;
-}
-
-.apply-button {
-  background-color: #A3A3CC;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-family: 'Albert Sans', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.apply-button:hover {
-  background-color: #9292c2;
-  transform: translateY(-2px);
-}
-
-/* Модальное окно контактов */
 .contacts-modal {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -539,13 +1174,19 @@ export default {
 }
 
 .modal-content {
-  background-color: white;
+  background: white;
+  border-radius: 20px;
   padding: 40px;
-  border-radius: 15px;
-  max-width: 500px;
+  max-width: 450px;
   width: 90%;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .close-button {
@@ -554,9 +1195,9 @@ export default {
   right: 20px;
   background: none;
   border: none;
-  font-size: 30px;
+  font-size: 28px;
   cursor: pointer;
-  color: #666;
+  color: #999;
   transition: color 0.3s ease;
 }
 
@@ -564,51 +1205,61 @@ export default {
   color: #292966;
 }
 
+.success-icon {
+  width: 60px;
+  height: 60px;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
 .modal-content h3 {
   font-family: 'Albert Sans', sans-serif;
-  font-size: 28px;
+  font-size: 24px;
   color: #292966;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   text-align: center;
   font-weight: 600;
 }
 
 .modal-subtitle {
   font-family: 'Albert Sans', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   color: #666;
   text-align: center;
-  margin-bottom: 30px;
-  line-height: 1.5;
+  margin-bottom: 20px;
 }
 
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-bottom: 25px;
+.order-summary-modal {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 2px solid #A3A3CC;
 }
 
-.contact-item {
+.summary-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 8px 0;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 16px;
 }
 
-.contact-label {
-  font-family: 'Albert Sans', sans-serif;
+.summary-item .summary-value {
   font-weight: 600;
   color: #292966;
-  font-size: 14px;
 }
 
-.contact-value {
-  font-family: 'Albert Sans', sans-serif;
-  color: #666;
-  font-size: 16px;
-  text-align: right;
+.bonus-value {
+  color: #4CAF50;
+  font-weight: 600;
 }
 
 .modal-note {
@@ -616,51 +1267,97 @@ export default {
   font-size: 14px;
   color: #666;
   text-align: center;
+  margin-bottom: 15px;
   font-style: italic;
-  margin: 20px 0;
 }
 
-.back-to-home-button {
-  background-color: #A3A3CC;
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  border-radius: 8px;
+.contact-info {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.contact-item:last-child {
+  border-bottom: none;
+}
+
+.contact-label {
   font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  color: #292966;
   font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
+}
+
+.contact-value {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  color: #666;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
   margin-top: 20px;
 }
 
-.back-to-home-button:hover {
-  background-color: #9292c2;
+.view-orders-btn,
+.back-to-home-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-orders-btn {
+  background-color: #292966;
+  color: white;
+  border: none;
+}
+
+.view-orders-btn:hover {
+  background-color: #1a1a4d;
   transform: translateY(-2px);
 }
 
-/* Адаптивность */
+.back-to-home-btn {
+  background-color: white;
+  color: #292966;
+  border: 2px solid #292966;
+}
+
+.back-to-home-btn:hover {
+  background-color: #292966;
+  color: white;
+  transform: translateY(-2px);
+}
+
 @media (max-width: 992px) {
   .checkout-layout {
     grid-template-columns: 1fr;
     gap: 30px;
   }
-  
   .checkout-form-section {
     padding-right: 0;
     border-right: none;
     border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 40px;
+    padding-bottom: 30px;
   }
-  
   .order-summary-section {
     position: static;
-  }
-  
-  .form-row {
-    grid-template-columns: 1fr;
-    gap: 15px;
   }
 }
 
@@ -668,25 +1365,47 @@ export default {
   .checkout-page {
     margin-top: 140px;
   }
-  
   .checkout-title {
     font-size: 28px;
   }
-  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
   .form-section-title {
     font-size: 18px;
   }
-  
-  .summary-title {
-    font-size: 22px;
-  }
-  
   .modal-content {
-    padding: 30px 25px;
+    padding: 30px 20px;
   }
-  
-  .modal-content h3 {
-    font-size: 24px;
+  .modal-actions {
+    flex-direction: column;
+  }
+  .order-item {
+    flex-wrap: wrap;
+  }
+  .item-name {
+    flex: 1 1 100%;
+    margin-bottom: 5px;
+  }
+  .item-quantity {
+    text-align: left;
+  }
+  .promo-input-group {
+    flex-direction: column;
+  }
+  .promo-apply-btn {
+    width: 100%;
+  }
+  .promo-applied {
+    flex-direction: column;
+    text-align: center;
+  }
+  .form-row {
+    flex-direction: column;
+  }
+  .form-group.half {
+    width: 100%;
   }
 }
 
@@ -694,21 +1413,17 @@ export default {
   .checkout-page {
     margin-top: 160px;
   }
-  
   .checkout-title {
     font-size: 24px;
   }
-  
-  .certificate-input-group {
-    flex-direction: column;
+  .total-value {
+    font-size: 24px;
   }
-  
   .contact-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
   }
-  
   .contact-value {
     text-align: left;
   }

@@ -19,30 +19,40 @@
         <div class="product-layout">
           <!-- Изображение товара -->
           <div class="product-image">
-            <img :src="currentProduct.image" :alt="currentProduct.title">
+            <img 
+              v-if="currentProduct.image_url" 
+              :src="currentProduct.image_url" 
+              :alt="currentProduct.title"
+              class="product-img"
+            >
+            <div v-else class="image-placeholder">{{ currentProduct.title }}</div>
           </div>
 
           <!-- Информация о товаре -->
           <div class="product-info">
             <h1 class="product-title">{{ currentProduct.title }}</h1>
             
-            <div class="availability">
-              <span class="available">В наличии</span>
-            </div>
+            
 
             <div class="product-price">
               {{ formatPrice(currentProduct.price) }} ₽
             </div>
 
-            
-
             <div class="product-materials">
-              <strong>Материалы</strong>
-              <p>{{ currentProduct.materials }}</p>
+              <strong>Состав: </strong>
+              <p>{{ currentProduct.materials || 'Не указаны' }}</p>
             </div>
 
-          
-
+            <!-- Кнопки действий -->
+            <div class="product-actions">
+              <button class="add-to-cart-btn" @click="addToCart(currentProduct)">
+                <span class="btn-icon"></span>
+                В корзину
+              </button>
+              <button class="buy-now-btn" @click="buyNow(currentProduct)">
+                Купить сейчас
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -54,14 +64,24 @@
         <h2 class="recommended-title">К букету можно добавить</h2>
         
         <div class="recommended-grid">
-          <div v-for="product in recommendedProducts" :key="product.id" class="recommended-card" @click="goToProduct(product.id)">
+          <div 
+            v-for="product in recommendedProducts" 
+            :key="product.id" 
+            class="recommended-card" 
+            @click="goToProduct(product.id)"
+          >
             <div class="recommended-badge" v-if="product.isTop">TOP</div>
             <div class="recommended-image">
-              <img :src="product.image" :alt="product.title">
+              <img 
+                v-if="product.image_url" 
+                :src="product.image_url" 
+                :alt="product.title"
+              >
+              <div v-else class="image-placeholder-sm">{{ product.title }}</div>
             </div>
             <h3 class="recommended-product-title">{{ product.title }}</h3>
             <div class="recommended-price">{{ formatPrice(product.price) }} ₽</div>
-            <button class="recommended-order-button" @click="goToProduct(product.id)">
+            <button class="recommended-order-button" @click.stop="goToProduct(product.id)">
               Посмотреть
             </button>
           </div>
@@ -72,109 +92,103 @@
 </template>
 
 <script>
+import { adminStore } from '@/stores/admin'
+import { cartStore } from '@/stores/cart'
+
 export default {
   name: 'ProductView',
   data() {
     return {
-      // Все товары из всех категорий
-      allProducts: [
-        // Букеты (id: 9-16)
-        { id: 9, title: '"Cotton candy"', price: 6550, description: 'Нежные розы для романтического настроения' },
-        { id: 10, title: '«Утро в Париже»', price: 4900, description: 'Яркие цветы в естественной композиции' },
-        { id: 11, title: '"Кружева"', price: 8200, description: 'Редкие цветы для особого случая' },
-        { id: 12, title: '"Passion"', price: 5800, description: 'Элегантные розы' },
-        { id: 13, title: '"Milkshake”', price: 4500, description: 'Свежие розы - символ нежности' },
-        { id: 14, title: '"Apple Jack"', price: 12500, description: 'Букет из премиальных роз' },
-        { id: 15, title: '"Coco Choco"', price: 6700, description: 'Яркая композиция из сезонных цветов' },
-        { id: 16, title: 'Букет из бело-розовых гортензий с эвкалиптом', price: 5200, description: '' },
-
-        // Подарки (id: 1-8)
-        { id: 1, title: 'Огромный плюшевый медведь Степан', price: 7777, description: 'Медведь, котрой понравиться каждому' },
-        { id: 2, title: 'Корзина "Red"', price: 2777, description: 'Корзина для души сладкоежки' },
-        { id: 3, title: 'Свеча ароматическая 100 мл', price: 1400, description: 'Премиальная свеча на любой запах' },
-        { id: 4, title: 'Корзина "Tea Time"', price: 4550, description: 'Корзина подходящаяя для лучшего чаепития' },
-        { id: 5, title: 'Плитка бельгийского шоколада', price: 1000, description: 'Изысканный шоколад для самых близких' },
-        { id: 6, title: 'Сырное плато S', price: 2800, description: 'Яркая композиция для романтического вечера' },
-        { id: 7, title: 'Связка гелиевых шаров "So this is love"', price: 1500, description: 'Лучшее дополнение для лучших поздравлений' },
-        { id: 8, title: 'Связка гелиевых шаров "Красотка"', price: 2500, description: 'Для того, чтобы порадовать свою любимую крастоку' },
-
-        // Цветы в коробках (id: 17-24)
-        { id: 17, title: '"Дейнерис"', price: 7200, description: 'Элегантные белые розы в стильной коробке', materials: 'Бокс' },
-        { id: 18, title: '«Батори»', price: 6800, description: 'Пушистые розы в романтичной упаковке', materials: 'Бокс' },
-        { id: 19, title: '"Монако"', price: 8900, description: 'Разнообразие цветов в стильной коробке', materials: 'Бокс' },
-        { id: 20, title: '"La Crème"', price: 5500, description: 'Яркие и разные цветы в современной прозрачной упаковке', materials: 'Бокс' },
-        { id: 21, title: '"Moon"', price: 7500, description: 'Чистые белые хризантемы в минималистичной коробке', materials: 'Бокс' },
-        { id: 22, title: 'Сумочка "Сюрприз"', price: 6200, description: 'Модные цветы в интересной упаковке', materials: 'Бокс' },
-        { id: 23, title: '«Мишель»', price: 5800, description: 'Яркие розы в праздничной упаковке', materials: 'Бокс' },
-        { id: 24, title: '«Мия»', price: 9500, description: 'Изысканный набор цветов в премиальной коробке', materials: 'Бокс' }
-      ],
-      
-      // Рекомендуемые товары (можно менять логику подбора)
-      recommendedProducts: [
-        { id: 3, title: 'Свеча ароматическая 100 мл', price: 1400, description: 'Премиальная свеча на любой запах' },
-        { id: 4, title: 'Корзина "Tea Time"', price: 4550, description: 'Корзина подходящаяя для лучшего чаепития' },
-        { id: 5, title: 'Плитка бельгийского шоколада', price: 1000, description: 'Изысканный шоколад для самых близких' },
-        { id: 6, title: 'Сырное плато S', price: 2800, description: 'Яркая композиция для романтического вечера' },
-        { id: 7, title: 'Связка гелиевых шаров "So this is love"', price: 1500, description: 'Лучшее дополнение для лучших поздравлений' },
-      ]
+      loading: true,
+      allProducts: []
     }
   },
   computed: {
-    // Текущий товар на основе ID из URL
     currentProduct() {
-      const productId = parseInt(this.$route.params.id);
-      const product = this.allProducts.find(p => p.id === productId);
+      if (!this.allProducts || !Array.isArray(this.allProducts)) {
+        return {
+          id: 0,
+          title: 'Товар не найден',
+          price: 0,
+          description: 'Извините, товар не найден',
+          materials: 'Не указано',
+          category: 'Неизвестно',
+          image_url: null
+        }
+      }
+      const productId = parseInt(this.$route.params.id)
+      const product = this.allProducts.find(p => p.id === productId)
       
-      // Если товар не найден, показываем заглушку
       return product || {
         id: 0,
         title: 'Товар не найден',
         price: 0,
         description: 'Извините, товар не найден',
-        category: 'Неизвестно',
         materials: 'Не указано',
-        fullDescription: 'Запрошенный товар не существует или был удален',
-        image: '/images/products/not-found.jpg'
-      };
-    },
-    
-    // Ссылка для хлебных крошек
-    breadcrumbLink() {
-      const category = this.currentProduct.category;
-      switch(category) {
-        case 'Букеты': return '/bouquets';
-        case 'Подарки': return '/gifts';
-        case 'Цветы в коробках': return '/box-flowers';
-        default: return '/';
+        category: 'Неизвестно',
+        image_url: null
       }
     },
     
-    // Название категории для хлебных крошек
     breadcrumbCategory() {
-      return this.currentProduct.category;
+      const category = this.currentProduct.category
+      switch(category) {
+        case 'bouquets': return 'Букеты'
+        case 'gifts': return 'Подарки'
+        case 'box-flowers': return 'Цветы в коробках'
+        default: return 'Каталог'
+      }
+    },
+    
+    breadcrumbLink() {
+      const category = this.currentProduct.category
+      switch(category) {
+        case 'bouquets': return '/bouquets'
+        case 'gifts': return '/gifts'
+        case 'box-flowers': return '/box-flowers'
+        default: return '/'
+      }
+    },
+    
+    recommendedProducts() {
+      if (!this.allProducts || !Array.isArray(this.allProducts)) return []
+      // Исключаем текущий товар и берем первые 5
+      return this.allProducts
+        .filter(p => p.id !== this.currentProduct.id)
+        .slice(0, 5)
     }
+  },
+  async mounted() {
+    await this.loadProducts()
   },
   methods: {
+    async loadProducts() {
+      this.loading = true
+      try {
+        const products = await adminStore.getProducts()
+        this.allProducts = Array.isArray(products) ? products : []
+        console.log('📦 Загружено товаров для ProductView:', this.allProducts.length)
+      } catch (error) {
+        console.error('Ошибка загрузки товаров:', error)
+        this.allProducts = []
+      } finally {
+        this.loading = false
+      }
+    },
     formatPrice(price) {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      if (!price && price !== 0) return '0'
+      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     },
-    
     goToProduct(productId) {
-      this.$router.push(`/product/${productId}`);
+      this.$router.push(`/product/${productId}`)
     },
-    
-    goToCheckout() {
-      this.$router.push('/checkout');
-    }
-  },
-  watch: {
-    // При изменении ID в URL перезагружаем данные
-    '$route.params.id': {
-      handler() {
-        // Здесь можно добавить логику загрузки данных
-        console.log('ID товара изменен:', this.$route.params.id);
-      },
-      immediate: true
+    addToCart(product) {
+      cartStore.addItem(product, 1)
+      alert(`✅ Товар "${product.title}" добавлен в корзину!`)
+    },
+    buyNow(product) {
+      cartStore.addItem(product, 1)
+      this.$router.push('/checkout')
     }
   }
 }
@@ -240,12 +254,28 @@ export default {
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.product-image img {
+.product-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  padding: 10px;
 }
 
 .product-info {
@@ -253,8 +283,8 @@ export default {
 }
 
 .product-title {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 32px;
+  font-family: 'Russo One', sans-serif;  
+  font-size: 47px;
   color: #292966;
   margin-bottom: 20px;
   font-weight: 600;
@@ -276,67 +306,77 @@ export default {
 }
 
 .product-price {
-  font-family: 'Russo One', sans-serif;
-  font-size: 48px;
+  font-family: 'Albert Sans', sans-serif; 
+  font-size: 42px;
   color: #292966;
   margin-bottom: 30px;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-.product-category,
-.product-materials,
-.product-description {
-  margin-bottom: 25px;
+.product-materials {
+  margin-bottom: 28px;
 }
 
-.product-category strong,
-.product-materials strong,
-.product-description strong {
+.product-materials strong {
   font-family: 'Albert Sans', sans-serif;
-  font-size: 18px;
+  font-size: 22px;
   color: #292966;
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
 }
 
-.product-category p,
-.product-materials p,
-.product-description p {
+.product-materials p {
   font-family: 'Albert Sans', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   color: #666;
   margin: 0;
   line-height: 1.5;
 }
 
-.order-button {
-  background-color: #292966;
-  color: white;
-  border: none;
-  padding: 20px 40px;
-  border-radius: 10px;
-  font-family: 'Albert Sans', sans-serif;
-  font-weight: 700;
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 30px;
+/* Кнопки действий */
+.product-actions {
+  display: flex;
+  gap: 15px;
+  margin: 30px 0;
 }
 
-.order-button:hover {
-  background-color: #1a1a4d;
+.add-to-cart-btn,
+.buy-now-btn {
+  flex: 1;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: white;
+  color: #292966;
+  border: 2px solid #292966;
+}
+
+.add-to-cart-btn:hover,
+.buy-now-btn:hover {
+  background-color: #292966;
+  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(41, 41, 102, 0.3);
+  box-shadow: 0 8px 20px rgba(41, 41, 102, 0.2);
+}
+
+.btn-icon {
+  font-size: 20px;
 }
 
 /* Секция рекомендованных товаров */
 .recommended-section {
   padding: 60px 0;
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   border-top: 3px solid #292966;
 }
 
@@ -356,8 +396,8 @@ export default {
 }
 
 .recommended-card {
-  background-color: #B8B8B8;
-  border-radius: 12px;
+  background-color: #9887bc63;
+  border-radius: 5px;
   padding: 20px;
   text-align: center;
   position: relative;
@@ -389,11 +429,14 @@ export default {
 
 .recommended-image {
   width: 100%;
-  height: 120px;
+  height: 170px;
   background-color: #A3A3CC;
   border-radius: 8px;
   margin-bottom: 15px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .recommended-image img {
@@ -401,6 +444,19 @@ export default {
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
+}
+
+.image-placeholder-sm {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 10px;
+  text-align: center;
+  padding: 5px;
 }
 
 .recommended-card:hover .recommended-image img {
@@ -493,6 +549,17 @@ export default {
   .recommended-title {
     font-size: 24px;
   }
+  
+  .product-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .add-to-cart-btn,
+  .buy-now-btn {
+    padding: 14px;
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -512,11 +579,6 @@ export default {
   
   .product-price {
     font-size: 32px;
-  }
-  
-  .order-button {
-    padding: 16px 30px;
-    font-size: 16px;
   }
 }
 </style>

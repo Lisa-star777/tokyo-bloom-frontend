@@ -1,6 +1,6 @@
 <template>
   <div class="catalog-page">
-    <!-- Верхняя часть над карточками -->
+    <!-- Верхняя часть -->
     <section class="catalog-top-section">
       <div class="container">
         <div class="catalog-header">
@@ -10,7 +10,7 @@
       </div>
     </section>
 
-    <!-- Полоска между подзаголовком и каталогом -->
+    <!-- Полоска -->
     <div class="catalog-divider-container">
       <div class="container">
         <div class="catalog-divider"></div>
@@ -20,10 +20,25 @@
     <!-- Сетка товаров -->
     <section class="catalog-products-section">
       <div class="container">
-        <div class="products-grid">
-          <div v-for="product in bouquetProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+        <div v-if="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Загрузка товаров...</p>
+        </div>
+        <div v-else class="products-grid">
+          <div 
+            v-for="product in bouquetProducts" 
+            :key="product.id" 
+            class="product-card" 
+            @click="goToProduct(product.id)"
+          >
             <div class="product-image">
-              <div class="image-placeholder">{{ product.title }}</div>
+              <img 
+                v-if="product.image_url" 
+                :src="product.image_url" 
+                :alt="product.title"
+                class="product-img"
+              >
+              <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
@@ -36,32 +51,47 @@
 </template>
 
 <script>
+import { adminStore } from '@/stores/admin'
+
 export default {
   name: 'BouquetsView',
   data() {
     return {
-      bouquetProducts: [
-        { id: 9, title: '"Cotton candy"', price: 6550, description: 'Нежные розы для романтического настроения' },
-        { id: 10, title: '«Утро в Париже»', price: 4900, description: 'Яркие цветы в естественной композиции' },
-        { id: 11, title: '"Кружева"', price: 8200, description: 'Редкие цветы для особого случая' },
-        { id: 12, title: '"Passion"', price: 5800, description: 'Элегантные розы' },
-        { id: 13, title: '"Milkshake”', price: 4500, description: 'Свежие розы - символ нежности' },
-        { id: 14, title: '"Apple Jack"', price: 12500, description: 'Букет из премиальных роз' },
-        { id: 15, title: '"Coco Choco"', price: 6700, description: 'Яркая композиция из сезонных цветов' },
-        { id: 16, title: 'Букет из бело-розовых гортензий с эвкалиптом', price: 5200, description: '' }
-      ]
+      loading: true,
+      allProducts: []
     }
   },
+  computed: {
+    bouquetProducts() {
+      if (!this.allProducts || !Array.isArray(this.allProducts)) return []
+      return this.allProducts.filter(p => p.category === 'bouquets')
+    }
+  },
+  async mounted() {
+    await this.loadProducts()
+  },
   methods: {
-    formatPrice(price) {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+    async loadProducts() {
+      this.loading = true
+      try {
+        this.allProducts = await adminStore.getProducts()
+        console.log('📦 Загружено товаров для BouquetsView:', this.allProducts.length)
+      } catch (error) {
+        console.error('Ошибка загрузки товаров:', error)
+        this.allProducts = []
+      } finally {
+        this.loading = false
+      }
     },
+    formatPrice(price) {
+      if (!price && price !== 0) return '0'
+      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     },
     goToProduct(productId) {
       this.$router.push(`/product/${productId}`)
     }
   }
-
+}
 </script>
 
 <style scoped>
@@ -70,7 +100,28 @@ export default {
   min-height: 100vh;
 }
 
-/* Верхняя часть над карточками */
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 18px;
+  color: #666;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #292966;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .catalog-top-section {
   background-color: #ffffff;
   padding: 40px 0;
@@ -103,13 +154,10 @@ export default {
   font-weight: 500;
 }
 
-/* Контейнер для полоски */
 .catalog-divider-container {
   background-color: #ffffff;
   padding: 0;
 }
-
-
 
 .catalog-products-section {
   padding: 20px 0 60px;
@@ -123,13 +171,12 @@ export default {
   margin: 0 auto;
 }
 
-/* Стили для карточек товаров */
 .product-card {
   background-color: #B8B8B8;
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  min-height: 380px;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
@@ -144,12 +191,21 @@ export default {
 
 .product-image {
   width: 100%;
-  height: 200px;
+  height: 250px;
   background-color: #A3A3CC;
   border-radius: 8px;
   margin-bottom: 15px;
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .image-placeholder {
@@ -168,7 +224,7 @@ export default {
 .product-title {
   font-family: 'Albert Sans', sans-serif;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 25px;
   margin-bottom: 10px;
   color: #292966;
   line-height: 1.3;
@@ -191,26 +247,6 @@ export default {
   margin-bottom: 15px;
 }
 
-.product-button {
-  background-color: #A3A3CC;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-family: 'Albert Sans', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: auto;
-}
-
-.product-button:hover {
-  background-color: #9292c2;
-  transform: translateY(-2px);
-}
-
-/* Адаптивность */
 @media (max-width: 1200px) {
   .products-grid {
     grid-template-columns: repeat(3, 1fr);

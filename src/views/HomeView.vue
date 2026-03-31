@@ -20,7 +20,13 @@
         <div class="products-grid">
           <div v-for="product in promotionProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <div class="product-image">
-              <div class="image-placeholder">{{ product.title }}</div>
+              <img 
+                v-if="product.image_url" 
+                :src="product.image_url" 
+                :alt="product.title"
+                class="product-img"
+              >
+              <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
             <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
@@ -34,9 +40,15 @@
       <div class="container">
         <h2 class="section-title">Букеты</h2>
         <div class="products-grid">
-          <div v-for="product in bouquetProducts.slice(0, 4)" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+          <div v-for="product in bouquetProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <div class="product-image">
-              <div class="image-placeholder">{{ product.title }}</div>
+              <img 
+                v-if="product.image_url" 
+                :src="product.image_url" 
+                :alt="product.title"
+                class="product-img"
+              >
+              <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
@@ -44,7 +56,7 @@
           </div>
         </div>
         <div class="section-footer">
-          <router-link to="/bouquets" class="view-more-link">Смотреть больше ❤</router-link>
+          <router-link to="/bouquets" class="view-more-link">Смотреть больше </router-link>
         </div>
       </div>
     </section>
@@ -54,9 +66,15 @@
       <div class="container">
         <h2 class="section-title">Подарки</h2>
         <div class="products-grid">
-          <div v-for="product in giftProducts.slice(0, 4)" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+          <div v-for="product in giftProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <div class="product-image">
-              <div class="image-placeholder">{{ product.title }}</div>
+              <img 
+                v-if="product.image_url" 
+                :src="product.image_url" 
+                :alt="product.title"
+                class="product-img"
+              >
+              <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
@@ -64,7 +82,7 @@
           </div>
         </div>
         <div class="section-footer">
-          <router-link to="/gifts" class="view-more-link">Смотреть больше ❤</router-link>
+          <router-link to="/gifts" class="view-more-link">Смотреть больше </router-link>
         </div>
       </div>
     </section>
@@ -74,9 +92,15 @@
       <div class="container">
         <h2 class="section-title">Цветы в коробках</h2>
         <div class="products-grid">
-          <div v-for="product in boxProducts.slice(0, 4)" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+          <div v-for="product in boxProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <div class="product-image">
-              <div class="image-placeholder">{{ product.title }}</div>
+              <img 
+                v-if="product.image_url" 
+                :src="product.image_url" 
+                :alt="product.title"
+                class="product-img"
+              >
+              <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
             <p class="product-description">{{ product.description }}</p>
@@ -84,7 +108,7 @@
           </div>
         </div>
         <div class="section-footer">
-          <router-link to="/box-flowers" class="view-more-link">Смотреть больше ❤</router-link>
+          <router-link to="/box-flowers" class="view-more-link">Смотреть больше </router-link>
         </div>
       </div>
     </section>
@@ -92,55 +116,53 @@
 </template>
 
 <script>
+import { adminStore } from '@/stores/admin'
+
 export default {
   name: 'HomeView',
   data() {
     return {
-      promotionProducts: [
-        { id: 1, title: '25 плечевидных роз', price: 7777, description: 'Роскошный букет из свежих роз' },
-        { id: 2, title: '26 плечевидных роз', price: 7777, description: 'Эксклюзивный букет' },
-        { id: 3, title: '25 плечевидных роз', price: 7777, description: 'Свадебный букет' },
-        { id: 4, title: '25 плечевидных роз', price: 7777, description: 'Праздничная композиция' }
-      ],
-      bouquetProducts: [
-        { id: 9, title: '"Cotton candy"', price: 6550, description: 'Нежные розы для романтического настроения' },
-        { id: 10, title: '«Утро в Париже»', price: 4900, description: 'Яркие цветы в естественной композиции' },
-        { id: 11, title: '"Кружева"', price: 8200, description: 'Редкие цветы для особого случая' },
-        { id: 12, title: '"Passion"', price: 5800, description: 'Элегантные розы' },
-        { id: 13, title: '"Milkshake”', price: 4500, description: 'Свежие розы - символ нежности' },
-        { id: 14, title: '"Apple Jack"', price: 12500, description: 'Букет из премиальных роз' },
-        { id: 15, title: '"Coco Choco"', price: 6700, description: 'Яркая композиция из сезонных цветов' },
-        { id: 16, title: 'Букет из бело-розовых гортензий с эвкалиптом', price: 5200, description: '' }
-      ],
-      giftProducts: [
-        { id: 1, title: 'Огромный плюшевый медведь Степан', price: 7777, description: 'Медведь, котрой понравиться каждому' },
-        { id: 2, title: 'Корзина "Red"', price: 2777, description: 'Корзина для души сладкоежки' },
-        { id: 3, title: 'Свеча ароматическая 100 мл', price: 1400, description: 'Премиальная свеча на любой запах' },
-        { id: 4, title: 'Корзина "Tea Time"', price: 4550, description: 'Корзина подходящаяя для лучшего чаепития' },
-        { id: 5, title: 'Плитка бельгийского шоколада', price: 1000, description: 'Изысканный шоколад для самых близких' },
-        { id: 6, title: 'Сырное плато S', price: 2800, description: 'Яркая композиция для романтического вечера' },
-        { id: 7, title: 'Связка гелиевых шаров "So this is love"', price: 1500, description: 'Лучшее дополнение для лучших поздравлений' },
-        { id: 8, title: 'Связка гелиевых шаров "Красотка"', price: 2500, description: 'Для того, чтобы порадовать свою любимую крастоку' }
-      ],
-      boxProducts: [
-        { id: 17, title: '"Дейнерис"', price: 7200, description: 'Элегантные белые розы в стильной коробке', materials: 'Бокс' },
-        { id: 18, title: '«Батори»', price: 6800, description: 'Пушистые розы в романтичной упаковке', materials: 'Бокс' },
-        { id: 19, title: '"Монако"', price: 8900, description: 'Разнообразие цветов в стильной коробке', materials: 'Бокс' },
-        { id: 20, title: '"La Crème"', price: 5500, description: 'Яркие и разные цветы в современной прозрачной упаковке', materials: 'Бокс' },
-        { id: 21, title: '"Moon"', price: 7500, description: 'Чистые белые хризантемы в минималистичной коробке', materials: 'Бокс' },
-        { id: 22, title: 'Сумочка "Сюрприз"', price: 6200, description: 'Модные цветы в интересной упаковке', materials: 'Бокс' },
-        { id: 23, title: '«Мишель»', price: 5800, description: 'Яркие розы в праздничной упаковке', materials: 'Бокс' },
-        { id: 24, title: '«Мия»', price: 9500, description: 'Изысканный набор цветов в премиальной коробке', materials: 'Бокс' }
-      ]
+      loading: true,
+      allProducts: []
     }
   },
-  methods: {
-    formatPrice(price) {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  computed: {
+    promotionProducts() {
+      if (!this.allProducts || !Array.isArray(this.allProducts)) return []
+      return this.allProducts.slice(0, 4)
     },
-    addToCart(productId) {
-      alert('Товар добавлен в корзину! ID: ' + productId)
-      console.log('Добавлен товар с ID:', productId)
+    bouquetProducts() {
+      if (!this.allProducts || !Array.isArray(this.allProducts)) return []
+      return this.allProducts.filter(p => p.category === 'bouquets').slice(0, 4)
+    },
+    giftProducts() {
+      if (!this.allProducts || !Array.isArray(this.allProducts)) return []
+      return this.allProducts.filter(p => p.category === 'gifts').slice(0, 4)
+    },
+    boxProducts() {
+      if (!this.allProducts || !Array.isArray(this.allProducts)) return []
+      return this.allProducts.filter(p => p.category === 'box-flowers').slice(0, 4)
+    }
+  },
+  async mounted() {
+    await this.loadProducts()
+  },
+  methods: {
+    async loadProducts() {
+      this.loading = true
+      try {
+        this.allProducts = await adminStore.getProducts()
+        console.log('🏠 Загружено товаров для HomeView:', this.allProducts.length)
+      } catch (error) {
+        console.error('Ошибка загрузки товаров:', error)
+        this.allProducts = []
+      } finally {
+        this.loading = false
+      }
+    },
+    formatPrice(price) {
+      if (!price && price !== 0) return '0'
+      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     },
     goToProduct(productId) {
       this.$router.push(`/product/${productId}`)
@@ -157,7 +179,7 @@ export default {
 .hero {
   padding: 100px 0;
   text-align: center;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: #ffffff;
   position: relative;
 }
 
@@ -165,8 +187,6 @@ export default {
   position: relative;
   z-index: 2;
 }
-
-
 
 .hero h1 {
   font-size: 48px;
@@ -181,11 +201,11 @@ export default {
   display: inline-block;
   background-color: #292966;
   color: white;
-  padding: 16px 40px;
+  padding: 30px 60px;
   text-decoration: none;
   border-radius: 10px;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 23px;
   transition: all 0.3s ease;
   font-family: 'Albert Sans', sans-serif;
   border: none;
@@ -253,12 +273,21 @@ export default {
 
 .product-image {
   width: 100%;
-  height: 200px;
+  height: 250px;
   background-color: #A3A3CC;
   border-radius: 8px;
   margin-bottom: 15px;
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .image-placeholder {
@@ -277,7 +306,7 @@ export default {
 .product-title {
   font-family: 'Albert Sans', sans-serif;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 25px;
   margin-bottom: 10px;
   color: #292966;
   line-height: 1.3;
@@ -298,25 +327,6 @@ export default {
   font-size: 20px;
   color: #292966;
   margin-bottom: 15px;
-}
-
-.product-button {
-  background-color: #A3A3CC;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 6px;
-  font-family: 'Albert Sans', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: auto;
-}
-
-.product-button:hover {
-  background-color: #9292c2;
-  transform: translateY(-2px);
 }
 
 /* Кнопка "Смотреть больше" */
@@ -390,11 +400,6 @@ export default {
     font-size: 36px;
   }
   
-  .hero-image {
-    width: 250px;
-    height: 150px;
-  }
-  
   .cta-button {
     padding: 14px 35px;
     font-size: 16px;
@@ -430,12 +435,6 @@ export default {
   
   .hero h1 {
     font-size: 28px;
-  }
-  
-  .hero-image {
-    width: 200px;
-    height: 120px;
-    font-size: 16px;
   }
   
   .cta-button {

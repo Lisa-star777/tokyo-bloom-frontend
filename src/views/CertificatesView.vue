@@ -27,7 +27,7 @@
             <p class="about-signature"><b><em>Идеальный подарок для тех, кого сложно удивить!</em></b></p>
           </div>
 
-          <!-- Сетка сертификатов -->
+          <!-- Сетка сертификатов (только три номинала) -->
           <div class="certificates-grid">
             <div 
               v-for="certificate in certificates" 
@@ -36,7 +36,6 @@
             >
               <div class="certificate-value">{{ formatPrice(certificate.value) }} ₽</div>
               <div class="certificate-description">{{ certificate.description }}</div>
-              
             </div>
           </div>
 
@@ -60,18 +59,13 @@ export default {
       certificates: [
         { id: 1, value: 3000, description: 'Небольшой букет или композиция' },
         { id: 2, value: 5000, description: 'Стандартный букет премиум-класса' },
-        { id: 4, value: 10000, description: 'Эксклюзивный букет или большая композиция' }
+        { id: 3, value: 10000, description: 'Эксклюзивный букет или большая композиция' }
       ]
     }
   },
   methods: {
     formatPrice(price) {
       return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-    },
-    buyCertificate(certificateId) {
-      const certificate = this.certificates.find(c => c.id === certificateId)
-      alert(`Вы выбрали сертификат номиналом ${this.formatPrice(certificate.value)} ₽!\n${certificate.description}`)
-      console.log('Покупка сертификата:', certificate)
     },
     goToCertificateOrder() {
       this.$router.push('/certificate-order')
@@ -113,8 +107,6 @@ export default {
   padding: 0;
 }
 
-
-
 .catalog-products-section {
   padding: 20px 0 60px;
   background-color: #ffffff;
@@ -124,15 +116,6 @@ export default {
   max-width: 1000px;
   margin: 0 auto;
   text-align: center;
-}
-ы
-.about-subtitle {
-  font-family: 'Albert Sans', sans-serif;
-  font-size: 36px;
-  color: #292966;
-  margin-bottom: 40px;
-  font-weight: 600;
-  line-height: 1.3;
 }
 
 .about-text {
@@ -164,7 +147,7 @@ export default {
   border-top: 2px solid #A3A3CC;
 }
 
-/* Сетка сертификатов */
+/* Сетка сертификатов (3 карточки) */
 .certificates-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -204,25 +187,6 @@ export default {
   min-height: 45px;
 }
 
-.certificate-button {
-  background-color: #292966;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 8px;
-  font-family: 'Albert Sans', sans-serif;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-}
-
-.certificate-button:hover {
-  background-color: #1a1a4d;
-  transform: translateY(-2px);
-}
-
 /* Кнопка оформления сертификата */
 .certificate-cta {
   text-align: center;
@@ -233,14 +197,13 @@ export default {
   background-color: #292966;
   color: white;
   border: none;
-  padding: 30px 45px;
+  padding: 20px 50px;
   border-radius: 8px;
   font-family: 'Albert Sans', sans-serif;
   font-weight: 600;
   font-size: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 20px;
 }
 
 .cta-certificate-button:hover {
@@ -249,7 +212,6 @@ export default {
   box-shadow: 0 8px 25px rgba(41, 41, 102, 0.3);
 }
 
-
 /* Адаптивность */
 @media (max-width: 1200px) {
   .about-content {
@@ -257,7 +219,7 @@ export default {
   }
   
   .certificates-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
   
   .about-paragraph,
@@ -269,10 +231,6 @@ export default {
 @media (max-width: 992px) {
   .catalog-main-title {
     font-size: 44px;
-  }
-  
-  .about-subtitle {
-    font-size: 30px;
   }
   
   .about-content {
@@ -292,10 +250,6 @@ export default {
   .certificate-value {
     font-size: 28px;
   }
-  
-  .about-image {
-    margin-top: 40px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -305,11 +259,6 @@ export default {
   
   .catalog-main-title {
     font-size: 36px;
-  }
-  
-  .about-subtitle {
-    font-size: 26px;
-    margin-bottom: 30px;
   }
   
   .about-content {
@@ -340,15 +289,6 @@ export default {
   .certificate-value {
     font-size: 24px;
   }
-  
-  .about-image {
-    margin-top: 30px;
-  }
-  
-  .image-placeholder {
-    height: 250px;
-    font-size: 16px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -358,11 +298,6 @@ export default {
   
   .catalog-main-title {
     font-size: 32px;
-  }
-  
-  .about-subtitle {
-    font-size: 22px;
-    margin-bottom: 25px;
   }
   
   .about-content {
@@ -378,15 +313,6 @@ export default {
   .about-paragraph,
   .about-signature {
     font-size: 16px;
-  }
-  
-  .about-image {
-    margin-top: 25px;
-  }
-  
-  .image-placeholder {
-    height: 200px;
-    font-size: 14px;
   }
 }
 </style>
