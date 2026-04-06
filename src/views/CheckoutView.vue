@@ -347,8 +347,6 @@
 import { cartStore } from '@/stores/cart'
 import { authStore } from '@/stores/auth'
 import AuthModal from '@/components/AuthModal.vue'
-import emailjs from '@emailjs/browser'
-import { EMAILJS_CONFIG } from '@/config/emailjs'
 
 export default {
   name: 'CheckoutView',
@@ -368,6 +366,7 @@ export default {
       bonusApplied: false,
       bonusDiscount: 0,
       bonusError: '',
+      cartItems: [],
       payment: {
         cardNumber: '',
         expiry: '',
@@ -387,11 +386,9 @@ export default {
     }
   },
   computed: {
-    cartItems() {
-      return cartStore.getCart()
-    },
     subtotal() {
-      return cartStore.getTotal()
+      if (!this.cartItems.length) return 0
+      return this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     },
     deliveryCost() {
       return this.subtotal > 5000 ? 0 : 300
@@ -424,9 +421,9 @@ export default {
     },
     isFormValid() {
       return this.form.recipientName && 
-            this.form.address && 
-            this.form.recipientPhone &&
-            this.form.senderPhone    
+             this.form.address && 
+             this.form.recipientPhone &&
+             this.form.senderPhone    
     },
     isPaymentValid() {
       const cardNumber = this.payment.cardNumber.replace(/\s/g, '')
@@ -436,21 +433,19 @@ export default {
       return cardNumber.length === 16 && expiryValid && cvvValid && cardHolderValid
     }
   },
-  mounted() {
-    // Инициализация EmailJS
-    emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY)
-  },
   methods: {
     formatPrice(price) {
       if (price === undefined || price === null) return '0'
       return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     },
+    
     formatCardNumber(event) {
       let value = event.target.value.replace(/\D/g, '')
       if (value.length > 16) value = value.slice(0, 16)
       value = value.replace(/(\d{4})/g, '$1 ').trim()
       this.payment.cardNumber = value
     },
+    
     formatExpiry(event) {
       let value = event.target.value.replace(/\D/g, '')
       if (value.length > 4) value = value.slice(0, 4)
@@ -459,15 +454,16 @@ export default {
       }
       this.payment.expiry = value
     },
-
-    // ===== МЕТОДЫ ДЛЯ СЕРТИФИКАТА =====
+    
+    async loadCartData() {
+      this.cartItems = await cartStore.getCart()
+    },
+    
     async applyCertificate() {
       if (!this.certificateCode) return
       this.isApplyingCertificate = true
       this.certificateError = ''
-      
       const result = await cartStore.validateCertificate(this.certificateCode)
-      
       if (result.valid) {
         this.appliedCertificate = result.certificate
         this.certificateCode = ''
@@ -477,14 +473,13 @@ export default {
       }
       this.isApplyingCertificate = false
     },
-
+    
     removeCertificate() {
       this.appliedCertificate = null
       this.certificateCode = ''
       this.certificateError = ''
     },
-
-    // ===== МЕТОДЫ ДЛЯ БАЛЛОВ =====
+    
     applyBonuses() {
       if (!this.bonusesToSpend || this.bonusesToSpend <= 0) {
         this.bonusError = 'Введите количество баллов'
@@ -498,97 +493,69 @@ export default {
       this.bonusApplied = true
       this.bonusError = ''
     },
-
+    
     removeBonuses() {
       this.bonusDiscount = 0
       this.bonusApplied = false
       this.bonusesToSpend = 0
       this.bonusError = ''
     },
-
-    // ===== ОТПРАВКА EMAIL =====
+    
     async sendOrderConfirmation(order) {
       try {
         const userEmail = this.currentUser?.email
-        const userName = this.currentUser?.name
+        if (!userEmail) return
         
-        if (!userEmail) {
-          console.log('❌ Нет email пользователя')
-          return
-        }
-        
-        // Формируем список товаров для письма
-        const orderItemsHtml = order.items.map(item => `
+        const orderItemsHtml = order.items?.map(item => `
           <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
             <strong>${item.title}</strong> - ${item.quantity} шт. x ${this.formatPrice(item.price)} ₽ = ${this.formatPrice(item.price * item.quantity)} ₽
           </div>
-        `).join('')
-        
-        const templateParams = {
-          to_email: userEmail,
-          customer_name: userName,
-          order_id: order.id,
-          order_date: new Date().toLocaleString('ru-RU'),
-          order_total: this.formatPrice(order.total),
-          order_items: orderItemsHtml,
-          recipient_name: order.delivery_details?.recipientName || '—',
-          delivery_address: order.delivery_details?.address || '—',
-          recipient_phone: order.delivery_details?.recipientPhone || '—',
-          delivery_time: order.delivery_details?.deliveryTime || '—'
-        }
-        
-        console.log('📧 Отправка email на:', userEmail)
+        `).join('') || ''
         
         await emailjs.send(
           EMAILJS_CONFIG.SERVICE_ID,
-          'template_44lwinv',  // ← ЗАМЕНИТЕ НА ВАШ TEMPLATE ID
-          templateParams
+          'template_44lwinv',
+          {
+            to_email: userEmail,
+            customer_name: this.currentUser?.name,
+            order_id: order.id,
+            order_total: this.formatPrice(order.total),
+            order_items: orderItemsHtml
+          }
         )
-        
-        console.log('✅ Email с подтверждением заказа отправлен на', userEmail)
       } catch (error) {
-        console.error('❌ Ошибка отправки email:', error)
+        console.error('Ошибка отправки email:', error)
       }
     },
-
-    // ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
+    
     async submitOrder() {
       console.log('🔵 submitOrder вызван')
 
-      // Проверка авторизации
       if (!this.isAuthenticated) {
         console.log('❌ Не авторизован')
         this.openAuthModal()
         return
       }
-      console.log('✅ Авторизован, пользователь:', this.currentUser?.id)
-
-      // Проверка, что корзина не пуста
+      
       if (this.cartItems.length === 0) {
         console.log('❌ Корзина пуста')
         alert('Корзина пуста')
         this.$router.push('/')
         return
       }
-      console.log('✅ В корзине', this.cartItems.length, 'товаров')
 
-      // Проверка заполнения обязательных полей
       if (!this.isFormValid) {
         console.log('❌ Форма невалидна')
         alert('Пожалуйста, заполните все обязательные поля (отмечены *)')
         return
       }
-      console.log('✅ Форма валидна')
 
-      // Проверка данных карты
       if (!this.isPaymentValid) {
         console.log('❌ Данные карты невалидны')
         alert('Пожалуйста, заполните данные карты корректно')
         return
       }
-      console.log('✅ Данные карты валидны')
 
-      // Расчёт скидки от сертификата
       let certificateDiscount = 0
       let certificateData = null
       if (this.appliedCertificate) {
@@ -598,31 +565,17 @@ export default {
           discount: certificateDiscount,
           value: this.appliedCertificate.value
         }
-        console.log('✅ Применён сертификат на', certificateDiscount, '₽')
       }
 
-      // Списание баллов
       let bonusesUsed = 0
       if (this.bonusDiscount) {
         bonusesUsed = this.bonusDiscount
-        console.log('✅ Списано баллов:', bonusesUsed)
       }
 
-      console.log('📊 Итоговая сумма:', this.finalTotal, '₽')
-
       try {
-        console.log('🔄 Создаём заказ...')
-        
         const order = await cartStore.createOrderFromCart(this.currentUser.id, {
-          name: this.currentUser.name,
-          email: this.currentUser.email,
           certificateUsed: certificateData,
           bonusesUsed: bonusesUsed,
-          paymentMethod: 'card',
-          paymentCard: {
-            last4: this.payment.cardNumber.replace(/\s/g, '').slice(-4),
-            cardHolder: this.payment.cardHolder
-          },
           deliveryDetails: {
             recipientName: this.form.recipientName,
             address: this.form.address,
@@ -638,36 +591,27 @@ export default {
         if (order) {
           console.log('✅ Заказ создан:', order.id)
 
-          // Использование сертификата
           if (this.appliedCertificate) {
             await cartStore.useCertificate(
               this.appliedCertificate.code,
               this.currentUser.id,
               order.id
             )
-            console.log('✅ Сертификат использован')
           }
 
-          // Списание баллов
           if (this.bonusDiscount) {
             await authStore.spendBonuses(this.bonusDiscount)
-            console.log('✅ Баллы списаны')
           }
 
-          // Начисление баллов за заказ
           const bonusesToEarn = Math.floor(this.subtotal * 0.1)
           await authStore.addBonuses(bonusesToEarn)
-          console.log('✅ Баллы начислены')
 
-          // ===== ОТПРАВКА EMAIL =====
-          await this.sendOrderConfirmation(order)
+          //await this.sendOrderConfirmation(order)
 
           this.lastOrder = order
           this.showContactsModal = true
-          console.log('✅ Модальное окно должно открыться')
 
         } else {
-          console.log('❌ Заказ не создан (order = null)')
           alert('Не удалось создать заказ. Попробуйте позже.')
         }
 
@@ -676,26 +620,42 @@ export default {
         alert('Произошла ошибка при оформлении заказа. Попробуйте позже.')
       }
     },
-
+    
     openAuthModal() {
       this.showAuthModal = true
     },
+    
     closeAuthModal() {
       this.showAuthModal = false
     },
+    
     handleLoginSuccess() {
       this.closeAuthModal()
-      this.submitOrder()
+      this.loadCartData()
     },
+    
     hideContacts() {
       this.showContactsModal = false
     },
+    
     goToHome() {
       this.$router.push('/')
     },
+    
     goToOrders() {
       this.$router.push('/orders')
     }
+  },
+  
+  async mounted() {
+    await this.loadCartData()
+    window.addEventListener('cart-updated', async () => {
+      await this.loadCartData()
+    })
+  },
+  
+  beforeUnmount() {
+    window.removeEventListener('cart-updated', this.loadCartData)
   }
 }
 </script>

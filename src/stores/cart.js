@@ -1,357 +1,181 @@
 // src/stores/cart.js
-import { supabase } from '@/config/supabase'
-
-const CART_KEY = 'shopping_cart'
+import api from '@/services/api';
 
 export const cartStore = {
-  // ===== КОРЗИНА (оставляем в localStorage) =====
-  
-  getCart() {
-    const currentUser = JSON.parse(localStorage.getItem('current_user'))
-    if (!currentUser) return []
-    
-    const allCarts = JSON.parse(localStorage.getItem(CART_KEY) || '{}')
-    return allCarts[currentUser.id] || []
-  },
+    // Получить корзину
+    async getCart() {
+        try {
+            const response = await api.get('/cart');
+            return response.data.items || [];
+        } catch (error) {
+            console.error('Ошибка получения корзины:', error);
+            return [];
+        }
+    },
 
-  saveCart(cart) {
-    const currentUser = JSON.parse(localStorage.getItem('current_user'))
-    if (!currentUser) return
-    
-    const allCarts = JSON.parse(localStorage.getItem(CART_KEY) || '{}')
-    allCarts[currentUser.id] = cart
-    localStorage.setItem(CART_KEY, JSON.stringify(allCarts))
-    
-    window.dispatchEvent(new CustomEvent('cart-updated', { 
-      detail: { count: this.getTotalCount() } 
-    }))
-  },
+    // Сохранить корзину (больше не нужно, но оставим для совместимости)
+    saveCart(cart) {
+        // Корзина хранится на сервере, этот метод не используется
+        console.warn('saveCart устарел, корзина хранится на сервере');
+    },
 
-  getTotalCount() {
-    const cart = this.getCart()
-    return cart.reduce((sum, item) => sum + item.quantity, 0)
-  },
+    // Получить количество товаров в корзине
+    async getTotalCount() {
+        const cart = await this.getCart();
+        return cart.reduce((sum, item) => sum + item.quantity, 0);
+    },
 
-  addItem(product, quantity = 1) {
-    console.log('Добавляем товар:', product)
-    
-    const cart = this.getCart()
-    const existingItem = cart.find(item => item.id === product.id)
-    
-    if (existingItem) {
-      existingItem.quantity += quantity
-    } else {
-      cart.push({
-        id: product.id,
-        title: product.title,
-        price: product.price,
-        description: product.description || '',
-        quantity: quantity,
-        maxQuantity: 99
-      })
-    }
-    
-    this.saveCart(cart)
-    console.log('Корзина после добавления:', cart)
-    return cart
-  },
+    // Получить общую сумму корзины
+    async getTotal() {
+        const cart = await this.getCart();
+        return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    },
 
-  removeItem(productId) {
-    const cart = this.getCart().filter(item => item.id !== productId)
-    this.saveCart(cart)
-    return cart
-  },
+    // Добавить товар
+    async addItem(product, quantity = 1) {
+        try {
+            await api.post('/cart/items', { product_id: product.id, quantity });
+            await this.emitCartUpdate();
+            return true;
+        } catch (error) {
+            console.error('Ошибка добавления в корзину:', error);
+            return false;
+        }
+    },
 
-  updateQuantity(productId, newQuantity) {
-    const cart = this.getCart()
-    const item = cart.find(item => item.id === productId)
-    
-    if (item) {
-      if (newQuantity <= 0) {
-        return this.removeItem(productId)
-      }
-      item.quantity = newQuantity
-      this.saveCart(cart)
-    }
-    
-    return cart
-  },
+    // Удалить товар
+    async removeItem(productId) {
+        try {
+            await api.delete(`/cart/items/${productId}`);
+            await this.emitCartUpdate();
+            return true;
+        } catch (error) {
+            console.error('Ошибка удаления товара:', error);
+            return false;
+        }
+    },
 
-  clearCart() {
-    this.saveCart([])
-  },
+    // Обновить количество
+    async updateQuantity(productId, newQuantity) {
+        try {
+            if (newQuantity <= 0) {
+                return await this.removeItem(productId);
+            }
+            await api.put(`/cart/items/${productId}`, { quantity: newQuantity });
+            await this.emitCartUpdate();
+            return true;
+        } catch (error) {
+            console.error('Ошибка обновления количества:', error);
+            return false;
+        }
+    },
 
-  getTotal() {
-    const cart = this.getCart()
-    return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  },
+    // Очистить корзину
+    async clearCart() {
+        try {
+            await api.delete('/cart');
+            await this.emitCartUpdate();
+            return true;
+        } catch (error) {
+            console.error('Ошибка очистки корзины:', error);
+            return false;
+        }
+    },
 
-  // ===== ЗАКАЗЫ (сохраняем в Supabase) =====
-
-  async createOrderFromCart(userId, userInfo) {
-    const cart = this.getCart()
-    if (cart.length === 0) return null
-
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    const deliveryCost = subtotal > 5000 ? 0 : 300
-    const total = subtotal + deliveryCost
-    const bonusesEarned = Math.floor(subtotal * 0.1)
-
-    let certificateDiscount = 0
-    if (userInfo.certificateUsed) {
-      certificateDiscount = userInfo.certificateUsed.discount || 0
-    }
-
-    let bonusesUsed = 0
-    if (userInfo.bonusesUsed) {
-      bonusesUsed = userInfo.bonusesUsed
-    }
-
-    const finalTotal = Math.max(0, total - certificateDiscount - bonusesUsed)
-
-    const newOrder = {
-      id: 'ORD-' + Date.now(),
-      user_id: userId,
-      items: cart.map(item => ({
-        id: item.id,
-        title: item.title,
-        price: item.price,
-        quantity: item.quantity
-      })),
-      subtotal: subtotal,
-      delivery_cost: deliveryCost,
-      certificate_discount: certificateDiscount,
-      bonuses_used: bonusesUsed,
-      total: finalTotal,
-      bonuses_earned: bonusesEarned,
-      certificate_used: userInfo.certificateUsed || null,
-      delivery_details: userInfo.deliveryDetails || null,
-      status: 'new',
-      status_text: 'Новый',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-
+    // Создать заказ из корзины
+async createOrderFromCart(userId, userInfo) {
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .insert([newOrder])
-        .select()
-
-      if (error) throw error
-
-      console.log('✅ Заказ создан в Supabase:', data)
-      this.clearCart()
-      window.dispatchEvent(new Event('orders-updated'))
-      return data?.[0] || newOrder
+        const response = await api.post('/orders', userInfo);
+        await this.clearCart();
+        window.dispatchEvent(new Event('orders-updated'));
+        return response.data;
     } catch (error) {
-      console.error('❌ Ошибка создания заказа:', error)
-      return null
+        console.error('Ошибка создания заказа:', error);
+        console.log('Детали ошибки:', error.response?.data);
+        return null;
     }
-  },
-
-  // Получить заказы пользователя из Supabase
-  async getUserOrders(userId) {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', userId)   // ← ВАЖНО: user_id, а не userId
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      
-      console.log('📋 Найдено заказов:', data?.length || 0)
-      return data || []
-    } catch (error) {
-      console.error('❌ Ошибка получения заказов:', error)
-      return []
-    }
-  },
-
-  async getAllOrders() {
-    try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      return data || []
-    } catch (error) {
-      console.error('❌ Ошибка получения всех заказов:', error)
-      return []
-    }
-  },
-
-  async updateOrderStatus(orderId, newStatus, statusText) {
-    try {
-      const { error } = await supabase
-        .from('orders')
-        .update({
-          status: newStatus,
-          status_text: statusText,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', orderId)
-
-      if (error) throw error
-      window.dispatchEvent(new Event('orders-updated'))
-      return true
-    } catch (error) {
-      console.error('❌ Ошибка обновления статуса заказа:', error)
-      return false
-    }
-  },
-
-  // ===== СЕРТИФИКАТЫ (Supabase) =====
-
-// Генерация короткого и уникального кода (без Math.random)
-generateCertificateCode() {
-  // Используем timestamp + короткая строка
-  const timestamp = Date.now().toString(36).toUpperCase()
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase()
-  return `TOKYO-${timestamp}-${random}`
 },
 
-// Получить все сертификаты (с кэшированием)
-async getAllCertificates() {
-  // Если есть кэш и он свежий (5 минут), используем его
-  if (this.certificatesCache && Date.now() - this.certificatesCacheTime < 300000) {
-    return this.certificatesCache
-  }
-  
-  try {
-    const { data, error } = await supabase
-      .from('certificates')
-      .select('*')
-      .order('created_at', { ascending: false })
+    // Получить заказы пользователя
+    async getUserOrders(userId) {
+        try {
+            const response = await api.get('/orders');
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка получения заказов:', error);
+            return [];
+        }
+    },
 
-    if (error) throw error
-    
-    // Сохраняем в кэш
-    this.certificatesCache = data || []
-    this.certificatesCacheTime = Date.now()
-    
-    return this.certificatesCache
-  } catch (error) {
-    console.error('❌ Ошибка получения сертификатов:', error)
-    return []
-  }
-},
+    // Получить все заказы (для админа)
+    async getAllOrders() {
+        try {
+            const response = await api.get('/admin/orders');
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка получения заказов:', error);
+            return [];
+        }
+    },
 
-// Создать новый сертификат (оптимизированная версия)
-async createCertificate(certificateData) {
-  try {
-    // Генерируем код моментально
-    const code = this.generateCertificateCode()
-    const expiresAt = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString()
+    // Обновить статус заказа
+    async updateOrderStatus(orderId, newStatus, statusText) {
+        try {
+            await api.put(`/admin/orders/${orderId}`, { status: newStatus, status_text: statusText });
+            window.dispatchEvent(new Event('orders-updated'));
+            return true;
+        } catch (error) {
+            console.error('Ошибка обновления статуса заказа:', error);
+            return false;
+        }
+    },
 
-    const newCertificate = {
-      id: 'CERT-' + Date.now(),
-      code: code,
-      value: certificateData.value,
-      status: 'active',
-      owner_email: certificateData.ownerEmail || null,
-      buyer_name: certificateData.buyerName || null,
-      created_at: new Date().toISOString(),
-      expires_at: expiresAt
+    // Получить все сертификаты (с кэшированием)
+    async getAllCertificates() {
+        try {
+            const response = await api.get('/certificates');
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка получения сертификатов:', error);
+            return [];
+        }
+    },
+
+    // Создать сертификат
+    async createCertificate(certificateData) {
+        try {
+            const response = await api.post('/certificates', certificateData);
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка создания сертификата:', error);
+            return null;
+        }
+    },
+
+    // Проверить сертификат
+    async validateCertificate(code) {
+        try {
+            const response = await api.post('/certificates/validate', { code });
+            return response.data;
+        } catch (error) {
+            return { valid: false, error: 'Сертификат не найден' };
+        }
+    },
+
+    // Использовать сертификат
+    async useCertificate(code, userId, orderId) {
+        try {
+            await api.post('/certificates/use', { code, order_id: orderId });
+            return true;
+        } catch (error) {
+            console.error('Ошибка использования сертификата:', error);
+            return false;
+        }
+    },
+
+    // Отправить событие обновления корзины
+    async emitCartUpdate() {
+        const count = await this.getTotalCount();
+        window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count } }));
     }
-
-    // Отправляем запрос и сразу возвращаем результат
-    const { data, error } = await supabase
-      .from('certificates')
-      .insert([newCertificate])
-      .select()
-      .single() // .single() для одного результата
-
-    if (error) throw error
-
-    // Обновляем кэш (асинхронно, не блокируем)
-    if (this.certificatesCache) {
-      this.certificatesCache.unshift(data)
-    }
-
-    console.log('✅ Сертификат создан:', data.code)
-    return data
-  } catch (error) {
-    console.error('❌ Ошибка создания сертификата:', error)
-    return null
-  }
-},
-
-// Проверить валидность сертификата (оптимизированная)
-async validateCertificate(code) {
-  // Сначала проверяем в кэше (быстро)
-  if (this.certificatesCache) {
-    const cachedCert = this.certificatesCache.find(c => c.code === code)
-    if (cachedCert) {
-      return this.checkCertificateValidity(cachedCert)
-    }
-  }
-  
-  // Если нет в кэше — идём в базу
-  try {
-    const { data, error } = await supabase
-      .from('certificates')
-      .select('*')
-      .eq('code', code)
-      .single()
-
-    if (error || !data) {
-      return { valid: false, error: 'Сертификат не найден' }
-    }
-
-    return this.checkCertificateValidity(data)
-  } catch (error) {
-    console.error('❌ Ошибка проверки сертификата:', error)
-    return { valid: false, error: 'Ошибка проверки' }
-  }
-},
-
-// Вспомогательный метод для проверки валидности (без дублирования кода)
-checkCertificateValidity(certificate) {
-  if (certificate.status !== 'active') {
-    return { valid: false, error: 'Сертификат уже использован' }
-  }
-  
-  const expiresDate = new Date(certificate.expires_at)
-  if (expiresDate < new Date()) {
-    return { valid: false, error: 'Срок действия сертификата истек' }
-  }
-  
-  return { valid: true, certificate }
-},
-
-// Использовать сертификат
-async useCertificate(code, userId, orderId) {
-  try {
-    const { error } = await supabase
-      .from('certificates')
-      .update({
-        status: 'used',
-        used_at: new Date().toISOString(),
-        used_by: userId,
-        order_id: orderId
-      })
-      .eq('code', code)
-
-    if (error) throw error
-
-    // Обновляем кэш
-    if (this.certificatesCache) {
-      const index = this.certificatesCache.findIndex(c => c.code === code)
-      if (index !== -1) {
-        this.certificatesCache[index].status = 'used'
-        this.certificatesCache[index].used_at = new Date().toISOString()
-      }
-    }
-
-    console.log('✅ Сертификат использован:', code)
-    return true
-  } catch (error) {
-    console.error('❌ Ошибка использования сертификата:', error)
-    return false
-  }
- }
-}
+};

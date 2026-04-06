@@ -1,86 +1,96 @@
 <template>
-  <div class="feedback-form">
-    <h3 class="feedback-title">Обратная связь</h3>
-    <p class="feedback-subtitle">Оставьте ваше сообщение, и мы свяжемся с вами</p>
-    
-    <form @submit.prevent="submitForm" class="form">
-      <div class="form-group">
-        <label for="name" class="form-label">Ваше имя *</label>
-        <input 
-          type="text" 
-          id="name"
-          v-model="form.name" 
-          class="form-input"
-          :class="{ 'error': errors.name }"
-          placeholder="Иван Иванов"
-          @blur="validateField('name')"
-        >
-        <span v-if="errors.name" class="error-text">{{ errors.name }}</span>
-      </div>
+  <div class="feedback-page">
+    <div class="container">
+      <div class="feedback-form">
+        <h3 class="feedback-title">Обратная связь</h3>
+        <p class="feedback-subtitle">Оставьте ваше сообщение, и мы свяжемся с вами</p>
+        
+        <form @submit.prevent="submitForm" class="form">
+          <!-- Поле имени -->
+          <div class="form-group">
+            <label for="name" class="form-label">Ваше имя *</label>
+            <input 
+              type="text" 
+              id="name"
+              v-model="form.name" 
+              class="form-input"
+              :class="{ 'error': errors.name }"
+              placeholder="Иван Иванов"
+              @blur="validateField('name')"
+            >
+            <span v-if="errors.name" class="error-text">{{ errors.name }}</span>
+          </div>
 
-      <div class="form-group">
-        <label for="email" class="form-label">Email *</label>
-        <input 
-          type="email" 
-          id="email"
-          v-model="form.email" 
-          class="form-input"
-          :class="{ 'error': errors.email }"
-          placeholder="ivan@example.com"
-          @blur="validateField('email')"
-        >
-        <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
-      </div>
+          <!-- Поле email -->
+          <div class="form-group">
+            <label for="email" class="form-label">Email *</label>
+            <input 
+              type="email" 
+              id="email"
+              v-model="form.email" 
+              class="form-input"
+              :class="{ 'error': errors.email }"
+              placeholder="ivan@example.com"
+              @blur="validateField('email')"
+            >
+            <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
+          </div>
 
-      <div class="form-group">
-        <label for="phone" class="form-label">Телефон</label>
-        <input 
-          type="tel" 
-          id="phone"
-          v-model="form.phone" 
-          class="form-input"
-          placeholder="+7 (999) 123-45-67"
-        >
-      </div>
+          <!-- Поле телефона -->
+          <div class="form-group">
+            <label for="phone" class="form-label">Телефон</label>
+            <input 
+              type="tel" 
+              id="phone"
+              v-model="form.phone" 
+              class="form-input"
+              placeholder="+7 (999) 123-45-67"
+            >
+          </div>
 
-      <div class="form-group">
-        <label for="message" class="form-label">Сообщение *</label>
-        <textarea 
-          id="message"
-          v-model="form.message" 
-          class="form-textarea"
-          :class="{ 'error': errors.message }"
-          rows="4"
-          placeholder="Напишите ваш вопрос или пожелание..."
-          @blur="validateField('message')"
-        ></textarea>
-        <span v-if="errors.message" class="error-text">{{ errors.message }}</span>
-        <div class="char-counter">{{ form.message.length }} / 500</div>
-      </div>
+          <!-- Поле сообщения -->
+          <div class="form-group">
+            <label for="message" class="form-label">Сообщение *</label>
+            <textarea 
+              id="message"
+              v-model="form.message" 
+              class="form-textarea"
+              :class="{ 'error': errors.message }"
+              rows="4"
+              placeholder="Напишите ваш вопрос или пожелание..."
+              @blur="validateField('message')"
+            ></textarea>
+            <span v-if="errors.message" class="error-text">{{ errors.message }}</span>
+            <div class="char-counter">{{ form.message.length }} / 500</div>
+          </div>
 
-      <button 
-        type="submit" 
-        class="submit-button"
-        :disabled="!isFormValid || isSubmitting"
-      >
-        <span v-if="!isSubmitting">Отправить сообщение</span>
-        <span v-else>Отправка...</span>
-      </button>
+          <!-- Кнопка отправки -->
+          <button 
+            type="submit" 
+            class="submit-button"
+            :disabled="!isFormValid || isSubmitting"
+          >
+            <span v-if="!isSubmitting">Отправить сообщение</span>
+            <span v-else>Отправка...</span>
+          </button>
 
-      <div v-if="submitted" class="success-message">
-        <div class="success-icon">✓</div>
-        <h4>Спасибо за обращение!</h4>
-        <p>Мы получили ваше сообщение и ответим в ближайшее время.</p>
-        <button class="new-message-button" @click="resetForm">
-          Отправить еще сообщение
-        </button>
+          <!-- Сообщение об успехе -->
+          <div v-if="submitted" class="success-message">
+            <div class="success-icon">✓</div>
+            <h4>Спасибо за обращение!</h4>
+            <p>Мы получили ваше сообщение и ответим в ближайшее время.</p>
+            <button class="new-message-button" @click="resetForm">
+              Отправить еще сообщение
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
 </template>
 
 <script>
-import { supabase } from '@/config/supabase'
+import api from '@/services/api'
 
 export default {
   name: 'FeedbackForm',
@@ -143,10 +153,12 @@ export default {
           break
       }
     },
+    
     isValidEmail(email) {
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       return re.test(email)
     },
+    
     async submitForm() {
       this.validateField('name')
       this.validateField('email')
@@ -159,21 +171,14 @@ export default {
       this.isSubmitting = true
 
       try {
-        const { data, error } = await supabase
-          .from('feedback')
-          .insert([{
-            name: this.form.name,
-            email: this.form.email,
-            phone: this.form.phone || null,
-            message: this.form.message,
-            status: 'new',
-            created_at: new Date().toISOString()
-          }])
-          .select()
+        const response = await api.post('/feedback', {
+          name: this.form.name,
+          email: this.form.email,
+          phone: this.form.phone || null,
+          message: this.form.message
+        })
 
-        if (error) throw error
-
-        console.log('✅ Сообщение сохранено в Supabase:', data)
+        console.log('✅ Сообщение отправлено:', response.data)
         this.submitted = true
         
         this.form = {
@@ -184,12 +189,13 @@ export default {
         }
         
       } catch (error) {
-        console.error('❌ Ошибка сохранения сообщения:', error)
+        console.error('❌ Ошибка отправки сообщения:', error)
         alert('Произошла ошибка при отправке. Попробуйте позже.')
       } finally {
         this.isSubmitting = false
       }
     },
+    
     resetForm() {
       this.form = {
         name: '',
@@ -204,6 +210,19 @@ export default {
 </script>
 
 <style scoped>
+.feedback-page {
+  margin-top: 120px;
+  min-height: 100vh;
+  background-color: #ffffff;
+  padding: 40px 0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
 .feedback-form {
   max-width: 600px;
   margin: 0 auto;
@@ -363,6 +382,10 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .feedback-page {
+    margin-top: 140px;
+  }
+  
   .feedback-form {
     padding: 20px;
     margin: 0 15px;
@@ -374,6 +397,12 @@ export default {
 
   .feedback-subtitle {
     font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feedback-page {
+    margin-top: 160px;
   }
 }
 </style>

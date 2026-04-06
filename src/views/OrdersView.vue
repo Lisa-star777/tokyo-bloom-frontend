@@ -136,7 +136,6 @@ export default {
         if (this.currentUser) {
           this.orders = await cartStore.getUserOrders(this.currentUser.id)
           console.log('📋 Загружено заказов:', this.orders.length)
-          console.log('📋 Заказы:', this.orders)
         }
       } catch (error) {
         console.error('❌ Ошибка загрузки заказов:', error)
@@ -148,7 +147,7 @@ export default {
     async repeatOrder(order) {
       if (!order.items) return
       for (const item of order.items) {
-        cartStore.addItem(item, item.quantity)
+        await cartStore.addItem(item, item.quantity)
       }
       alert('✅ Товары добавлены в корзину')
       this.$router.push('/cart')
@@ -163,17 +162,17 @@ export default {
       this.showAuthModal = false
     },
 
-    handleLoginSuccess() {
+    async handleLoginSuccess() {
       this.closeAuthModal()
-      this.loadOrders()
+      await this.loadOrders()
     }
   },
   async mounted() {
     await this.loadOrders()
     
     // Слушаем обновление заказов
-    window.addEventListener('orders-updated', () => {
-      this.loadOrders()
+    window.addEventListener('orders-updated', async () => {
+      await this.loadOrders()
     })
   },
   beforeUnmount() {

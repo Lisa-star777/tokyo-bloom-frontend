@@ -159,12 +159,12 @@ export default {
       return Math.floor(this.subtotal * 0.1)
     },
     total() {
-  let total = this.subtotal + this.deliveryCost - this.bonusDiscount
-  if (this.appliedCertificate) {
-    total = Math.max(0, total - this.appliedCertificate.value)
-  }
-  return total
-}
+      let total = this.subtotal + this.deliveryCost - this.bonusDiscount
+      if (this.appliedCertificate) {
+        total = Math.max(0, total - this.appliedCertificate.value)
+      }
+      return total
+    }
   },
   watch: {
     cartItems: {
@@ -182,34 +182,34 @@ export default {
       return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     },
     
-    // Загрузить корзину из store
-    loadCart() {
-      this.cartItems = cartStore.getCart()
+    // Загрузить корзину из API
+    async loadCart() {
+      this.cartItems = await cartStore.getCart()
       console.log('Корзина загружена:', this.cartItems)
     },
     
     // Увеличить количество
-    increaseQuantity(id) {
+    async increaseQuantity(id) {
       const item = this.cartItems.find(i => i.id === id)
       if (item) {
-        cartStore.updateQuantity(id, item.quantity + 1)
-        this.loadCart() // Перезагружаем корзину после изменения
+        await cartStore.updateQuantity(id, item.quantity + 1)
+        await this.loadCart()
       }
     },
     
     // Уменьшить количество
-    decreaseQuantity(id) {
+    async decreaseQuantity(id) {
       const item = this.cartItems.find(i => i.id === id)
       if (item && item.quantity > 1) {
-        cartStore.updateQuantity(id, item.quantity - 1)
-        this.loadCart() // Перезагружаем корзину после изменения
+        await cartStore.updateQuantity(id, item.quantity - 1)
+        await this.loadCart()
       }
     },
     
     // Удалить товар
-    removeItem(id) {
-      cartStore.removeItem(id)
-      this.loadCart() // Перезагружаем корзину после удаления
+    async removeItem(id) {
+      await cartStore.removeItem(id)
+      await this.loadCart()
     },
     
     // Применить бонусы
@@ -228,6 +228,32 @@ export default {
       if (this.bonusesToSpend > 0) {
         alert(`Списано ${this.bonusesToSpend} баллов. Скидка: ${this.formatPrice(this.bonusDiscount)} ₽`)
       }
+    },
+    
+    // Применить сертификат
+    async applyCertificate() {
+      if (!this.certificateCode) return
+      
+      this.isApplyingCertificate = true
+      this.certificateError = ''
+      
+      const result = await cartStore.validateCertificate(this.certificateCode)
+      
+      if (result.valid) {
+        this.appliedCertificate = result.certificate
+        this.certificateCode = ''
+        this.certificateError = ''
+      } else {
+        this.certificateError = result.error
+      }
+      
+      this.isApplyingCertificate = false
+    },
+    
+    removeCertificate() {
+      this.appliedCertificate = null
+      this.certificateCode = ''
+      this.certificateError = ''
     },
     
     // Перейти к оформлению заказа
@@ -251,51 +277,23 @@ export default {
     },
     
     // Обработчик успешного входа
-    handleLoginSuccess() {
+    async handleLoginSuccess() {
       this.closeAuthModal()
-      this.loadCart() // Перезагружаем корзину после входа
+      await this.loadCart()
     }
   },
-  mounted() {
-    this.loadCart() // Загружаем корзину при монтировании компонента
+  async mounted() {
+    await this.loadCart()
     
     // Слушаем события обновления корзины
-    window.addEventListener('cart-updated', () => {
+    window.addEventListener('cart-updated', async () => {
       console.log('Корзина обновлена')
-      this.loadCart()
-    })
-    
-    // Слушаем изменения в localStorage (для синхронизации между вкладками)
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'current_user') {
-        this.loadCart()
-      }
+      await this.loadCart()
     })
   },
-  async applyCertificate() {
-  if (!this.certificateCode) return
-  
-  this.isApplyingCertificate = true
-  this.certificateError = ''
-  
-  const result = await cartStore.validateCertificate(this.certificateCode)
-  
-  if (result.valid) {
-    this.appliedCertificate = result.certificate
-    this.certificateCode = ''
-    this.certificateError = ''
-  } else {
-    this.certificateError = result.error
+  beforeUnmount() {
+    window.removeEventListener('cart-updated', this.loadCart)
   }
-  
-  this.isApplyingCertificate = false
-},
-
-removeCertificate() {
-  this.appliedCertificate = null
-  this.certificateCode = ''
-  this.certificateError = ''
-}
 }
 </script>
 

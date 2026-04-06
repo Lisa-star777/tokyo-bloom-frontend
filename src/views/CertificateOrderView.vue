@@ -195,6 +195,7 @@
 
 <script>
 import { cartStore } from '@/stores/cart'
+import { authStore } from '@/stores/auth'
 
 export default {
   name: 'CertificateOrderView',
@@ -203,11 +204,11 @@ export default {
       selectedCertificate: null,
       showCertificateModal: false,
       certificateNumber: '',
+      isGenerating: false,
       payment: {
         cardNumber: '',
         expiry: '',
         cvv: '',
-        isGenerating: false,  // флаг загрузки
         cardHolder: ''
       },
       certificates: [
@@ -240,8 +241,10 @@ export default {
         year: 'numeric'
       })
     },
+    currentUser() {
+      return authStore.getCurrentUser()
+    },
     isPaymentValid() {
-      // Простая валидация для демонстрации
       const cardNumber = this.payment.cardNumber.replace(/\s/g, '')
       const expiryValid = /^\d{2}\/\d{2}$/.test(this.payment.expiry)
       const cvvValid = /^\d{3}$/.test(this.payment.cvv)
@@ -276,31 +279,30 @@ export default {
     },
     
     async generateCertificate() {
-  if (!this.selectedCertificate) return
-  
-  // Показываем индикатор загрузки
-  this.isGenerating = true
-  
-  try {
-    const newCertificate = await cartStore.createCertificate({
-      value: this.selectedCertificate.value,
-      ownerEmail: null,
-      buyerName: this.currentUser?.name
-    })
-    
-    if (newCertificate) {
-      this.certificateNumber = newCertificate.code
-      this.showCertificateModal = true
-    } else {
-      alert('Ошибка при создании сертификата. Попробуйте позже.')
-    }
-  } catch (error) {
-    console.error('Ошибка:', error)
-    alert('Произошла ошибка. Попробуйте позже.')
-  } finally {
-    this.isGenerating = false
-  }
-},
+      if (!this.selectedCertificate) return
+      
+      this.isGenerating = true
+      
+      try {
+        const newCertificate = await cartStore.createCertificate({
+          value: this.selectedCertificate.value,
+          ownerEmail: null,
+          buyerName: this.currentUser?.name
+        })
+        
+        if (newCertificate) {
+          this.certificateNumber = newCertificate.code
+          this.showCertificateModal = true
+        } else {
+          alert('Ошибка при создании сертификата. Попробуйте позже.')
+        }
+      } catch (error) {
+        console.error('Ошибка:', error)
+        alert('Произошла ошибка. Попробуйте позже.')
+      } finally {
+        this.isGenerating = false
+      }
+    },
     
     copyCertificateNumber() {
       navigator.clipboard.writeText(this.certificateNumber)
@@ -320,6 +322,11 @@ export default {
     
     goToCertificates() {
       this.$router.push('/certificates')
+    },
+    
+    hideCertificateModal() {
+      this.showCertificateModal = false
+      this.goToCertificates()
     }
   }
 }

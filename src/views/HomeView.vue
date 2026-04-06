@@ -1,19 +1,15 @@
 <template>
   <div class="home-page">
-    <!-- Hero Section -->
     <section class="hero">
       <div class="container">
         <div class="hero-content">
-          <div class="hero-image">
-            <!-- Placeholder для изображения сертификата -->
-          </div>
+          <div class="hero-image"></div>
           <h1>ПОДАРОК, КОТОРЫЙ НЕ ЗАВЯНЕТ</h1>
           <router-link to="/certificates" class="cta-button">Купить сертификат</router-link>
         </div>
       </div>
     </section>
 
-    <!-- Акции -->
     <section class="products-section">
       <div class="container">
         <h2 class="section-title">Акции</h2>
@@ -22,7 +18,7 @@
             <div class="product-image">
               <img 
                 v-if="product.image_url" 
-                :src="product.image_url" 
+                :src="getImageUrl(product.image_url)" 
                 :alt="product.title"
                 class="product-img"
               >
@@ -35,7 +31,6 @@
       </div>
     </section>
 
-    <!-- Букеты -->
     <section class="products-section">
       <div class="container">
         <h2 class="section-title">Букеты</h2>
@@ -44,7 +39,7 @@
             <div class="product-image">
               <img 
                 v-if="product.image_url" 
-                :src="product.image_url" 
+                :src="getImageUrl(product.image_url)" 
                 :alt="product.title"
                 class="product-img"
               >
@@ -56,12 +51,11 @@
           </div>
         </div>
         <div class="section-footer">
-          <router-link to="/bouquets" class="view-more-link">Смотреть больше </router-link>
+          <router-link to="/bouquets" class="view-more-link">Смотреть больше →</router-link>
         </div>
       </div>
     </section>
 
-    <!-- Подарки -->
     <section class="products-section">
       <div class="container">
         <h2 class="section-title">Подарки</h2>
@@ -70,7 +64,7 @@
             <div class="product-image">
               <img 
                 v-if="product.image_url" 
-                :src="product.image_url" 
+                :src="getImageUrl(product.image_url)" 
                 :alt="product.title"
                 class="product-img"
               >
@@ -82,12 +76,11 @@
           </div>
         </div>
         <div class="section-footer">
-          <router-link to="/gifts" class="view-more-link">Смотреть больше </router-link>
+          <router-link to="/gifts" class="view-more-link">Смотреть больше →</router-link>
         </div>
       </div>
     </section>
 
-    <!-- Цветы в коробках -->
     <section class="products-section">
       <div class="container">
         <h2 class="section-title">Цветы в коробках</h2>
@@ -96,7 +89,7 @@
             <div class="product-image">
               <img 
                 v-if="product.image_url" 
-                :src="product.image_url" 
+                :src="getImageUrl(product.image_url)" 
                 :alt="product.title"
                 class="product-img"
               >
@@ -108,7 +101,7 @@
           </div>
         </div>
         <div class="section-footer">
-          <router-link to="/box-flowers" class="view-more-link">Смотреть больше </router-link>
+          <router-link to="/box-flowers" class="view-more-link">Смотреть больше →</router-link>
         </div>
       </div>
     </section>
@@ -117,6 +110,7 @@
 
 <script>
 import { adminStore } from '@/stores/admin'
+import { API_BASE_URL } from '@/services/api'
 
 export default {
   name: 'HomeView',
@@ -148,6 +142,11 @@ export default {
     await this.loadProducts()
   },
   methods: {
+    getImageUrl(path) {
+      if (!path) return null
+      if (path.startsWith('http')) return path
+      return API_BASE_URL + path
+    },
     async loadProducts() {
       this.loading = true
       try {

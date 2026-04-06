@@ -72,13 +72,12 @@ const routes = [
     name: 'orders',
     component: OrdersView
   },
-  // Админ-панель
- {
-  path: '/admin',
-  name: 'admin',
-  component: TestAdminView,
-  meta: { requiresAdmin: true }
-}
+  {
+    path: '/admin',
+    name: 'admin',
+    component: TestAdminView,
+    meta: { requiresAdmin: true }
+  }
 ]
 
 const router = createRouter({
@@ -88,21 +87,27 @@ const router = createRouter({
 
 // Защита маршрутов
 router.beforeEach((to, from, next) => {
+  console.log('Переход на:', to.path)
+  console.log('Требуется админ:', to.meta.requiresAdmin)
+  
   // Проверка для админ-маршрутов
   if (to.meta.requiresAdmin) {
-    // Получаем текущего пользователя
+    // Получаем текущего пользователя из localStorage
     const userStr = localStorage.getItem('current_user')
     const user = userStr ? JSON.parse(userStr) : null
     
+    console.log('Пользователь:', user)
+    
     // Проверяем, является ли пользователь админом
-    if (user && user.isAdmin === true) {
-      next() // Админ - пускаем
+    if (user && user.is_admin === true) {
+      console.log('✅ Админ, пропускаем')
+      next()
     } else {
-      console.log('Не админ, перенаправляем на главную')
-      next('/') // Не админ - на главную
+      console.log('❌ Не админ, перенаправляем на главную')
+      next('/')
     }
   } else {
-    next() // Обычные маршруты - пускаем всех
+    next()
   }
 })
 

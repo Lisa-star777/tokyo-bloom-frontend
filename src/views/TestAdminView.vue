@@ -230,8 +230,8 @@
             
             <div class="product-details">
               <div class="product-image-mini">
-                <img v-if="product.image_url" :src="product.image_url" :alt="product.title">
-                <div v-else class="no-image">📷</div>
+                <img v-if="product.image_url" :src="'http://localhost:8000' + product.image_url" :alt="product.title" style="width: 100%; height: 100%; object-fit: cover;">
+                  <div v-else class="no-image">📷</div>
               </div>
               <p class="product-category">{{ getCategoryName(product.category) }}</p>
               <p class="product-price">{{ formatPrice(product.price) }} ₽</p>
@@ -587,8 +587,7 @@
 
 <script>
 import { adminStore } from '@/stores/admin'
-import emailjs from '@emailjs/browser'
-import { EMAILJS_CONFIG } from '@/config/emailjs'
+
 
 export default {
   name: 'AdminPanelView',
@@ -679,7 +678,7 @@ export default {
       this.$router.push('/')
       return
     }
-    emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY)
+  
     await this.loadAllData()
   },
   methods: {
@@ -730,12 +729,17 @@ export default {
       try {
         console.log('🔄 Загрузка данных админ-панели...')
         this.statsData = await adminStore.getStats()
-        this.productsData = await adminStore.getProducts()
+        
+        // Загружаем товары и принудительно обновляем
+        const products = await adminStore.getProducts()
+        this.productsData = JSON.parse(JSON.stringify(products)) // Глубокое копирование
+        
         this.usersData = await adminStore.getUsers()
         this.ordersData = await adminStore.getOrders()
         this.certificatesData = await adminStore.getCertificates()
         this.feedbackData = await adminStore.getFeedback()
-        console.log('✅ Данные загружены')
+        
+        console.log('✅ Товары загружены:', this.productsData.map(p => ({title: p.title, image: p.image_url})))
       } catch (error) {
         console.error('❌ Ошибка загрузки данных:', error)
       } finally {
@@ -932,47 +936,35 @@ export default {
       this.isSending = false
     },
 
-    async sendReply() {
-      if (!this.replyText.trim()) {
+async sendReply() {
+    if (!this.replyText.trim()) {
         alert('Введите текст ответа')
         return
-      }
-      if (!this.currentMessage) {
+    }
+    if (!this.currentMessage) {
         alert('Ошибка: сообщение не найдено')
         return
-      }
-
-      this.isSending = true
-
-      try {
-        emailjs.init(EMAILJS_CONFIG.PUBLIC_KEY)
-
-        const templateParams = {
-          to_email: this.currentMessage.email,
-          to_name: this.currentMessage.name,
-          reply_text: this.replyText,
-          title: 'Ответ на ваше сообщение'
-        }
-
-        await emailjs.send(
-          EMAILJS_CONFIG.SERVICE_ID,
-          EMAILJS_CONFIG.TEMPLATE_ID,
-          templateParams
-        )
-
-        await adminStore.markFeedbackAsRead(this.currentMessage.id)
-        await this.loadAllData()
-
-        alert(`✅ Ответ успешно отправлен на ${this.currentMessage.email}`)
-        this.closeReplyModal()
-
-      } catch (error) {
-        console.error('❌ Ошибка отправки email:', error)
-        alert(`❌ Ошибка при отправке: ${error.text || 'Попробуйте позже'}`)
-      } finally {
-        this.isSending = false
-      }
     }
+
+    this.isSending = true
+
+    try {
+        const result = await adminStore.sendFeedbackReply(this.currentMessage.id, this.replyText)
+        
+        if (result) {
+            alert(`✅ Ответ успешно отправлен на ${this.currentMessage.email}`)
+            await this.loadAllData()
+            this.closeReplyModal()
+        } else {
+            alert('❌ Ошибка при отправке ответа')
+        }
+    } catch (error) {
+        console.error('Ошибка:', error)
+        alert('❌ Ошибка при отправке')
+    } finally {
+        this.isSending = false
+    }
+}
   }
 }
 </script>

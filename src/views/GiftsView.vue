@@ -1,6 +1,5 @@
 <template>
   <div class="catalog-page">
-    <!-- Верхняя часть -->
     <section class="catalog-top-section">
       <div class="container">
         <div class="catalog-header">
@@ -10,14 +9,12 @@
       </div>
     </section>
 
-    <!-- Полоска -->
     <div class="catalog-divider-container">
       <div class="container">
         <div class="catalog-divider"></div>
       </div>
     </div>
 
-    <!-- Сетка товаров -->
     <section class="catalog-products-section">
       <div class="container">
         <div v-if="loading" class="loading">
@@ -34,7 +31,7 @@
             <div class="product-image">
               <img 
                 v-if="product.image_url" 
-                :src="product.image_url" 
+                :src="getImageUrl(product.image_url)" 
                 :alt="product.title"
                 class="product-img"
               >
@@ -52,6 +49,7 @@
 
 <script>
 import { adminStore } from '@/stores/admin'
+import { API_BASE_URL } from '@/services/api'
 
 export default {
   name: 'GiftsView',
@@ -71,6 +69,11 @@ export default {
     await this.loadProducts()
   },
   methods: {
+    getImageUrl(path) {
+      if (!path) return null
+      if (path.startsWith('http')) return path
+      return API_BASE_URL + path
+    },
     async loadProducts() {
       this.loading = true
       try {

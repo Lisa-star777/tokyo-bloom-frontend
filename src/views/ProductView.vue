@@ -1,6 +1,5 @@
 <template>
   <div class="product-page">
-    <!-- Хлебные крошки -->
     <section class="breadcrumb-section">
       <div class="container">
         <nav class="breadcrumb">
@@ -13,26 +12,21 @@
       </div>
     </section>
 
-    <!-- Основная информация о товаре -->
     <section class="product-main-section">
       <div class="container">
         <div class="product-layout">
-          <!-- Изображение товара -->
           <div class="product-image">
             <img 
               v-if="currentProduct.image_url" 
-              :src="currentProduct.image_url" 
+              :src="getImageUrl(currentProduct.image_url)" 
               :alt="currentProduct.title"
               class="product-img"
             >
             <div v-else class="image-placeholder">{{ currentProduct.title }}</div>
           </div>
 
-          <!-- Информация о товаре -->
           <div class="product-info">
             <h1 class="product-title">{{ currentProduct.title }}</h1>
-            
-            
 
             <div class="product-price">
               {{ formatPrice(currentProduct.price) }} ₽
@@ -43,10 +37,8 @@
               <p>{{ currentProduct.materials || 'Не указаны' }}</p>
             </div>
 
-            <!-- Кнопки действий -->
             <div class="product-actions">
               <button class="add-to-cart-btn" @click="addToCart(currentProduct)">
-                <span class="btn-icon"></span>
                 В корзину
               </button>
               <button class="buy-now-btn" @click="buyNow(currentProduct)">
@@ -58,7 +50,6 @@
       </div>
     </section>
 
-    <!-- Рекомендуемые товары -->
     <section class="recommended-section">
       <div class="container">
         <h2 class="recommended-title">К букету можно добавить</h2>
@@ -74,7 +65,7 @@
             <div class="recommended-image">
               <img 
                 v-if="product.image_url" 
-                :src="product.image_url" 
+                :src="getImageUrl(product.image_url)" 
                 :alt="product.title"
               >
               <div v-else class="image-placeholder-sm">{{ product.title }}</div>
@@ -94,6 +85,8 @@
 <script>
 import { adminStore } from '@/stores/admin'
 import { cartStore } from '@/stores/cart'
+import { authStore } from '@/stores/auth'
+import { API_BASE_URL } from '@/services/api'
 
 export default {
   name: 'ProductView',
@@ -152,7 +145,6 @@ export default {
     
     recommendedProducts() {
       if (!this.allProducts || !Array.isArray(this.allProducts)) return []
-      // Исключаем текущий товар и берем первые 5
       return this.allProducts
         .filter(p => p.id !== this.currentProduct.id)
         .slice(0, 5)
@@ -162,6 +154,11 @@ export default {
     await this.loadProducts()
   },
   methods: {
+    getImageUrl(path) {
+      if (!path) return null
+      if (path.startsWith('http')) return path
+      return API_BASE_URL + path
+    },
     async loadProducts() {
       this.loading = true
       try {
@@ -175,20 +172,40 @@ export default {
         this.loading = false
       }
     },
+    
     formatPrice(price) {
       if (!price && price !== 0) return '0'
       return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
     },
+    
     goToProduct(productId) {
       this.$router.push(`/product/${productId}`)
     },
-    addToCart(product) {
-      cartStore.addItem(product, 1)
-      alert(`✅ Товар "${product.title}" добавлен в корзину!`)
+    
+    async addToCart(product) {
+      if (!authStore.isAuthenticated()) {
+        this.$emit('open-auth-modal')
+        return
+      }
+      const success = await cartStore.addItem(product, 1)
+      if (success) {
+        alert(`✅ Товар "${product.title}" добавлен в корзину!`)
+      } else {
+        alert('❌ Ошибка при добавлении в корзину')
+      }
     },
-    buyNow(product) {
-      cartStore.addItem(product, 1)
-      this.$router.push('/checkout')
+    
+    async buyNow(product) {
+      if (!authStore.isAuthenticated()) {
+        this.$emit('open-auth-modal')
+        return
+      }
+      const success = await cartStore.addItem(product, 1)
+      if (success) {
+        this.$router.push('/checkout')
+      } else {
+        alert('❌ Ошибка при добавлении в корзину')
+      }
     }
   }
 }

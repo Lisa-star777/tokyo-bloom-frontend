@@ -102,7 +102,7 @@ export default {
       return this.user?.name || 'Пользователь'
     },
     isAdmin() {
-      return this.user?.isAdmin === true
+      return this.user?.is_admin === true
     }
   },
   methods: {
@@ -110,8 +110,8 @@ export default {
       this.user = authStore.getCurrentUser()
     },
     
-    loadCartCount() {
-      this.cartCount = cartStore.getTotalCount()
+    async loadCartCount() {
+      this.cartCount = await cartStore.getTotalCount()
     },
     
     openAuthModal(tab) {
@@ -123,18 +123,18 @@ export default {
       this.showAuthModal = false
     },
     
-    handleLoginSuccess(user) {
+    async handleLoginSuccess(user) {
       this.user = user
       this.closeAuthModal()
-      this.loadCartCount()
+      await this.loadCartCount()
     },
     
     toggleUserMenu() {
       this.showUserMenu = !this.showUserMenu
     },
     
-    logout() {
-      authStore.logout()
+    async logout() {
+      await authStore.logout()
       this.user = null
       this.showUserMenu = false
       this.cartCount = 0
@@ -153,7 +153,7 @@ export default {
       }
     },
     
-    // 🔔 ОБРАБОТЧИКИ СОБЫТИЙ
+    // Обработчики событий
     onUserLoggedIn(event) {
       this.user = event.detail
       this.loadCartCount()
@@ -166,40 +166,33 @@ export default {
     
     onUserUpdated(event) {
       this.user = event.detail
+    },
+    
+    onCartUpdated(event) {
+      this.cartCount = event.detail?.count || 0
     }
   },
-  mounted() {
+  async mounted() {
     this.loadUser()
-    this.loadCartCount()
+    await this.loadCartCount()
     document.addEventListener('click', this.handleClickOutside)
     
-    // Слушаем события localStorage
-    window.addEventListener('storage', (e) => {
-      if (e.key === 'current_user') {
-        this.loadUser()
-      }
-    })
-    
-    // 🔔 СЛУШАЕМ КАСТОМНЫЕ СОБЫТИЯ
+    // Слушаем события
     window.addEventListener('user-logged-in', this.onUserLoggedIn)
     window.addEventListener('user-logged-out', this.onUserLoggedOut)
     window.addEventListener('user-updated', this.onUserUpdated)
-    
-    // Слушаем обновления корзины
-    window.addEventListener('cart-updated', () => {
-      this.loadCartCount()
-    })
+    window.addEventListener('cart-updated', this.onCartUpdated)
   },
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside)
-    window.removeEventListener('storage', this.loadUser)
     window.removeEventListener('user-logged-in', this.onUserLoggedIn)
     window.removeEventListener('user-logged-out', this.onUserLoggedOut)
     window.removeEventListener('user-updated', this.onUserUpdated)
-    window.removeEventListener('cart-updated', this.loadCartCount)
+    window.removeEventListener('cart-updated', this.onCartUpdated)
   }
 }
 </script>
+
 <style scoped>
 .header {
   background-color: #333333;
