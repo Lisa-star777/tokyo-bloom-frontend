@@ -91,6 +91,7 @@
 
 <script>
 import api from '@/services/api'
+import { notifications } from '@/services/notifications'
 
 export default {
   name: 'FeedbackForm',
@@ -190,7 +191,7 @@ export default {
         
       } catch (error) {
         console.error('❌ Ошибка отправки сообщения:', error)
-        alert('Произошла ошибка при отправке. Попробуйте позже.')
+        notifications.error('Произошла ошибка при отправке. Попробуйте позже.')
       } finally {
         this.isSubmitting = false
       }

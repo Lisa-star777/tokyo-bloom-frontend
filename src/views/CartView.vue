@@ -114,6 +114,7 @@
 import { cartStore } from '@/stores/cart'
 import { authStore } from '@/stores/auth'
 import AuthModal from '@/components/AuthModal.vue'
+import { notifications } from '@/services/notifications'
 
 export default {
   name: 'CartView',
@@ -179,7 +180,7 @@ export default {
   },
   methods: {
     formatPrice(price) {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
     
     // Загрузить корзину из API
@@ -226,7 +227,7 @@ export default {
       this.bonusDiscount = this.bonusesToSpend
       
       if (this.bonusesToSpend > 0) {
-        alert(`Списано ${this.bonusesToSpend} баллов. Скидка: ${this.formatPrice(this.bonusDiscount)} ₽`)
+        notifications.success(`Списано ${this.bonusesToSpend} баллов. Скидка: ${this.formatPrice(this.bonusDiscount)} ₽`)
       }
     },
     

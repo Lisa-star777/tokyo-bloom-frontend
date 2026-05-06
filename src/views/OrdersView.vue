@@ -78,7 +78,7 @@
           </div>
 
           <button class="repeat-order-btn" @click="repeatOrder(order)">
-            🔄 Повторить заказ
+             Повторить заказ
           </button>
         </div>
       </div>
@@ -96,7 +96,9 @@
 <script>
 import { authStore } from '@/stores/auth'
 import { cartStore } from '@/stores/cart'
+import { notifications } from '@/services/notifications'
 import AuthModal from '@/components/AuthModal.vue'
+
 
 export default {
   name: 'OrdersView',
@@ -121,8 +123,7 @@ export default {
   },
   methods: {
     formatPrice(price) {
-      if (!price && price !== 0) return '0'
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
     
     formatDate(dateStr) {
@@ -138,7 +139,7 @@ export default {
           console.log('📋 Загружено заказов:', this.orders.length)
         }
       } catch (error) {
-        console.error('❌ Ошибка загрузки заказов:', error)
+        console.error(' Ошибка загрузки заказов:', error)
       } finally {
         this.loading = false
       }
@@ -149,7 +150,7 @@ export default {
       for (const item of order.items) {
         await cartStore.addItem(item, item.quantity)
       }
-      alert('✅ Товары добавлены в корзину')
+      notifications.success('Товары добавлены в корзину')
       this.$router.push('/cart')
     },
 

@@ -129,6 +129,7 @@
 import { authStore } from '@/stores/auth'
 import { cartStore } from '@/stores/cart'
 import AuthModal from '@/components/AuthModal.vue'
+import { notifications } from '@/services/notifications'
 
 export default {
   name: 'ProfileView',
@@ -174,8 +175,7 @@ export default {
   },
   methods: {
     formatPrice(price) {
-      if (!price && price !== 0) return '0'
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
     
     formatDate(dateStr) {
@@ -247,13 +247,13 @@ export default {
         
         if (updatedUser) {
           this.showEditForm = false
-          alert('✅ Профиль успешно обновлен!')
+          notifications.success(' Профиль успешно обновлен!')
         } else {
-          alert('❌ Ошибка при обновлении профиля')
+          notifications.error(' Ошибка при обновлении профиля')
         }
       } catch (error) {
         console.error('Ошибка сохранения профиля:', error)
-        alert('❌ Ошибка при обновлении профиля')
+        notifications.error(' Ошибка при обновлении профиля')
       }
     }
   },

@@ -65,7 +65,7 @@ export default {
   },
   methods: {
     formatPrice(price) {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
     goToCertificateOrder() {
       this.$router.push('/certificate-order')

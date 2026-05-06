@@ -13,10 +13,7 @@
               <li><router-link to="/about">О НАС</router-link></li>
             </ul>
           </nav>
-          <div class="social-text">
-            НАШИ СОЦИАЛЬНЫЕ СЕТИ
-          </div>
-        </div>
+
 
         <!-- Правая часть - ссылка на форму обратной связи -->
         <div class="footer-feedback">
@@ -28,6 +25,7 @@
         </div>
       </div>
     </div>
+  </div>
   </footer>
 </template>
 

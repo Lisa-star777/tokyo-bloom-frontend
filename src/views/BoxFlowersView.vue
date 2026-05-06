@@ -87,8 +87,7 @@ export default {
       }
     },
     formatPrice(price) {
-      if (!price && price !== 0) return '0'
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
     goToProduct(productId) {
       this.$router.push(`/product/${productId}`)
@@ -227,7 +226,7 @@ export default {
 .product-title {
   font-family: 'Albert Sans', sans-serif;
   font-weight: 600;
-  font-size: 25px;
+  font-size: 20px;
   margin-bottom: 10px;
   color: #292966;
   line-height: 1.3;

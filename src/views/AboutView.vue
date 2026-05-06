@@ -35,19 +35,19 @@
             <div class="contact-info">
               <div class="contact-item">
                 <span class="contact-label">✦ Телефон:</span>
-                <span class="contact-value">+7 (800) 555-35-35</span>
+                <span class="contact-value">+7 (914) 654-41-00</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">✦ Email:</span>
-                <span class="contact-value">info@tokusbloom.ru</span>
+                <span class="contact-value">tokyobloom@mail.ru</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">✦ Адрес:</span>
-                <span class="contact-value">г. Владивосток, ул. Шепеткого, д. 14</span>
+                <span class="contact-value">г. Владивосток, ул.Шепеткова, д.60</span>
               </div>
               <div class="contact-item">
                 <span class="contact-label">✦ Время работы:</span>
-                <span class="contact-value">Ежедневно с 9:00 до 21:00</span>
+                <span class="contact-value">Ежедневно с 8:00 до 22:00</span>
               </div>
             </div>
           </div>

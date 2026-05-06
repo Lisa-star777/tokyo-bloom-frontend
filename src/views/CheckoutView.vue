@@ -273,12 +273,6 @@
                 </div>
               </div>
 
-              <div class="payment-icons">
-                <span class="payment-icon">💳 Visa</span>
-                <span class="payment-icon">💳 Mastercard</span>
-                <span class="payment-icon">💳 Mir</span>
-              </div>
-            </div>
 
             <div class="summary-divider"></div>
 
@@ -341,12 +335,14 @@
       @login-success="handleLoginSuccess"
     />
   </div>
+</div>
 </template>
 
 <script>
 import { cartStore } from '@/stores/cart'
 import { authStore } from '@/stores/auth'
 import AuthModal from '@/components/AuthModal.vue'
+import { notifications } from '@/services/notifications'
 
 export default {
   name: 'CheckoutView',
@@ -435,8 +431,7 @@ export default {
   },
   methods: {
     formatPrice(price) {
-      if (price === undefined || price === null) return '0'
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
     
     formatCardNumber(event) {
@@ -539,20 +534,20 @@ export default {
       
       if (this.cartItems.length === 0) {
         console.log('❌ Корзина пуста')
-        alert('Корзина пуста')
+        notifications.error('Корзина пуста')
         this.$router.push('/')
         return
       }
 
       if (!this.isFormValid) {
         console.log('❌ Форма невалидна')
-        alert('Пожалуйста, заполните все обязательные поля (отмечены *)')
+        notifications.error('Пожалуйста, заполните все обязательные поля (отмечены *)')
         return
       }
 
       if (!this.isPaymentValid) {
         console.log('❌ Данные карты невалидны')
-        alert('Пожалуйста, заполните данные карты корректно')
+        notifications.error('Пожалуйста, заполните данные карты корректно')
         return
       }
 
@@ -612,12 +607,12 @@ export default {
           this.showContactsModal = true
 
         } else {
-          alert('Не удалось создать заказ. Попробуйте позже.')
+          notifications.error('Не удалось создать заказ. Попробуйте позже.')
         }
 
       } catch (error) {
         console.error('❌ Ошибка при оформлении заказа:', error)
-        alert('Произошла ошибка при оформлении заказа. Попробуйте позже.')
+        notifications.error('Произошла ошибка при оформлении заказа. Попробуйте позже.')
       }
     },
     

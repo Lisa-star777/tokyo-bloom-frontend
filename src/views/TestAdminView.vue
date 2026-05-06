@@ -587,7 +587,7 @@
 
 <script>
 import { adminStore } from '@/stores/admin'
-
+import { notifications } from '@/services/notifications'
 
 export default {
   name: 'AdminPanelView',
@@ -688,7 +688,7 @@ export default {
         this.productForm.imageFile = file
         this.productForm.imagePreview = URL.createObjectURL(file)
       } else {
-        alert('Пожалуйста, выберите изображение')
+        notifications.success('Пожалуйста, выберите изображение')
         event.target.value = ''
       }
     },
@@ -714,13 +714,13 @@ export default {
           this.editingProduct.image_url = null
           this.productForm.imagePreview = null
           this.productForm.imageFile = null
-          alert('✅ Изображение удалено')
+          notifications.success(' Изображение удалено')
         } else {
-          alert('❌ Не удалось удалить изображение')
+          notifications.error(' Не удалось удалить изображение')
         }
       } catch (error) {
         console.error('Ошибка удаления изображения:', error)
-        alert('❌ Ошибка при удалении изображения')
+        notifications.error(' Ошибка при удалении изображения')
       }
     },
 
@@ -748,8 +748,7 @@ export default {
     },
 
     formatPrice(price) {
-      if (price === undefined || price === null) return '0'
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
 
     getCategoryName(category) {
@@ -807,13 +806,13 @@ export default {
           productData,
           this.productForm.imageFile
         )
-        if (result) alert('✅ Товар обновлен')
+        if (result) notifications.success(' Товар обновлен')
       } else {
         result = await adminStore.addProduct(
           productData,
           this.productForm.imageFile
         )
-        if (result) alert('✅ Товар добавлен')
+        if (result) notifications.success(' Товар добавлен')
       }
 
       if (result) {
@@ -832,7 +831,7 @@ export default {
     // ===== ПОЛЬЗОВАТЕЛИ =====
     copyPassword(password) {
       navigator.clipboard.writeText(password)
-      alert('✅ Пароль скопирован в буфер обмена')
+      notifications.success(' Пароль скопирован в буфер обмена')
     },
 
     async addBonuses(user, amount) {
@@ -861,7 +860,7 @@ export default {
         cancelled: 'Отменен'
       }
       await adminStore.updateOrderStatus(order.id, order.status, statusMap[order.status])
-      alert(`✅ Статус заказа изменен на "${statusMap[order.status]}"`)
+      notifications.success(` Статус заказа изменен на "${statusMap[order.status]}"`)
       await this.loadAllData()
     },
 
@@ -892,7 +891,7 @@ export default {
         statusMap[this.selectedOrder.status]
       )
 
-      alert(`✅ Статус заказа изменен на "${statusMap[this.selectedOrder.status]}"`)
+      notifications.success(` Статус заказа изменен на "${statusMap[this.selectedOrder.status]}"`)
       await this.loadAllData()
       this.closeOrderModal()
     },
@@ -906,7 +905,7 @@ export default {
       
       this.certificateForm = { value: '5000', ownerEmail: '' }
       this.showCertificateForm = false
-      alert('✅ Сертификат создан')
+      notifications.success(' Сертификат создан')
       await this.loadAllData()
     },
 
@@ -938,11 +937,11 @@ export default {
 
 async sendReply() {
     if (!this.replyText.trim()) {
-        alert('Введите текст ответа')
+        notifications.error('Введите текст ответа')
         return
     }
     if (!this.currentMessage) {
-        alert('Ошибка: сообщение не найдено')
+        notifications.error('Ошибка: сообщение не найдено')
         return
     }
 
@@ -952,15 +951,15 @@ async sendReply() {
         const result = await adminStore.sendFeedbackReply(this.currentMessage.id, this.replyText)
         
         if (result) {
-            alert(`✅ Ответ успешно отправлен на ${this.currentMessage.email}`)
+            notifications.success(` Ответ успешно отправлен на ${this.currentMessage.email}`)
             await this.loadAllData()
             this.closeReplyModal()
         } else {
-            alert('❌ Ошибка при отправке ответа')
+            notifications.error(' Ошибка при отправке ответа')
         }
     } catch (error) {
         console.error('Ошибка:', error)
-        alert('❌ Ошибка при отправке')
+        notifications.error(' Ошибка при отправке')
     } finally {
         this.isSending = false
     }

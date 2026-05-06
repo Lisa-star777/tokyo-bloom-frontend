@@ -87,6 +87,8 @@ import { adminStore } from '@/stores/admin'
 import { cartStore } from '@/stores/cart'
 import { authStore } from '@/stores/auth'
 import { API_BASE_URL } from '@/services/api'
+import { notifications } from '@/services/notifications'
+
 
 export default {
   name: 'ProductView',
@@ -174,8 +176,7 @@ export default {
     },
     
     formatPrice(price) {
-      if (!price && price !== 0) return '0'
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
     
     goToProduct(productId) {
@@ -189,9 +190,9 @@ export default {
       }
       const success = await cartStore.addItem(product, 1)
       if (success) {
-        alert(`✅ Товар "${product.title}" добавлен в корзину!`)
+        notifications.success(`Товар ${product.title} теперь в корзине!`)
       } else {
-        alert('❌ Ошибка при добавлении в корзину')
+        notifications.error(' Ошибка при добавлении в корзину')
       }
     },
     
@@ -204,7 +205,7 @@ export default {
       if (success) {
         this.$router.push('/checkout')
       } else {
-        alert('❌ Ошибка при добавлении в корзину')
+        notifications.error(' Ошибка при добавлении в корзину')
       }
     }
   }

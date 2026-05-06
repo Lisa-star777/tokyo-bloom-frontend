@@ -123,11 +123,12 @@
             </div>
 
             <button 
-              class="submit-order-button" 
-              @click="generateCertificate" 
-              :disabled="isGenerating"
-            >
-              {{ isGenerating ? 'Создание...' : 'Оформить сертификат' }}
+                class="submit-order-button" 
+                @click="generateCertificate" 
+                :disabled="!isFormFilled || isGenerating"
+                :class="{ 'btn-disabled': !isFormFilled }"
+              >
+                {{ isGenerating ? 'Оформление...' : 'Оформить сертификат' }}
             </button>
           </div>
           
@@ -180,7 +181,7 @@
         </div>
 
         <div class="modal-notes">
-          <p class="note">Сохраните номер сертификата! Он потребуется для активации при заказе.</p>
+          <p class="note">Мы отпрвим вам отправим уведомление на почту c номером сертификата.</p>
         </div>
 
         <div class="modal-actions">
@@ -196,6 +197,7 @@
 <script>
 import { cartStore } from '@/stores/cart'
 import { authStore } from '@/stores/auth'
+import { notifications } from '@/services/notifications'
 
 export default {
   name: 'CertificateOrderView',
@@ -244,18 +246,18 @@ export default {
     currentUser() {
       return authStore.getCurrentUser()
     },
-    isPaymentValid() {
+    // Простая проверка - все поля заполнены
+    isFormFilled() {
       const cardNumber = this.payment.cardNumber.replace(/\s/g, '')
-      const expiryValid = /^\d{2}\/\d{2}$/.test(this.payment.expiry)
-      const cvvValid = /^\d{3}$/.test(this.payment.cvv)
-      const cardHolderValid = this.payment.cardHolder.trim().length >= 3
-      
-      return cardNumber.length === 16 && expiryValid && cvvValid && cardHolderValid
+      return cardNumber.length > 0 && 
+             this.payment.expiry.length > 0 && 
+             this.payment.cvv.length > 0 && 
+             this.payment.cardHolder.trim().length > 0
     }
   },
   methods: {
     formatPrice(price) {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        return Math.round(price).toLocaleString('ru-RU');
     },
     
     formatCardNumber(event) {
@@ -279,7 +281,31 @@ export default {
     },
     
     async generateCertificate() {
-      if (!this.selectedCertificate) return
+      if (!this.selectedCertificate) {
+        notifications.warning('Пожалуйста, выберите номинал сертификата')
+        return
+      }
+      
+      // Простая проверка: все ли поля заполнены
+      if (!this.payment.cardNumber.replace(/\s/g, '')) {
+        notifications.warning('Пожалуйста, заполните номер карты')
+        return
+      }
+      
+      if (!this.payment.expiry) {
+        notifications.warning('Пожалуйста, заполните срок действия')
+        return
+      }
+      
+      if (!this.payment.cvv) {
+        notifications.warning('Пожалуйста, заполните CVV код')
+        return
+      }
+      
+      if (!this.payment.cardHolder.trim()) {
+        notifications.warning('Пожалуйста, заполните имя держателя')
+        return
+      }
       
       this.isGenerating = true
       
@@ -287,18 +313,18 @@ export default {
         const newCertificate = await cartStore.createCertificate({
           value: this.selectedCertificate.value,
           ownerEmail: null,
-          buyerName: this.currentUser?.name
+          buyerName: this.currentUser?.name || this.payment.cardHolder
         })
         
         if (newCertificate) {
           this.certificateNumber = newCertificate.code
           this.showCertificateModal = true
         } else {
-          alert('Ошибка при создании сертификата. Попробуйте позже.')
+          notifications.error('Ошибка при создании сертификата. Попробуйте позже.')
         }
       } catch (error) {
         console.error('Ошибка:', error)
-        alert('Произошла ошибка. Попробуйте позже.')
+        notifications.error('Произошла ошибка. Попробуйте позже.')
       } finally {
         this.isGenerating = false
       }
@@ -307,7 +333,7 @@ export default {
     copyCertificateNumber() {
       navigator.clipboard.writeText(this.certificateNumber)
         .then(() => {
-          alert('Номер сертификата скопирован в буфер обмена!')
+          notifications.success('Номер сертификата скопирован в буфер обмена!')
         })
         .catch(() => {
           const textArea = document.createElement('textarea')
@@ -316,7 +342,7 @@ export default {
           textArea.select()
           document.execCommand('copy')
           document.body.removeChild(textArea)
-          alert('Номер сертификата скопирован в буфер обмена!')
+          notifications.success('Номер сертификата скопирован в буфер обмена!')
         })
     },
     
