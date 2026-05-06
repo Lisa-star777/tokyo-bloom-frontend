@@ -1,14 +1,14 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/v1',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-    },
-    withCredentials: true, // Важно для работы с cookies
-});
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
+  withCredentials: true,
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  }
+})
+
 
 // Интерсептор для добавления токена
 api.interceptors.request.use(
