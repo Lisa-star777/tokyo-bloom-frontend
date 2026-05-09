@@ -22,7 +22,12 @@ export const authStore = {
     // Регистрация
     async register(name, email, password) {
         try {
-            const response = await api.post('/register', { name, email, password });
+            const response = await api.post('/register', { 
+    name, 
+    email, 
+    password, 
+    password_confirmation: password 
+});
             const { user, token } = response.data;
             
             localStorage.setItem('auth_token', token);
