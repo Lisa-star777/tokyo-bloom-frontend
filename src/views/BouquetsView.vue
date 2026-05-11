@@ -17,9 +17,8 @@
 
     <section class="catalog-products-section">
       <div class="container">
-        <div v-if="loading" class="loading">
-          <div class="spinner"></div>
-          <p>Загрузка товаров...</p>
+        <div v-if="loading" class="products-grid">
+          <SkeletonCard v-for="i in 8" :key="i" />
         </div>
         <div v-else class="products-grid">
           <div 
@@ -48,11 +47,13 @@
 </template>
 
 <script>
+import SkeletonCard from '@/components/SkeletonCard.vue'
 import { adminStore } from '@/stores/admin'
 import { API_BASE_URL } from '@/services/api'
 
 export default {
   name: 'BouquetsView',
+  components: { SkeletonCard },
   data() {
     return {
       loading: true,
@@ -87,7 +88,7 @@ export default {
       }
     },
     formatPrice(price) {
-        return Math.round(price).toLocaleString('ru-RU');
+      return Math.round(price).toLocaleString('ru-RU');
     },
     goToProduct(productId) {
       this.$router.push(`/product/${productId}`)
