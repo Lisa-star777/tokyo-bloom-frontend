@@ -17,8 +17,9 @@
 
     <section class="catalog-products-section">
       <div class="container">
-        <div v-if="loading" class="products-grid">
-          <SkeletonCard v-for="i in 8" :key="i" />
+        <div v-if="loading" class="loading-container">
+          <div class="spinner"></div>
+          <p>Загрузка товаров...</p>
         </div>
         <div v-else class="products-grid">
           <div 
@@ -47,13 +48,11 @@
 </template>
 
 <script>
-import SkeletonCard from '@/components/SkeletonCard.vue'
 import { adminStore } from '@/stores/admin'
 import { API_BASE_URL } from '@/services/api'
 
 export default {
   name: 'BoxFlowersView',
-  components: { SkeletonCard },
   data() {
     return {
       loading: true,
@@ -79,7 +78,6 @@ export default {
       this.loading = true
       try {
         this.allProducts = await adminStore.getProducts()
-        console.log('📦 Загружено товаров для BoxFlowersView:', this.allProducts.length)
       } catch (error) {
         console.error('Ошибка загрузки товаров:', error)
         this.allProducts = []
