@@ -27,6 +27,18 @@ export const adminStore = {
     },
 
     async addProduct(product, imageFile = null) {
+        // Если есть image_url — отправляем как JSON
+        if (product.image_url && !imageFile) {
+            try {
+                const response = await api.post('/admin/products', product);
+                return response.data;
+            } catch (error) {
+                console.error('Ошибка добавления товара:', error);
+                return null;
+            }
+        }
+        
+        // Если есть файл — отправляем FormData
         const formData = new FormData();
         formData.append('title', product.title);
         formData.append('price', product.price);
@@ -49,27 +61,38 @@ export const adminStore = {
     },
 
     async updateProduct(productId, updatedData, imageFile = null) {
-    const formData = new FormData();
-    formData.append('_method', 'PUT');
-    formData.append('title', updatedData.title);
-    formData.append('price', updatedData.price);
-    formData.append('category', updatedData.category);
-    formData.append('description', updatedData.description || '');
-    formData.append('materials', updatedData.materials || '');
-    if (imageFile) {
-        formData.append('image', imageFile);
-    }
-    
-    try {
-        const response = await api.post(`/admin/products/${productId}`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Ошибка обновления товара:', error);
-        return null;
-    }
-},
+        // Если есть image_url — отправляем как JSON
+        if (updatedData.image_url && !imageFile) {
+            try {
+                const response = await api.put(`/admin/products/${productId}`, updatedData);
+                return response.data;
+            } catch (error) {
+                console.error('Ошибка обновления товара:', error);
+                return null;
+            }
+        }
+        
+        const formData = new FormData();
+        formData.append('_method', 'PUT');
+        formData.append('title', updatedData.title);
+        formData.append('price', updatedData.price);
+        formData.append('category', updatedData.category);
+        formData.append('description', updatedData.description || '');
+        formData.append('materials', updatedData.materials || '');
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+        
+        try {
+            const response = await api.post(`/admin/products/${productId}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка обновления товара:', error);
+            return null;
+        }
+    },
 
     async deleteProduct(productId) {
         try {
