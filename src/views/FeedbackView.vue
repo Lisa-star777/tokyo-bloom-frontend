@@ -4,12 +4,6 @@
       <div class="feedback-form">
         <h3 class="feedback-title">Обратная связь</h3>
         <p class="feedback-subtitle">Оставьте ваше сообщение, и мы свяжемся с вами</p>
-        
-        <!-- Спиннер -->
-        <div v-if="isSubmitting" class="loading-container">
-          <div class="spinner"></div>
-          <p>Отправка сообщения...</p>
-        </div>
 
         <form v-if="!submitted" @submit.prevent="submitForm" class="form">
           <div class="form-group">
@@ -33,6 +27,7 @@
             <div class="char-counter">{{ form.message.length }} / 500</div>
           </div>
           <button type="submit" class="submit-button" :disabled="!isFormValid || isSubmitting">
+            <span v-if="isSubmitting" class="spinner-inline"></span>
             {{ isSubmitting ? 'Отправка...' : 'Отправить сообщение' }}
           </button>
         </form>

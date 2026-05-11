@@ -1,11 +1,5 @@
 <template>
   <div class="certificate-order-page">
-    <!-- Спиннер -->
-    <div v-if="isGenerating" class="loading-container">
-      <div class="spinner"></div>
-      <p>Создание сертификата...</p>
-    </div>
-
     <!-- Хлебные крошки -->
     <section class="breadcrumb-section">
       <div class="container">
@@ -25,21 +19,11 @@
           <h1 class="page-title">Выберите сертификат</h1>
           <p class="page-subtitle">Подарите возможность выбора - подарочный сертификат от Tokyo Bloom</p>
           <div class="certificates-grid">
-            <div 
-              v-for="certificate in certificates" 
-              :key="certificate.id" 
-              class="certificate-card"
-              :class="{ 'selected': selectedCertificate?.id === certificate.id }"
-              @click="selectCertificate(certificate)"
-            >
+            <div v-for="certificate in certificates" :key="certificate.id" class="certificate-card" :class="{ 'selected': selectedCertificate?.id === certificate.id }" @click="selectCertificate(certificate)">
               <div class="certificate-value">{{ formatPrice(certificate.value) }} ₽</div>
               <div class="certificate-description">{{ certificate.description }}</div>
-              <div class="certificate-features">
-                <div class="feature">Срок действия: {{ certificate.validity }}</div>
-              </div>
-              <button class="select-button" :class="{ 'selected': selectedCertificate?.id === certificate.id }">
-                {{ selectedCertificate?.id === certificate.id ? 'Выбрано' : 'Выбрать' }}
-              </button>
+              <div class="certificate-features"><div class="feature">Срок действия: {{ certificate.validity }}</div></div>
+              <button class="select-button" :class="{ 'selected': selectedCertificate?.id === certificate.id }">{{ selectedCertificate?.id === certificate.id ? 'Выбрано' : 'Выбрать' }}</button>
             </div>
           </div>
         </div>
@@ -47,59 +31,27 @@
         <div class="order-info-section">
           <div class="order-summary-card" v-if="selectedCertificate">
             <h2 class="summary-title">Ваш заказ</h2>
-            <div class="selected-certificate">
-              <div class="certificate-preview">
-                <div class="certificate-details">
-                  <div class="certificate-name">Подарочный сертификат</div>
-                  <div class="certificate-amount">{{ formatPrice(selectedCertificate.value) }} ₽</div>
-                  <div class="certificate-validity">Срок действия: {{ selectedCertificate.validity }}</div>
-                </div>
-              </div>
-            </div>
+            <div class="selected-certificate"><div class="certificate-preview"><div class="certificate-details"><div class="certificate-name">Подарочный сертификат</div><div class="certificate-amount">{{ formatPrice(selectedCertificate.value) }} ₽</div><div class="certificate-validity">Срок действия: {{ selectedCertificate.validity }}</div></div></div></div>
             <div class="summary-divider"></div>
-            <div class="summary-row">
-              <span class="summary-label">Номинал сертификата</span>
-              <span class="summary-value">{{ formatPrice(selectedCertificate.value) }} ₽</span>
-            </div>
+            <div class="summary-row"><span class="summary-label">Номинал сертификата</span><span class="summary-value">{{ formatPrice(selectedCertificate.value) }} ₽</span></div>
             <div class="payment-section">
               <h3 class="payment-title">Оплата банковской картой</h3>
               <div class="payment-form">
-                <div class="form-group">
-                  <label class="form-label">Номер карты</label>
-                  <input type="text" class="payment-input" v-model="payment.cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" @input="formatCardNumber">
-                </div>
+                <div class="form-group"><label class="form-label">Номер карты</label><input type="text" class="payment-input" v-model="payment.cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" @input="formatCardNumber"></div>
                 <div class="form-row">
-                  <div class="form-group half">
-                    <label class="form-label">Срок действия</label>
-                    <input type="text" class="payment-input" v-model="payment.expiry" placeholder="MM/YY" maxlength="5" @input="formatExpiry">
-                  </div>
-                  <div class="form-group half">
-                    <label class="form-label">CVV/CVC</label>
-                    <input type="password" class="payment-input" v-model="payment.cvv" placeholder="***" maxlength="3">
-                  </div>
+                  <div class="form-group half"><label class="form-label">Срок действия</label><input type="text" class="payment-input" v-model="payment.expiry" placeholder="MM/YY" maxlength="5" @input="formatExpiry"></div>
+                  <div class="form-group half"><label class="form-label">CVV/CVC</label><input type="password" class="payment-input" v-model="payment.cvv" placeholder="***" maxlength="3"></div>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Имя держателя</label>
-                  <input type="text" class="payment-input" v-model="payment.cardHolder" placeholder="IVAN IVANOV">
-                </div>
+                <div class="form-group"><label class="form-label">Имя держателя</label><input type="text" class="payment-input" v-model="payment.cardHolder" placeholder="IVAN IVANOV"></div>
               </div>
             </div>
-            <div class="summary-total">
-              <span class="total-label">К оплате:</span>
-              <span class="total-value">{{ formatPrice(selectedCertificate.value) }} ₽</span>
-            </div>
-            <button 
-              class="submit-order-button" 
-              @click="generateCertificate" 
-              :disabled="!isFormFilled || isGenerating"
-            >
+            <div class="summary-total"><span class="total-label">К оплате:</span><span class="total-value">{{ formatPrice(selectedCertificate.value) }} ₽</span></div>
+            <button class="submit-order-button" @click="generateCertificate" :disabled="!isFormFilled || isGenerating">
+              <span v-if="isGenerating" class="spinner-inline"></span>
               {{ isGenerating ? 'Оформление...' : 'Оформить сертификат' }}
             </button>
           </div>
-          <div class="placeholder-card" v-else>
-            <div class="placeholder-title">Выберите сертификат</div>
-            <p class="placeholder-description">Выберите один из вариантов сертификата слева для продолжения оформления</p>
-          </div>
+          <div class="placeholder-card" v-else><div class="placeholder-title">Выберите сертификат</div><p class="placeholder-description">Выберите один из вариантов сертификата слева для продолжения оформления</p></div>
         </div>
       </div>
     </div>
@@ -108,17 +60,9 @@
     <div v-if="showCertificateModal" class="certificate-modal" @click="hideCertificateModal">
       <div class="modal-content" @click.stop>
         <button class="close-button" @click="hideCertificateModal">×</button>
-        <div class="certificate-header">
-          <div class="certificate-success-icon">✓</div>
-          <h3>Оплата прошла успешно!</h3>
-          <p class="modal-subtitle">Сертификат успешно создан</p>
-        </div>
+        <div class="certificate-header"><div class="certificate-success-icon">✓</div><h3>Оплата прошла успешно!</h3><p class="modal-subtitle">Сертификат успешно создан</p></div>
         <div class="certificate-details-card">
-          <div class="certificate-number-section">
-            <div class="number-label">Номер сертификата:</div>
-            <div class="certificate-number">{{ certificateNumber }}</div>
-            <button class="copy-button" @click="copyCertificateNumber">Копировать</button>
-          </div>
+          <div class="certificate-number-section"><div class="number-label">Номер сертификата:</div><div class="certificate-number">{{ certificateNumber }}</div><button class="copy-button" @click="copyCertificateNumber">Копировать</button></div>
           <div class="certificate-info">
             <div class="info-row"><span class="info-label">Номинал:</span><span class="info-value">{{ formatPrice(selectedCertificate.value) }} ₽</span></div>
             <div class="info-row"><span class="info-label">Срок действия:</span><span class="info-value">{{ selectedCertificate.validity }}</span></div>
@@ -126,12 +70,7 @@
             <div class="info-row"><span class="info-label">Статус:</span><span class="info-status">Активен</span></div>
           </div>
         </div>
-        <div class="modal-notes">
-          <p class="note">Мы отправим вам уведомление на почту c номером сертификата.</p>
-        </div>
-        <div class="modal-actions">
-          <button class="back-button" @click="goToCertificates">Вернуться к сертификатам</button>
-        </div>
+        <div class="modal-actions"><button class="back-button" @click="goToCertificates">Вернуться к сертификатам</button></div>
       </div>
     </div>
   </div>

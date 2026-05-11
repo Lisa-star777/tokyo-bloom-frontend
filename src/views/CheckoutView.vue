@@ -1,9 +1,5 @@
 <template>
   <div class="checkout-page">
-    <div v-if="isProcessing" class="loading-container">
-  <div class="spinner"></div>
-  <p>Оформление заказа...</p>
-</div>
     <!-- Хлебные крошки -->
     <section class="breadcrumb-section">
       <div class="container">
@@ -24,30 +20,15 @@
           <!-- 1. Контакты получателя -->
           <div class="form-section">
             <h2 class="form-section-title">1. Контакты получателя</h2>
-            
             <div class="form-group">
               <label class="form-label">Имя получателя *</label>
-              <input 
-                type="text" 
-                class="form-input" 
-                v-model="form.recipientName" 
-                placeholder="Иван Иванов"
-                required
-              >
+              <input type="text" class="form-input" v-model="form.recipientName" placeholder="Иван Иванов" required>
             </div>
-
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Адрес *</label>
-                <input 
-                  type="text" 
-                  class="form-input" 
-                  v-model="form.address" 
-                  placeholder="ул. Улицы, 12"
-                  required
-                >
+                <input type="text" class="form-input" v-model="form.address" placeholder="ул. Улицы, 12" required>
               </div>
-              
               <div class="form-group">
                 <label class="form-label">Время доставки</label>
                 <select class="form-select" v-model="form.deliveryTime">
@@ -59,72 +40,38 @@
                 </select>
               </div>
             </div>
-
             <div class="form-group">
               <label class="form-label">Контактный телефон *</label>
-              <input 
-                type="tel" 
-                class="form-input" 
-                v-model="form.recipientPhone" 
-                placeholder="+7 (999) 123-45-67"
-                required
-              >
+              <input type="tel" class="form-input" v-model="form.recipientPhone" placeholder="+7 (999) 123-45-67" required>
             </div>
-
             <div class="form-group">
               <label class="form-label">Дата доставки</label>
-              <input 
-                type="date" 
-                class="form-input" 
-                v-model="form.deliveryDate"
-              >
+              <input type="date" class="form-input" v-model="form.deliveryDate">
             </div>
           </div>
 
-          <!-- Разделитель -->
           <div class="section-divider"></div>
 
           <!-- 2. Контакты отправителя -->
           <div class="form-section">
             <h2 class="form-section-title">2. Контакты отправителя</h2>
-            
             <div class="form-group">
               <label class="form-label">Имя отправителя</label>
-              <input 
-                type="text" 
-                class="form-input" 
-                v-model="form.senderName" 
-                placeholder="Иван Иванов"
-              >
+              <input type="text" class="form-input" v-model="form.senderName" placeholder="Иван Иванов">
             </div>
-
             <div class="form-group">
-              <label class="form-label">Номер телефона отправителя *</label>  <!-- ← ЗВЁЗДОЧКА -->
-              <input 
-                type="tel" 
-                class="form-input" 
-                v-model="form.senderPhone" 
-                placeholder="+7 (999) 123-45-67"
-                required
-              >
+              <label class="form-label">Номер телефона отправителя *</label>
+              <input type="tel" class="form-input" v-model="form.senderPhone" placeholder="+7 (999) 123-45-67" required>
             </div>
           </div>
-          <!-- Разделитель -->
           <div class="section-divider"></div>
 
           <!-- 3. Детали доставки -->
           <div class="form-section">
             <h2 class="form-section-title">3. Детали доставки</h2>
-            
             <div class="form-group">
               <label class="form-label">Открытка</label>
-              <textarea 
-                class="form-textarea" 
-                v-model="form.postcard" 
-                placeholder="Текст открытки" 
-                rows="3"
-                maxlength="70"
-              ></textarea>
+              <textarea class="form-textarea" v-model="form.postcard" placeholder="Текст открытки" rows="3" maxlength="70"></textarea>
               <div class="char-counter">{{ form.postcard.length }}/70</div>
             </div>
           </div>
@@ -134,196 +81,103 @@
         <div class="order-summary-section">
           <div class="order-summary-card">
             <h2 class="summary-title">Ваш заказ</h2>
-            
             <div class="order-items">
               <div v-for="item in cartItems" :key="item.id" class="order-item">
                 <span class="item-name">{{ item.title }}</span>
                 <span class="item-quantity">x{{ item.quantity }}</span>
                 <span class="item-price">{{ formatPrice(item.price * item.quantity) }} ₽</span>
               </div>
-              <div v-if="cartItems.length === 0" class="empty-cart-message">
-                Корзина пуста
-              </div>
             </div>
-
             <div class="summary-divider"></div>
-
             <div class="summary-row">
               <span class="summary-label">Сумма заказа</span>
               <span class="summary-value">{{ formatPrice(subtotal) }} ₽</span>
             </div>
-
             <div class="summary-row">
               <span class="summary-label">Доставка</span>
               <span class="summary-value">{{ formatPrice(deliveryCost) }} ₽</span>
             </div>
-
-            <!-- ===== СЕРТИФИКАТ ===== -->
             <div class="promo-block">
-              <div class="promo-header">
-                <span class="promo-title">Подарочный сертификат</span>
-              </div>
-              
+              <div class="promo-header"><span class="promo-title">Подарочный сертификат</span></div>
               <div v-if="!appliedCertificate" class="promo-input-group">
-                <input 
-                  type="text" 
-                  class="promo-input" 
-                  placeholder="Введите код сертификата"
-                  v-model="certificateCode"
-                >
-                <button 
-                  class="promo-apply-btn" 
-                  @click="applyCertificate"
-                  :disabled="!certificateCode || isApplyingCertificate"
-                >
-                  {{ isApplyingCertificate ? 'Проверка...' : 'Применить' }}
-                </button>
+                <input type="text" class="promo-input" placeholder="Введите код сертификата" v-model="certificateCode">
+                <button class="promo-apply-btn" @click="applyCertificate" :disabled="!certificateCode || isApplyingCertificate">{{ isApplyingCertificate ? 'Проверка...' : 'Применить' }}</button>
               </div>
-              
               <div v-else class="promo-applied">
                 <span class="promo-success">Применен сертификат на {{ formatPrice(appliedCertificate.value) }} ₽</span>
                 <button class="promo-remove-btn" @click="removeCertificate">Удалить</button>
               </div>
-              
-              <div v-if="certificateError" class="promo-error">
-                {{ certificateError }}
-              </div>
+              <div v-if="certificateError" class="promo-error">{{ certificateError }}</div>
             </div>
-
-            <!-- ===== СПИСАТЬ БАЛЛЫ ===== -->
             <div class="promo-block">
               <div class="promo-header">
                 <span class="promo-title">Бонусные баллы</span>
                 <span class="promo-balance">Доступно: {{ userBonuses }} баллов</span>
               </div>
-              
               <div v-if="!bonusApplied" class="promo-input-group">
-                <input 
-                  type="number" 
-                  class="promo-input" 
-                  placeholder="Сколько баллов списать?"
-                  v-model.number="bonusesToSpend"
-                  :max="maxAvailableBonuses"
-                  min="0"
-                >
-                <button 
-                  class="promo-apply-btn" 
-                  @click="applyBonuses"
-                  :disabled="!bonusesToSpend || bonusesToSpend <= 0 || bonusesToSpend > maxAvailableBonuses"
-                >
-                  Списать
-                </button>
+                <input type="number" class="promo-input" placeholder="Сколько баллов списать?" v-model.number="bonusesToSpend" :max="maxAvailableBonuses" min="0">
+                <button class="promo-apply-btn" @click="applyBonuses" :disabled="!bonusesToSpend || bonusesToSpend <= 0 || bonusesToSpend > maxAvailableBonuses">Списать</button>
               </div>
-              
               <div v-else class="promo-applied">
                 <span class="promo-success">Списано {{ bonusDiscount }} баллов ({{ formatPrice(bonusDiscount) }} ₽)</span>
                 <button class="promo-remove-btn" @click="removeBonuses">Отменить</button>
               </div>
-              
-              <div v-if="bonusError" class="promo-error">
-                {{ bonusError }}
-              </div>
             </div>
-
-            <!-- ===== ОПЛАТА КАРТОЙ ===== -->
             <div class="payment-section">
               <h3 class="payment-title">Оплата банковской картой</h3>
-              
               <div class="payment-form">
                 <div class="form-group">
                   <label class="form-label">Номер карты</label>
-                  <input 
-                    type="text" 
-                    class="payment-input" 
-                    v-model="payment.cardNumber"
-                    placeholder="0000 0000 0000 0000"
-                    maxlength="19"
-                    @input="formatCardNumber"
-                  >
+                  <input type="text" class="payment-input" v-model="payment.cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" @input="formatCardNumber">
                 </div>
-
                 <div class="form-row">
                   <div class="form-group half">
                     <label class="form-label">Срок действия</label>
-                    <input 
-                      type="text" 
-                      class="payment-input" 
-                      v-model="payment.expiry"
-                      placeholder="MM/YY"
-                      maxlength="5"
-                      @input="formatExpiry"
-                    >
+                    <input type="text" class="payment-input" v-model="payment.expiry" placeholder="MM/YY" maxlength="5" @input="formatExpiry">
                   </div>
                   <div class="form-group half">
                     <label class="form-label">CVV/CVC</label>
-                    <input 
-                      type="password" 
-                      class="payment-input" 
-                      v-model="payment.cvv"
-                      placeholder="***"
-                      maxlength="3"
-                    >
+                    <input type="password" class="payment-input" v-model="payment.cvv" placeholder="***" maxlength="3">
                   </div>
                 </div>
-
                 <div class="form-group">
                   <label class="form-label">Имя держателя</label>
-                  <input 
-                    type="text" 
-                    class="payment-input" 
-                    v-model="payment.cardHolder"
-                    placeholder="IVAN IVANOV"
-                  >
+                  <input type="text" class="payment-input" v-model="payment.cardHolder" placeholder="IVAN IVANOV">
                 </div>
               </div>
-
-
+            </div>
             <div class="summary-divider"></div>
-
             <div class="summary-total">
               <span class="total-label">Итого к оплате:</span>
               <span class="total-value">{{ formatPrice(finalTotal) }} ₽</span>
             </div>
+            <div class="bonus-info" v-if="bonusesToEarn > 0">После оплаты будет начислено {{ bonusesToEarn }} баллов</div>
 
-            <div class="bonus-info" v-if="bonusesToEarn > 0">
-              После оплаты будет начислено {{ bonusesToEarn }} баллов
-            </div>
-
-              <button 
-                class="submit-order-button" 
-                @click="submitOrder"
-                :disabled="cartItems.length === 0 || !isFormValid || !isPaymentValid"
-              >
-                Оплатить {{ formatPrice(finalTotal) }} ₽
-              </button>
+            <button 
+              class="submit-order-button" 
+              @click="submitOrder"
+              :disabled="cartItems.length === 0 || !isFormValid || !isPaymentValid || isProcessing"
+            >
+              <span v-if="isProcessing" class="spinner-inline"></span>
+              {{ isProcessing ? 'Оформление...' : 'Оплатить ' + formatPrice(finalTotal) + ' ₽' }}
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Модальное окно с контактами после оформления -->
+    <!-- Модальное окно -->
     <div v-if="showContactsModal" class="contacts-modal" @click="hideContacts">
       <div class="modal-content" @click.stop>
         <button class="close-button" @click="hideContacts">×</button>
         <div class="success-icon">✓</div>
         <h3>Заказ успешно оформлен!</h3>
         <p class="modal-subtitle">Ваш заказ №{{ lastOrder?.id }} принят</p>
-        
         <div class="order-summary-modal">
-          <div class="summary-item">
-            <span>Сумма заказа:</span>
-            <span class="summary-value">{{ formatPrice(lastOrder?.total) }} ₽</span>
-          </div>
-          <div class="summary-item">
-            <span>Начислено баллов:</span>
-            <span class="bonus-value">
-              {{ lastOrder?.bonuses_earned ? '+' + lastOrder.bonuses_earned : '+' + (lastOrder?.bonusesEarned || 0) }}
-            </span>
-          </div>
+          <div class="summary-item"><span>Сумма заказа:</span><span class="summary-value">{{ formatPrice(lastOrder?.total) }} ₽</span></div>
+          <div class="summary-item"><span>Начислено баллов:</span><span class="bonus-value">{{ lastOrder?.bonuses_earned ? '+' + lastOrder.bonuses_earned : '+' + (lastOrder?.bonusesEarned || 0) }}</span></div>
         </div>
-
         <p class="modal-note">Мы позвоним вам для подтверждения заказа, а так же отправим уведомление на почту</p>
-        
         <div class="modal-actions">
           <button class="view-orders-btn" @click="goToOrders">Мои заказы</button>
           <button class="back-to-home-btn" @click="goToHome">На главную</button>
@@ -331,15 +185,8 @@
       </div>
     </div>
 
-    <!-- Модальное окно авторизации -->
-    <AuthModal 
-      v-if="showAuthModal" 
-      :initial-tab="'login'"
-      @close="closeAuthModal"
-      @login-success="handleLoginSuccess"
-    />
+    <AuthModal v-if="showAuthModal" :initial-tab="'login'" @close="closeAuthModal" @login-success="handleLoginSuccess" />
   </div>
-</div>
 </template>
 
 <script>
