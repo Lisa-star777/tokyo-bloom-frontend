@@ -1,5 +1,9 @@
 <template>
   <div class="checkout-page">
+    <div v-if="isProcessing" class="loading-container">
+  <div class="spinner"></div>
+  <p>Оформление заказа...</p>
+</div>
     <!-- Хлебные крошки -->
     <section class="breadcrumb-section">
       <div class="container">
@@ -351,6 +355,7 @@ export default {
   },
   data() {
     return {
+      isProcessing: false,
       showContactsModal: false,
       showAuthModal: false,
       lastOrder: null,
@@ -431,7 +436,7 @@ export default {
   },
   methods: {
     formatPrice(price) {
-        return Math.round(price).toLocaleString('ru-RU');
+      return Math.round(price).toLocaleString('ru-RU');
     },
     
     formatCardNumber(event) {
@@ -496,33 +501,6 @@ export default {
       this.bonusError = ''
     },
     
-    async sendOrderConfirmation(order) {
-      try {
-        const userEmail = this.currentUser?.email
-        if (!userEmail) return
-        
-        const orderItemsHtml = order.items?.map(item => `
-          <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
-            <strong>${item.title}</strong> - ${item.quantity} шт. x ${this.formatPrice(item.price)} ₽ = ${this.formatPrice(item.price * item.quantity)} ₽
-          </div>
-        `).join('') || ''
-        
-        await emailjs.send(
-          EMAILJS_CONFIG.SERVICE_ID,
-          'template_44lwinv',
-          {
-            to_email: userEmail,
-            customer_name: this.currentUser?.name,
-            order_id: order.id,
-            order_total: this.formatPrice(order.total),
-            order_items: orderItemsHtml
-          }
-        )
-      } catch (error) {
-        console.error('Ошибка отправки email:', error)
-      }
-    },
-    
     async submitOrder() {
       console.log('🔵 submitOrder вызван')
 
@@ -551,23 +529,25 @@ export default {
         return
       }
 
-      let certificateDiscount = 0
-      let certificateData = null
-      if (this.appliedCertificate) {
-        certificateDiscount = Math.min(this.appliedCertificate.value, this.subtotal + this.deliveryCost)
-        certificateData = {
-          code: this.appliedCertificate.code,
-          discount: certificateDiscount,
-          value: this.appliedCertificate.value
-        }
-      }
-
-      let bonusesUsed = 0
-      if (this.bonusDiscount) {
-        bonusesUsed = this.bonusDiscount
-      }
+      this.isProcessing = true
 
       try {
+        let certificateDiscount = 0
+        let certificateData = null
+        if (this.appliedCertificate) {
+          certificateDiscount = Math.min(this.appliedCertificate.value, this.subtotal + this.deliveryCost)
+          certificateData = {
+            code: this.appliedCertificate.code,
+            discount: certificateDiscount,
+            value: this.appliedCertificate.value
+          }
+        }
+
+        let bonusesUsed = 0
+        if (this.bonusDiscount) {
+          bonusesUsed = this.bonusDiscount
+        }
+
         const order = await cartStore.createOrderFromCart(this.currentUser.id, {
           certificateUsed: certificateData,
           bonusesUsed: bonusesUsed,
@@ -587,32 +567,24 @@ export default {
           console.log('✅ Заказ создан:', order.id)
 
           if (this.appliedCertificate) {
-            await cartStore.useCertificate(
-              this.appliedCertificate.code,
-              this.currentUser.id,
-              order.id
-            )
+            await cartStore.useCertificate(this.appliedCertificate.code, this.currentUser.id, order.id)
           }
-
           if (this.bonusDiscount) {
             await authStore.spendBonuses(this.bonusDiscount)
           }
-
           const bonusesToEarn = Math.floor(this.subtotal * 0.1)
           await authStore.addBonuses(bonusesToEarn)
 
-          //await this.sendOrderConfirmation(order)
-
           this.lastOrder = order
           this.showContactsModal = true
-
         } else {
           notifications.error('Не удалось создать заказ. Попробуйте позже.')
         }
-
       } catch (error) {
         console.error('❌ Ошибка при оформлении заказа:', error)
         notifications.error('Произошла ошибка при оформлении заказа. Попробуйте позже.')
+      } finally {
+        this.isProcessing = false
       }
     },
     
@@ -654,6 +626,8 @@ export default {
   }
 }
 </script>
+
+
 
 <style scoped>
 .checkout-page {

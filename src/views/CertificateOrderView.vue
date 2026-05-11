@@ -1,5 +1,11 @@
 <template>
   <div class="certificate-order-page">
+    <!-- Спиннер -->
+    <div v-if="isGenerating" class="loading-container">
+      <div class="spinner"></div>
+      <p>Создание сертификата...</p>
+    </div>
+
     <!-- Хлебные крошки -->
     <section class="breadcrumb-section">
       <div class="container">
@@ -15,11 +21,9 @@
 
     <div class="container">
       <div class="certificate-layout">
-        <!-- Левая колонка - Выбор сертификата -->
         <div class="certificate-selection-section">
           <h1 class="page-title">Выберите сертификат</h1>
           <p class="page-subtitle">Подарите возможность выбора - подарочный сертификат от Tokyo Bloom</p>
-
           <div class="certificates-grid">
             <div 
               v-for="certificate in certificates" 
@@ -31,9 +35,7 @@
               <div class="certificate-value">{{ formatPrice(certificate.value) }} ₽</div>
               <div class="certificate-description">{{ certificate.description }}</div>
               <div class="certificate-features">
-                <div class="feature">
-                  Срок действия: {{ certificate.validity }}
-                </div>
+                <div class="feature">Срок действия: {{ certificate.validity }}</div>
               </div>
               <button class="select-button" :class="{ 'selected': selectedCertificate?.id === certificate.id }">
                 {{ selectedCertificate?.id === certificate.id ? 'Выбрано' : 'Выбрать' }}
@@ -42,11 +44,9 @@
           </div>
         </div>
 
-        <!-- Правая колонка - Информация о заказе и оплата -->
         <div class="order-info-section">
           <div class="order-summary-card" v-if="selectedCertificate">
             <h2 class="summary-title">Ваш заказ</h2>
-            
             <div class="selected-certificate">
               <div class="certificate-preview">
                 <div class="certificate-details">
@@ -56,82 +56,46 @@
                 </div>
               </div>
             </div>
-
             <div class="summary-divider"></div>
-
             <div class="summary-row">
               <span class="summary-label">Номинал сертификата</span>
               <span class="summary-value">{{ formatPrice(selectedCertificate.value) }} ₽</span>
             </div>
-
-            <!-- Форма оплаты картой -->
             <div class="payment-section">
               <h3 class="payment-title">Оплата банковской картой</h3>
-              
               <div class="payment-form">
                 <div class="form-group">
                   <label class="form-label">Номер карты</label>
-                  <input 
-                    type="text" 
-                    class="payment-input" 
-                    v-model="payment.cardNumber"
-                    placeholder="0000 0000 0000 0000"
-                    maxlength="19"
-                    @input="formatCardNumber"
-                  >
+                  <input type="text" class="payment-input" v-model="payment.cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" @input="formatCardNumber">
                 </div>
-
                 <div class="form-row">
                   <div class="form-group half">
                     <label class="form-label">Срок действия</label>
-                    <input 
-                      type="text" 
-                      class="payment-input" 
-                      v-model="payment.expiry"
-                      placeholder="MM/YY"
-                      maxlength="5"
-                      @input="formatExpiry"
-                    >
+                    <input type="text" class="payment-input" v-model="payment.expiry" placeholder="MM/YY" maxlength="5" @input="formatExpiry">
                   </div>
                   <div class="form-group half">
                     <label class="form-label">CVV/CVC</label>
-                    <input 
-                      type="password" 
-                      class="payment-input" 
-                      v-model="payment.cvv"
-                      placeholder="***"
-                      maxlength="3"
-                    >
+                    <input type="password" class="payment-input" v-model="payment.cvv" placeholder="***" maxlength="3">
                   </div>
                 </div>
-
                 <div class="form-group">
                   <label class="form-label">Имя держателя</label>
-                  <input 
-                    type="text" 
-                    class="payment-input" 
-                    v-model="payment.cardHolder"
-                    placeholder="IVAN IVANOV"
-                  >
+                  <input type="text" class="payment-input" v-model="payment.cardHolder" placeholder="IVAN IVANOV">
                 </div>
               </div>
             </div>
-
             <div class="summary-total">
               <span class="total-label">К оплате:</span>
               <span class="total-value">{{ formatPrice(selectedCertificate.value) }} ₽</span>
             </div>
-
             <button 
-                class="submit-order-button" 
-                @click="generateCertificate" 
-                :disabled="!isFormFilled || isGenerating"
-                :class="{ 'btn-disabled': !isFormFilled }"
-              >
-                {{ isGenerating ? 'Оформление...' : 'Оформить сертификат' }}
+              class="submit-order-button" 
+              @click="generateCertificate" 
+              :disabled="!isFormFilled || isGenerating"
+            >
+              {{ isGenerating ? 'Оформление...' : 'Оформить сертификат' }}
             </button>
           </div>
-          
           <div class="placeholder-card" v-else>
             <div class="placeholder-title">Выберите сертификат</div>
             <p class="placeholder-description">Выберите один из вариантов сертификата слева для продолжения оформления</p>
@@ -140,54 +104,33 @@
       </div>
     </div>
 
-    <!-- Модальное окно с информацией о сертификате -->
+    <!-- Модальное окно -->
     <div v-if="showCertificateModal" class="certificate-modal" @click="hideCertificateModal">
       <div class="modal-content" @click.stop>
         <button class="close-button" @click="hideCertificateModal">×</button>
-        
         <div class="certificate-header">
           <div class="certificate-success-icon">✓</div>
           <h3>Оплата прошла успешно!</h3>
           <p class="modal-subtitle">Сертификат успешно создан</p>
         </div>
-
         <div class="certificate-details-card">
           <div class="certificate-number-section">
             <div class="number-label">Номер сертификата:</div>
             <div class="certificate-number">{{ certificateNumber }}</div>
-            <button class="copy-button" @click="copyCertificateNumber">
-              Копировать
-            </button>
+            <button class="copy-button" @click="copyCertificateNumber">Копировать</button>
           </div>
-
           <div class="certificate-info">
-            <div class="info-row">
-              <span class="info-label">Номинал:</span>
-              <span class="info-value">{{ formatPrice(selectedCertificate.value) }} ₽</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Срок действия:</span>
-              <span class="info-value">{{ selectedCertificate.validity }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Дата создания:</span>
-              <span class="info-value">{{ currentDate }}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Статус:</span>
-              <span class="info-status">Активен</span>
-            </div>
+            <div class="info-row"><span class="info-label">Номинал:</span><span class="info-value">{{ formatPrice(selectedCertificate.value) }} ₽</span></div>
+            <div class="info-row"><span class="info-label">Срок действия:</span><span class="info-value">{{ selectedCertificate.validity }}</span></div>
+            <div class="info-row"><span class="info-label">Дата создания:</span><span class="info-value">{{ currentDate }}</span></div>
+            <div class="info-row"><span class="info-label">Статус:</span><span class="info-status">Активен</span></div>
           </div>
         </div>
-
         <div class="modal-notes">
-          <p class="note">Мы отпрвим вам отправим уведомление на почту c номером сертификата.</p>
+          <p class="note">Мы отправим вам уведомление на почту c номером сертификата.</p>
         </div>
-
         <div class="modal-actions">
-          <button class="back-button" @click="goToCertificates">
-            Вернуться к сертификатам
-          </button>
+          <button class="back-button" @click="goToCertificates">Вернуться к сертификатам</button>
         </div>
       </div>
     </div>
@@ -214,146 +157,65 @@ export default {
         cardHolder: ''
       },
       certificates: [
-        {
-          id: 1,
-          value: 3000,
-          description: 'Идеально для небольшого сюрприза',
-          validity: '6 месяцев'
-        },
-        {
-          id: 2,
-          value: 5000,
-          description: 'Популярный выбор для любых поводов',
-          validity: '6 месяцев'
-        },
-        {
-          id: 3,
-          value: 10000,
-          description: 'Роскошный подарок для особых случаев',
-          validity: '12 месяцев'
-        }
+        { id: 1, value: 3000, description: 'Идеально для небольшого сюрприза', validity: '6 месяцев' },
+        { id: 2, value: 5000, description: 'Популярный выбор для любых поводов', validity: '6 месяцев' },
+        { id: 3, value: 10000, description: 'Роскошный подарок для особых случаев', validity: '12 месяцев' }
       ]
     }
   },
   computed: {
     currentDate() {
-      return new Date().toLocaleDateString('ru-RU', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      })
+      return new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
     },
     currentUser() {
       return authStore.getCurrentUser()
     },
-    // Простая проверка - все поля заполнены
     isFormFilled() {
       const cardNumber = this.payment.cardNumber.replace(/\s/g, '')
-      return cardNumber.length > 0 && 
-             this.payment.expiry.length > 0 && 
-             this.payment.cvv.length > 0 && 
-             this.payment.cardHolder.trim().length > 0
+      return cardNumber.length > 0 && this.payment.expiry.length > 0 && this.payment.cvv.length > 0 && this.payment.cardHolder.trim().length > 0
     }
   },
   methods: {
-    formatPrice(price) {
-        return Math.round(price).toLocaleString('ru-RU');
-    },
-    
+    formatPrice(price) { return Math.round(price).toLocaleString('ru-RU'); },
     formatCardNumber(event) {
       let value = event.target.value.replace(/\D/g, '')
       if (value.length > 16) value = value.slice(0, 16)
       value = value.replace(/(\d{4})/g, '$1 ').trim()
       this.payment.cardNumber = value
     },
-    
     formatExpiry(event) {
       let value = event.target.value.replace(/\D/g, '')
       if (value.length > 4) value = value.slice(0, 4)
-      if (value.length >= 2) {
-        value = value.slice(0, 2) + '/' + value.slice(2)
-      }
+      if (value.length >= 2) value = value.slice(0, 2) + '/' + value.slice(2)
       this.payment.expiry = value
     },
-    
-    selectCertificate(certificate) {
-      this.selectedCertificate = certificate
-    },
-    
+    selectCertificate(certificate) { this.selectedCertificate = certificate },
     async generateCertificate() {
-      if (!this.selectedCertificate) {
-        notifications.warning('Пожалуйста, выберите номинал сертификата')
-        return
-      }
-      
-      // Простая проверка: все ли поля заполнены
-      if (!this.payment.cardNumber.replace(/\s/g, '')) {
-        notifications.warning('Пожалуйста, заполните номер карты')
-        return
-      }
-      
-      if (!this.payment.expiry) {
-        notifications.warning('Пожалуйста, заполните срок действия')
-        return
-      }
-      
-      if (!this.payment.cvv) {
-        notifications.warning('Пожалуйста, заполните CVV код')
-        return
-      }
-      
-      if (!this.payment.cardHolder.trim()) {
-        notifications.warning('Пожалуйста, заполните имя держателя')
-        return
-      }
+      if (!this.selectedCertificate) { notifications.warning('Пожалуйста, выберите номинал сертификата'); return }
+      if (!this.payment.cardNumber.replace(/\s/g, '')) { notifications.warning('Пожалуйста, заполните номер карты'); return }
+      if (!this.payment.expiry) { notifications.warning('Пожалуйста, заполните срок действия'); return }
+      if (!this.payment.cvv) { notifications.warning('Пожалуйста, заполните CVV код'); return }
+      if (!this.payment.cardHolder.trim()) { notifications.warning('Пожалуйста, заполните имя держателя'); return }
       
       this.isGenerating = true
-      
       try {
         const newCertificate = await cartStore.createCertificate({
           value: this.selectedCertificate.value,
           ownerEmail: null,
           buyerName: this.currentUser?.name || this.payment.cardHolder
         })
-        
-        if (newCertificate) {
-          this.certificateNumber = newCertificate.code
-          this.showCertificateModal = true
-        } else {
-          notifications.error('Ошибка при создании сертификата. Попробуйте позже.')
-        }
-      } catch (error) {
-        console.error('Ошибка:', error)
-        notifications.error('Произошла ошибка. Попробуйте позже.')
-      } finally {
-        this.isGenerating = false
-      }
+        if (newCertificate) { this.certificateNumber = newCertificate.code; this.showCertificateModal = true }
+        else { notifications.error('Ошибка при создании сертификата. Попробуйте позже.') }
+      } catch (error) { console.error('Ошибка:', error); notifications.error('Произошла ошибка. Попробуйте позже.') }
+      finally { this.isGenerating = false }
     },
-    
     copyCertificateNumber() {
-      navigator.clipboard.writeText(this.certificateNumber)
-        .then(() => {
-          notifications.success('Номер сертификата скопирован в буфер обмена!')
-        })
-        .catch(() => {
-          const textArea = document.createElement('textarea')
-          textArea.value = this.certificateNumber
-          document.body.appendChild(textArea)
-          textArea.select()
-          document.execCommand('copy')
-          document.body.removeChild(textArea)
-          notifications.success('Номер сертификата скопирован в буфер обмена!')
-        })
+      navigator.clipboard.writeText(this.certificateNumber).then(() => notifications.success('Номер сертификата скопирован!')).catch(() => {
+        const textArea = document.createElement('textarea'); textArea.value = this.certificateNumber; document.body.appendChild(textArea); textArea.select(); document.execCommand('copy'); document.body.removeChild(textArea); notifications.success('Номер сертификата скопирован!')
+      })
     },
-    
-    goToCertificates() {
-      this.$router.push('/certificates')
-    },
-    
-    hideCertificateModal() {
-      this.showCertificateModal = false
-      this.goToCertificates()
-    }
+    goToCertificates() { this.$router.push('/certificates') },
+    hideCertificateModal() { this.showCertificateModal = false; this.goToCertificates() }
   }
 }
 </script>
