@@ -132,6 +132,16 @@
               >
             </div>
 
+            <div class="form-group">
+                  <label class="form-label">URL картинки (или загрузите файл)</label>
+                  <input 
+                    type="text" 
+                    v-model="productForm.imageUrl"
+                    class="form-input"
+                    placeholder="https://res.cloudinary.com/.../image.jpg"
+                  >
+            </div>
+
             <!-- ===== КАСТОМНАЯ ЗАГРУЗКА ИЗОБРАЖЕНИЯ ===== -->
             <div class="form-group">
               <label class="form-label">Изображение товара</label>
@@ -611,7 +621,8 @@ export default {
         materials: '',
         description: '',
         imageFile: null,
-        imagePreview: null
+        imagePreview: null,
+        imageUrl: ''
       },
       certificateForm: {
         value: '5000',
@@ -776,7 +787,8 @@ export default {
         materials: '',
         description: '',
         imageFile: null,
-        imagePreview: null
+        imagePreview: null,
+        imageUrl: ''
       }
     },
 
@@ -791,42 +803,40 @@ export default {
     },
 
     async saveProduct() {
-      const productData = {
-        title: this.productForm.title,
-        price: Number(this.productForm.price),
-        category: this.productForm.category,
-        description: this.productForm.description || '',
-        materials: this.productForm.materials || ''
-      }
+  const productData = {
+    title: this.productForm.title,
+    price: Number(this.productForm.price),
+    category: this.productForm.category,
+    description: this.productForm.description || '',
+    materials: this.productForm.materials || ''
+  }
 
-      let result
-      if (this.editingProduct) {
-        result = await adminStore.updateProduct(
-          this.editingProduct.id,
-          productData,
-          this.productForm.imageFile
-        )
-        if (result) notifications.success(' Товар обновлен')
-      } else {
-        result = await adminStore.addProduct(
-          productData,
-          this.productForm.imageFile
-        )
-        if (result) notifications.success(' Товар добавлен')
-      }
+  // Добавляем URL картинки если введён
+  if (this.productForm.imageUrl) {
+    productData.image_url = this.productForm.imageUrl
+  }
 
-      if (result) {
-        await this.loadAllData()
-        this.cancelProductForm()
-      }
-    },
+  let result
+  if (this.editingProduct) {
+    result = await adminStore.updateProduct(
+      this.editingProduct.id,
+      productData,
+      this.productForm.imageFile
+    )
+    if (result) notifications.success(' Товар обновлен')
+  } else {
+    result = await adminStore.addProduct(
+      productData,
+      this.productForm.imageFile
+    )
+    if (result) notifications.success(' Товар добавлен')
+  }
 
-    async deleteProduct(id) {
-      if (confirm('Удалить этот товар?')) {
-        await adminStore.deleteProduct(id)
-        await this.loadAllData()
-      }
-    },
+  if (result) {
+    await this.loadAllData()
+    this.cancelProductForm()
+  }
+},
 
     // ===== ПОЛЬЗОВАТЕЛИ =====
     copyPassword(password) {
