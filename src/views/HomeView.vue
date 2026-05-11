@@ -10,18 +10,17 @@
       </div>
     </section>
 
+    <!-- Акции -->
     <section class="products-section">
       <div class="container">
         <h2 class="section-title">Акции</h2>
-        <div class="products-grid">
+        <div v-if="loading" class="products-grid">
+          <SkeletonCard v-for="i in 4" :key="i" />
+        </div>
+        <div v-else class="products-grid">
           <div v-for="product in promotionProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <div class="product-image">
-              <img 
-                v-if="product.image_url" 
-                :src="getImageUrl(product.image_url)" 
-                :alt="product.title"
-                class="product-img"
-              >
+              <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
               <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
@@ -31,18 +30,17 @@
       </div>
     </section>
 
+    <!-- Букеты -->
     <section class="products-section">
       <div class="container">
         <h2 class="section-title">Букеты</h2>
-        <div class="products-grid">
+        <div v-if="loading" class="products-grid">
+          <SkeletonCard v-for="i in 4" :key="'b'+i" />
+        </div>
+        <div v-else class="products-grid">
           <div v-for="product in bouquetProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <div class="product-image">
-              <img 
-                v-if="product.image_url" 
-                :src="getImageUrl(product.image_url)" 
-                :alt="product.title"
-                class="product-img"
-              >
+              <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
               <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
@@ -56,18 +54,17 @@
       </div>
     </section>
 
+    <!-- Подарки -->
     <section class="products-section">
       <div class="container">
         <h2 class="section-title">Подарки</h2>
-        <div class="products-grid">
+        <div v-if="loading" class="products-grid">
+          <SkeletonCard v-for="i in 4" :key="'g'+i" />
+        </div>
+        <div v-else class="products-grid">
           <div v-for="product in giftProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <div class="product-image">
-              <img 
-                v-if="product.image_url" 
-                :src="getImageUrl(product.image_url)" 
-                :alt="product.title"
-                class="product-img"
-              >
+              <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
               <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
@@ -81,18 +78,17 @@
       </div>
     </section>
 
+    <!-- Цветы в коробках -->
     <section class="products-section">
       <div class="container">
         <h2 class="section-title">Цветы в коробках</h2>
-        <div class="products-grid">
+        <div v-if="loading" class="products-grid">
+          <SkeletonCard v-for="i in 4" :key="'c'+i" />
+        </div>
+        <div v-else class="products-grid">
           <div v-for="product in boxProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
             <div class="product-image">
-              <img 
-                v-if="product.image_url" 
-                :src="getImageUrl(product.image_url)" 
-                :alt="product.title"
-                class="product-img"
-              >
+              <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
               <div v-else class="image-placeholder">{{ product.title }}</div>
             </div>
             <h3 class="product-title">{{ product.title }}</h3>
@@ -109,11 +105,13 @@
 </template>
 
 <script>
+import SkeletonCard from '@/components/SkeletonCard.vue'
 import { adminStore } from '@/stores/admin'
 import { API_BASE_URL } from '@/services/api'
 
 export default {
   name: 'HomeView',
+  components: { SkeletonCard },
   data() {
     return {
       loading: true,
@@ -160,7 +158,7 @@ export default {
       }
     },
     formatPrice(price) {
-        return Math.round(price).toLocaleString('ru-RU');
+      return Math.round(price).toLocaleString('ru-RU');
     },
     goToProduct(productId) {
       this.$router.push(`/product/${productId}`)
