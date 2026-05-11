@@ -689,7 +689,6 @@ export default {
       this.$router.push('/')
       return
     }
-  
     await this.loadAllData()
   },
   methods: {
@@ -711,45 +710,17 @@ export default {
       if (fileInput) fileInput.value = ''
     },
 
-    async deleteProductImage() {
-      if (!confirm('Вы уверены, что хотите удалить изображение?')) return
-      
-      if (!this.editingProduct) return
-      
-      try {
-        const imageDeleted = await adminStore.deleteProductImage(this.editingProduct.image_url)
-        
-        if (imageDeleted) {
-          await adminStore.updateProduct(this.editingProduct.id, { image_url: null })
-          await this.loadAllData()
-          this.editingProduct.image_url = null
-          this.productForm.imagePreview = null
-          this.productForm.imageFile = null
-          notifications.success(' Изображение удалено')
-        } else {
-          notifications.error(' Не удалось удалить изображение')
-        }
-      } catch (error) {
-        console.error('Ошибка удаления изображения:', error)
-        notifications.error(' Ошибка при удалении изображения')
-      }
-    },
-
     async loadAllData() {
       this.loading = true
       try {
         console.log('🔄 Загрузка данных админ-панели...')
         this.statsData = await adminStore.getStats()
-        
-        // Загружаем товары и принудительно обновляем
         const products = await adminStore.getProducts()
-        this.productsData = JSON.parse(JSON.stringify(products)) // Глубокое копирование
-        
+        this.productsData = JSON.parse(JSON.stringify(products))
         this.usersData = await adminStore.getUsers()
         this.ordersData = await adminStore.getOrders()
         this.certificatesData = await adminStore.getCertificates()
         this.feedbackData = await adminStore.getFeedback()
-        
         console.log('✅ Товары загружены:', this.productsData.map(p => ({title: p.title, image: p.image_url})))
       } catch (error) {
         console.error('❌ Ошибка загрузки данных:', error)
@@ -759,7 +730,7 @@ export default {
     },
 
     formatPrice(price) {
-        return Math.round(price).toLocaleString('ru-RU');
+      return Math.round(price).toLocaleString('ru-RU');
     },
 
     getCategoryName(category) {
@@ -803,47 +774,40 @@ export default {
     },
 
     async saveProduct() {
-  const productData = {
-    title: this.productForm.title,
-    price: Number(this.productForm.price),
-    category: this.productForm.category,
-    description: this.productForm.description || '',
-    materials: this.productForm.materials || ''
-  }
-
-  // Добавляем URL картинки если введён
-  if (this.productForm.imageUrl) {
-    productData.image_url = this.productForm.imageUrl
-  }
-
-  let result
-  if (this.editingProduct) {
-    result = await adminStore.updateProduct(
-      this.editingProduct.id,
-      productData,
-      this.productForm.imageFile
-    )
-    if (result) notifications.success(' Товар обновлен')
-  } else {
-    result = await adminStore.addProduct(
-      productData,
-      this.productForm.imageFile
-    )
-    if (result) notifications.success(' Товар добавлен')
-  }
-
-  if (result) {
-    await this.loadAllData()
-    this.cancelProductForm()
-  }
-},
-
-    // ===== ПОЛЬЗОВАТЕЛИ =====
-    copyPassword(password) {
-      navigator.clipboard.writeText(password)
-      notifications.success(' Пароль скопирован в буфер обмена')
+      const productData = {
+        title: this.productForm.title,
+        price: Number(this.productForm.price),
+        category: this.productForm.category,
+        description: this.productForm.description || '',
+        materials: this.productForm.materials || ''
+      }
+      if (this.productForm.imageUrl) {
+        productData.image_url = this.productForm.imageUrl
+      }
+      let result
+      if (this.editingProduct) {
+        result = await adminStore.updateProduct(
+          this.editingProduct.id, productData, this.productForm.imageFile
+        )
+        if (result) notifications.success('Товар обновлен')
+      } else {
+        result = await adminStore.addProduct(productData, this.productForm.imageFile)
+        if (result) notifications.success('Товар добавлен')
+      }
+      if (result) {
+        await this.loadAllData()
+        this.cancelProductForm()
+      }
     },
 
+    async deleteProduct(id) {
+      if (confirm('Удалить этот товар?')) {
+        await adminStore.deleteProduct(id)
+        await this.loadAllData()
+      }
+    },
+
+    // ===== ПОЛЬЗОВАТЕЛИ =====
     async addBonuses(user, amount) {
       const newBonuses = (user.bonuses || 0) + amount
       if (newBonuses >= 0) {
@@ -863,14 +827,11 @@ export default {
     // ===== ЗАКАЗЫ =====
     async updateOrderStatus(order) {
       const statusMap = {
-        new: 'Новый',
-        processing: 'В обработке',
-        confirmed: 'Подтвержден',
-        delivered: 'Доставлен',
-        cancelled: 'Отменен'
+        new: 'Новый', processing: 'В обработке', confirmed: 'Подтвержден',
+        delivered: 'Доставлен', cancelled: 'Отменен'
       }
       await adminStore.updateOrderStatus(order.id, order.status, statusMap[order.status])
-      notifications.success(` Статус заказа изменен на "${statusMap[order.status]}"`)
+      notifications.success(`Статус заказа изменен на "${statusMap[order.status]}"`)
       await this.loadAllData()
     },
 
@@ -886,22 +847,14 @@ export default {
 
     async updateOrderStatusFromModal() {
       if (!this.selectedOrder) return
-
       const statusMap = {
-        new: 'Новый',
-        processing: 'В обработке',
-        confirmed: 'Подтвержден',
-        delivered: 'Доставлен',
-        cancelled: 'Отменен'
+        new: 'Новый', processing: 'В обработке', confirmed: 'Подтвержден',
+        delivered: 'Доставлен', cancelled: 'Отменен'
       }
-
       await adminStore.updateOrderStatus(
-        this.selectedOrder.id,
-        this.selectedOrder.status,
-        statusMap[this.selectedOrder.status]
+        this.selectedOrder.id, this.selectedOrder.status, statusMap[this.selectedOrder.status]
       )
-
-      notifications.success(` Статус заказа изменен на "${statusMap[this.selectedOrder.status]}"`)
+      notifications.success(`Статус заказа изменен на "${statusMap[this.selectedOrder.status]}"`)
       await this.loadAllData()
       this.closeOrderModal()
     },
@@ -912,10 +865,9 @@ export default {
         value: Number(this.certificateForm.value),
         ownerEmail: this.certificateForm.ownerEmail || null
       })
-      
       this.certificateForm = { value: '5000', ownerEmail: '' }
       this.showCertificateForm = false
-      notifications.success(' Сертификат создан')
+      notifications.success('Сертификат создан')
       await this.loadAllData()
     },
 
@@ -945,35 +897,32 @@ export default {
       this.isSending = false
     },
 
-async sendReply() {
-    if (!this.replyText.trim()) {
+    async sendReply() {
+      if (!this.replyText.trim()) {
         notifications.error('Введите текст ответа')
         return
-    }
-    if (!this.currentMessage) {
+      }
+      if (!this.currentMessage) {
         notifications.error('Ошибка: сообщение не найдено')
         return
-    }
-
-    this.isSending = true
-
-    try {
+      }
+      this.isSending = true
+      try {
         const result = await adminStore.sendFeedbackReply(this.currentMessage.id, this.replyText)
-        
         if (result) {
-            notifications.success(` Ответ успешно отправлен на ${this.currentMessage.email}`)
-            await this.loadAllData()
-            this.closeReplyModal()
+          notifications.success(`Ответ успешно отправлен на ${this.currentMessage.email}`)
+          await this.loadAllData()
+          this.closeReplyModal()
         } else {
-            notifications.error(' Ошибка при отправке ответа')
+          notifications.error('Ошибка при отправке ответа')
         }
-    } catch (error) {
+      } catch (error) {
         console.error('Ошибка:', error)
-        notifications.error(' Ошибка при отправке')
-    } finally {
+        notifications.error('Ошибка при отправке')
+      } finally {
         this.isSending = false
+      }
     }
-}
   }
 }
 </script>
