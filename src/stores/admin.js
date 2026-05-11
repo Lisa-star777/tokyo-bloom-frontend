@@ -26,17 +26,37 @@ export const adminStore = {
         }
     },
 
-    async addProduct(product, imageFile = null) {
-        // Если есть image_url — отправляем как JSON
-        if (product.image_url && !imageFile) {
-            try {
-                const response = await api.post('/admin/products', product);
-                return response.data;
-            } catch (error) {
-                console.error('Ошибка добавления товара:', error);
-                return null;
-            }
+   async addProduct(product, imageFile = null) {
+    // Если есть файл — отправляем FormData
+    if (imageFile) {
+        const formData = new FormData();
+        formData.append('title', product.title);
+        formData.append('price', product.price);
+        formData.append('category', product.category);
+        formData.append('description', product.description || '');
+        formData.append('materials', product.materials || '');
+        formData.append('image', imageFile);
+        
+        try {
+            const response = await api.post('/admin/products', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Ошибка добавления товара:', error);
+            return null;
         }
+    }
+    
+    // Без файла — отправляем как JSON
+    try {
+        const response = await api.post('/admin/products', product);
+        return response.data;
+    } catch (error) {
+        console.error('Ошибка добавления товара:', error);
+        return null;
+    }
+},
         
         // Если есть файл — отправляем FormData
         const formData = new FormData();
