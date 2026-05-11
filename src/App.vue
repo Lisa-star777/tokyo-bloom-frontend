@@ -54,4 +54,21 @@ body {
   background-color: #9887bc63 !important;
   border-radius: 5px !important;
 }  
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.loading-container p {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 16px;
+  color: #666;
+  margin-top: 15px;
+}
+
 </style>

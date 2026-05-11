@@ -10,97 +10,90 @@
       </div>
     </section>
 
-    <!-- Акции -->
-    <section class="products-section">
-      <div class="container">
-        <h2 class="section-title">Акции</h2>
-        <div v-if="loading" class="products-grid">
-          <SkeletonCard v-for="i in 4" :key="i" />
-        </div>
-        <div v-else class="products-grid">
-          <div v-for="product in promotionProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
-            <div class="product-image">
-              <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
-              <div v-else class="image-placeholder">{{ product.title }}</div>
-            </div>
-            <h3 class="product-title">{{ product.title }}</h3>
-            <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- Спиннер при загрузке -->
+    <div v-if="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Загрузка товаров...</p>
+    </div>
 
-    <!-- Букеты -->
-    <section class="products-section">
-      <div class="container">
-        <h2 class="section-title">Букеты</h2>
-        <div v-if="loading" class="products-grid">
-          <SkeletonCard v-for="i in 4" :key="'b'+i" />
-        </div>
-        <div v-else class="products-grid">
-          <div v-for="product in bouquetProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
-            <div class="product-image">
-              <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
-              <div v-else class="image-placeholder">{{ product.title }}</div>
+    <!-- Товары -->
+    <template v-else>
+      <section class="products-section">
+        <div class="container">
+          <h2 class="section-title">Акции</h2>
+          <div class="products-grid">
+            <div v-for="product in promotionProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+              <div class="product-image">
+                <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
+                <div v-else class="image-placeholder">{{ product.title }}</div>
+              </div>
+              <h3 class="product-title">{{ product.title }}</h3>
+              <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
             </div>
-            <h3 class="product-title">{{ product.title }}</h3>
-            <p class="product-description">{{ product.description }}</p>
-            <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
           </div>
         </div>
-        <div class="section-footer">
-          <router-link to="/bouquets" class="view-more-link">Смотреть больше →</router-link>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Подарки -->
-    <section class="products-section">
-      <div class="container">
-        <h2 class="section-title">Подарки</h2>
-        <div v-if="loading" class="products-grid">
-          <SkeletonCard v-for="i in 4" :key="'g'+i" />
-        </div>
-        <div v-else class="products-grid">
-          <div v-for="product in giftProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
-            <div class="product-image">
-              <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
-              <div v-else class="image-placeholder">{{ product.title }}</div>
+      <section class="products-section">
+        <div class="container">
+          <h2 class="section-title">Букеты</h2>
+          <div class="products-grid">
+            <div v-for="product in bouquetProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+              <div class="product-image">
+                <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
+                <div v-else class="image-placeholder">{{ product.title }}</div>
+              </div>
+              <h3 class="product-title">{{ product.title }}</h3>
+              <p class="product-description">{{ product.description }}</p>
+              <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
             </div>
-            <h3 class="product-title">{{ product.title }}</h3>
-            <p class="product-description">{{ product.description }}</p>
-            <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
+          </div>
+          <div class="section-footer">
+            <router-link to="/bouquets" class="view-more-link">Смотреть больше →</router-link>
           </div>
         </div>
-        <div class="section-footer">
-          <router-link to="/gifts" class="view-more-link">Смотреть больше →</router-link>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Цветы в коробках -->
-    <section class="products-section">
-      <div class="container">
-        <h2 class="section-title">Цветы в коробках</h2>
-        <div v-if="loading" class="products-grid">
-          <SkeletonCard v-for="i in 4" :key="'c'+i" />
-        </div>
-        <div v-else class="products-grid">
-          <div v-for="product in boxProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
-            <div class="product-image">
-              <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
-              <div v-else class="image-placeholder">{{ product.title }}</div>
+      <section class="products-section">
+        <div class="container">
+          <h2 class="section-title">Подарки</h2>
+          <div class="products-grid">
+            <div v-for="product in giftProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+              <div class="product-image">
+                <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
+                <div v-else class="image-placeholder">{{ product.title }}</div>
+              </div>
+              <h3 class="product-title">{{ product.title }}</h3>
+              <p class="product-description">{{ product.description }}</p>
+              <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
             </div>
-            <h3 class="product-title">{{ product.title }}</h3>
-            <p class="product-description">{{ product.description }}</p>
-            <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
+          </div>
+          <div class="section-footer">
+            <router-link to="/gifts" class="view-more-link">Смотреть больше →</router-link>
           </div>
         </div>
-        <div class="section-footer">
-          <router-link to="/box-flowers" class="view-more-link">Смотреть больше →</router-link>
+      </section>
+
+      <section class="products-section">
+        <div class="container">
+          <h2 class="section-title">Цветы в коробках</h2>
+          <div class="products-grid">
+            <div v-for="product in boxProducts" :key="product.id" class="product-card" @click="goToProduct(product.id)">
+              <div class="product-image">
+                <img v-if="product.image_url" :src="getImageUrl(product.image_url)" :alt="product.title" class="product-img">
+                <div v-else class="image-placeholder">{{ product.title }}</div>
+              </div>
+              <h3 class="product-title">{{ product.title }}</h3>
+              <p class="product-description">{{ product.description }}</p>
+              <div class="product-price">{{ formatPrice(product.price) }} ₽</div>
+            </div>
+          </div>
+          <div class="section-footer">
+            <router-link to="/box-flowers" class="view-more-link">Смотреть больше →</router-link>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </template>
   </div>
 </template>
 
