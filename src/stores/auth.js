@@ -19,11 +19,15 @@ export const authStore = {
     // Перенос гостевой корзины на сервер
     async mergeGuestCart() {
         const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-        if (guestCart.length === 0) return;
+        const token = localStorage.getItem('auth_token');
+        if (guestCart.length === 0 || !token) return;
         
         for (const item of guestCart) {
             try {
-                await api.post('/cart/items', { product_id: item.id, quantity: item.quantity });
+                await api.post('/cart/items', 
+                    { product_id: item.id, quantity: item.quantity },
+                    { headers: { Authorization: 'Bearer ' + token } }
+                );
             } catch (e) {
                 console.log('Ошибка переноса товара:', e);
             }
