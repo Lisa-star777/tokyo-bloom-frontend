@@ -2,50 +2,54 @@
 import api from '@/services/api';
 
 export const authStore = {
-    // Получить текущего пользователя
     getCurrentUser() {
         const user = localStorage.getItem('current_user');
         return user ? JSON.parse(user) : null;
     },
 
-    // Проверить авторизацию
     isAuthenticated() {
         return !!this.getCurrentUser();
     },
 
-    // Проверить, админ ли пользователь
     isCurrentUserAdmin() {
         const user = this.getCurrentUser();
         return user?.is_admin === true;
+    },
+
+    // Перенос гостевой корзины на сервер
+    async mergeGuestCart() {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        if (guestCart.length === 0) return;
+        
+        for (const item of guestCart) {
+            try {
+                await api.post('/cart/items', { product_id: item.id, quantity: item.quantity });
+            } catch (e) {
+                console.log('Ошибка переноса товара:', e);
+            }
+        }
+        localStorage.removeItem('guest_cart');
     },
 
     // Регистрация
     async register(name, email, password) {
         try {
             const response = await api.post('/register', { 
-    name, 
-    email, 
-    password, 
-    password_confirmation: password 
-});
+                name, email, password, password_confirmation: password 
+            });
             const { user, token } = response.data;
             
             localStorage.setItem('auth_token', token);
             localStorage.setItem('current_user', JSON.stringify(user));
             
-            window.dispatchEvent(new CustomEvent('user-logged-in', { detail: user }));
+            // Переносим гостевую корзину
+            await this.mergeGuestCart();
             
-            return { 
-                success: true, 
-                user,
-                isAdmin: user.is_admin
-            };
+            window.dispatchEvent(new CustomEvent('user-logged-in', { detail: user }));
+            return { success: true, user, isAdmin: user.is_admin };
         } catch (error) {
             console.error('Ошибка регистрации:', error);
-            return { 
-                success: false, 
-                error: error.response?.data?.message || 'Ошибка при регистрации' 
-            };
+            return { success: false, error: error.response?.data?.message || 'Ошибка при регистрации' };
         }
     },
 
@@ -58,19 +62,14 @@ export const authStore = {
             localStorage.setItem('auth_token', token);
             localStorage.setItem('current_user', JSON.stringify(user));
             
-            window.dispatchEvent(new CustomEvent('user-logged-in', { detail: user }));
+            // Переносим гостевую корзину
+            await this.mergeGuestCart();
             
-            return { 
-                success: true, 
-                user,
-                isAdmin: user.is_admin
-            };
+            window.dispatchEvent(new CustomEvent('user-logged-in', { detail: user }));
+            return { success: true, user, isAdmin: user.is_admin };
         } catch (error) {
             console.error('Ошибка входа:', error);
-            return { 
-                success: false, 
-                error: error.response?.data?.message || 'Неверный email или пароль' 
-            };
+            return { success: false, error: error.response?.data?.message || 'Неверный email или пароль' };
         }
     },
 
@@ -88,13 +87,11 @@ export const authStore = {
         return { success: true };
     },
 
-    // Получить бонусы пользователя
     getUserBonuses() {
         const user = this.getCurrentUser();
         return user?.bonuses || 0;
     },
 
-    // Обновить профиль
     async updateUserProfile(updatedData) {
         try {
             const response = await api.put('/user', updatedData);
@@ -108,10 +105,7 @@ export const authStore = {
         }
     },
 
-    // Начислить бонусы (вызывается после заказа)
     async addBonuses(amount) {
-        // Бонусы начисляются автоматически на сервере при создании заказа
-        // Этот метод нужен для обновления локального хранилища
         const user = this.getCurrentUser();
         if (user) {
             user.bonuses = (user.bonuses || 0) + amount;
@@ -120,10 +114,7 @@ export const authStore = {
         }
     },
 
-    // Списать бонусы
     async spendBonuses(amount) {
-        // Бонусы списываются на сервере при создании заказа
-        // Этот метод нужен для обновления локального хранилища
         const user = this.getCurrentUser();
         if (user && (user.bonuses || 0) >= amount) {
             user.bonuses = (user.bonuses || 0) - amount;
