@@ -194,12 +194,11 @@ import { cartStore } from '@/stores/cart'
 import { authStore } from '@/stores/auth'
 import AuthModal from '@/components/AuthModal.vue'
 import { notifications } from '@/services/notifications'
+import emailjs from '@emailjs/browser'
 
 export default {
   name: 'CheckoutView',
-  components: {
-    AuthModal
-  },
+  components: { AuthModal },
   data() {
     return {
       isProcessing: false,
@@ -215,262 +214,81 @@ export default {
       bonusDiscount: 0,
       bonusError: '',
       cartItems: [],
-      payment: {
-        cardNumber: '',
-        expiry: '',
-        cvv: '',
-        cardHolder: ''
-      },
-      form: {
-        recipientName: '',
-        address: '',
-        deliveryTime: '9:00 - 12:00',
-        recipientPhone: '',
-        deliveryDate: new Date().toISOString().split('T')[0],
-        senderName: '',
-        senderPhone: '',
-        postcard: ''
-      }
+      payment: { cardNumber: '', expiry: '', cvv: '', cardHolder: '' },
+      form: { recipientName: '', address: '', deliveryTime: '9:00 - 12:00', recipientPhone: '', deliveryDate: new Date().toISOString().split('T')[0], senderName: '', senderPhone: '', postcard: '' }
     }
   },
   computed: {
-    subtotal() {
-      if (!this.cartItems.length) return 0
-      return this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    },
-    deliveryCost() {
-      return this.subtotal > 5000 ? 0 : 300
-    },
-    userBonuses() {
-      return this.currentUser?.bonuses || 0
-    },
-    maxAvailableBonuses() {
-      const maxByOrder = Math.floor((this.subtotal + this.deliveryCost) / 2)
-      return Math.min(this.userBonuses, maxByOrder)
-    },
-    bonusesToEarn() {
-      return Math.floor(this.subtotal * 0.1)
-    },
-    finalTotal() {
-      let total = this.subtotal + this.deliveryCost
-      if (this.appliedCertificate) {
-        total = Math.max(0, total - this.appliedCertificate.value)
-      }
-      if (this.bonusDiscount) {
-        total = Math.max(0, total - this.bonusDiscount)
-      }
-      return total
-    },
-    currentUser() {
-      return authStore.getCurrentUser()
-    },
-    isAuthenticated() {
-      return authStore.isAuthenticated()
-    },
-    isFormValid() {
-      return this.form.recipientName && 
-             this.form.address && 
-             this.form.recipientPhone &&
-             this.form.senderPhone    
-    },
-    isPaymentValid() {
-      const cardNumber = this.payment.cardNumber.replace(/\s/g, '')
-      const expiryValid = /^\d{2}\/\d{2}$/.test(this.payment.expiry)
-      const cvvValid = /^\d{3}$/.test(this.payment.cvv)
-      const cardHolderValid = this.payment.cardHolder.trim().length >= 3
-      return cardNumber.length === 16 && expiryValid && cvvValid && cardHolderValid
-    }
+    subtotal() { return this.cartItems.reduce((s, i) => s + (i.price * i.quantity), 0) },
+    deliveryCost() { return this.subtotal > 5000 ? 0 : 300 },
+    userBonuses() { return this.currentUser?.bonuses || 0 },
+    maxAvailableBonuses() { return Math.min(this.userBonuses, Math.floor((this.subtotal + this.deliveryCost) / 2)) },
+    bonusesToEarn() { return Math.floor(this.subtotal * 0.1) },
+    finalTotal() { let t = this.subtotal + this.deliveryCost; if (this.appliedCertificate) t -= this.appliedCertificate.value; if (this.bonusDiscount) t -= this.bonusDiscount; return Math.max(0, t) },
+    currentUser() { return authStore.getCurrentUser() },
+    isAuthenticated() { return authStore.isAuthenticated() },
+    isFormValid() { return this.form.recipientName && this.form.address && this.form.recipientPhone && this.form.senderPhone },
+    isPaymentValid() { const c = this.payment.cardNumber.replace(/\s/g, ''); return c.length === 16 && /^\d{2}\/\d{2}$/.test(this.payment.expiry) && /^\d{3}$/.test(this.payment.cvv) && this.payment.cardHolder.trim().length >= 3 }
   },
   methods: {
-    formatPrice(price) {
-      return Math.round(price).toLocaleString('ru-RU');
-    },
-    
-    formatCardNumber(event) {
-      let value = event.target.value.replace(/\D/g, '')
-      if (value.length > 16) value = value.slice(0, 16)
-      value = value.replace(/(\d{4})/g, '$1 ').trim()
-      this.payment.cardNumber = value
-    },
-    
-    formatExpiry(event) {
-      let value = event.target.value.replace(/\D/g, '')
-      if (value.length > 4) value = value.slice(0, 4)
-      if (value.length >= 2) {
-        value = value.slice(0, 2) + '/' + value.slice(2)
-      }
-      this.payment.expiry = value
-    },
-    
-    async loadCartData() {
-      this.cartItems = await cartStore.getCart()
-    },
-    
-    async applyCertificate() {
-      if (!this.certificateCode) return
-      this.isApplyingCertificate = true
-      this.certificateError = ''
-      const result = await cartStore.validateCertificate(this.certificateCode)
-      if (result.valid) {
-        this.appliedCertificate = result.certificate
-        this.certificateCode = ''
-        this.certificateError = ''
-      } else {
-        this.certificateError = result.error
-      }
-      this.isApplyingCertificate = false
-    },
-    
-    removeCertificate() {
-      this.appliedCertificate = null
-      this.certificateCode = ''
-      this.certificateError = ''
-    },
-    
-    applyBonuses() {
-      if (!this.bonusesToSpend || this.bonusesToSpend <= 0) {
-        this.bonusError = 'Введите количество баллов'
-        return
-      }
-      if (this.bonusesToSpend > this.maxAvailableBonuses) {
-        this.bonusError = `Можно списать не более ${this.maxAvailableBonuses} баллов`
-        return
-      }
-      this.bonusDiscount = this.bonusesToSpend
-      this.bonusApplied = true
-      this.bonusError = ''
-    },
-    
-    removeBonuses() {
-      this.bonusDiscount = 0
-      this.bonusApplied = false
-      this.bonusesToSpend = 0
-      this.bonusError = ''
-    },
-    
+    formatPrice(p) { return Math.round(p).toLocaleString('ru-RU') },
+    formatCardNumber(e) { let v = e.target.value.replace(/\D/g, ''); if (v.length > 16) v = v.slice(0, 16); this.payment.cardNumber = v.replace(/(\d{4})/g, '$1 ').trim() },
+    formatExpiry(e) { let v = e.target.value.replace(/\D/g, ''); if (v.length > 4) v = v.slice(0, 4); if (v.length >= 2) v = v.slice(0, 2) + '/' + v.slice(2); this.payment.expiry = v },
+    async loadCartData() { this.cartItems = await cartStore.getCart() },
+    async applyCertificate() { if (!this.certificateCode) return; this.isApplyingCertificate = true; this.certificateError = ''; const r = await cartStore.validateCertificate(this.certificateCode); if (r.valid) { this.appliedCertificate = r.certificate; this.certificateCode = '' } else { this.certificateError = r.error } this.isApplyingCertificate = false },
+    removeCertificate() { this.appliedCertificate = null; this.certificateCode = ''; this.certificateError = '' },
+    applyBonuses() { if (!this.bonusesToSpend || this.bonusesToSpend <= 0) { this.bonusError = 'Введите количество баллов'; return } if (this.bonusesToSpend > this.maxAvailableBonuses) { this.bonusError = `Можно списать не более ${this.maxAvailableBonuses} баллов`; return } this.bonusDiscount = this.bonusesToSpend; this.bonusApplied = true; this.bonusError = '' },
+    removeBonuses() { this.bonusDiscount = 0; this.bonusApplied = false; this.bonusesToSpend = 0; this.bonusError = '' },
     async submitOrder() {
-      console.log('🔵 submitOrder вызван')
-
-      if (!this.isAuthenticated) {
-        console.log('❌ Не авторизован')
-        this.openAuthModal()
-        return
-      }
-      
-      if (this.cartItems.length === 0) {
-        console.log('❌ Корзина пуста')
-        notifications.error('Корзина пуста')
-        this.$router.push('/')
-        return
-      }
-
-      if (!this.isFormValid) {
-        console.log('❌ Форма невалидна')
-        notifications.error('Пожалуйста, заполните все обязательные поля (отмечены *)')
-        return
-      }
-
-      if (!this.isPaymentValid) {
-        console.log('❌ Данные карты невалидны')
-        notifications.error('Пожалуйста, заполните данные карты корректно')
-        return
-      }
+      console.log('🔵 submitOrder')
+      if (!this.isAuthenticated) { this.openAuthModal(); return }
+      if (!this.cartItems.length) { notifications.error('Корзина пуста'); this.$router.push('/'); return }
+      if (!this.isFormValid) { notifications.error('Заполните обязательные поля'); return }
+      if (!this.isPaymentValid) { notifications.error('Заполните данные карты'); return }
 
       this.isProcessing = true
-
       try {
-        let certificateDiscount = 0
-        let certificateData = null
-        if (this.appliedCertificate) {
-          certificateDiscount = Math.min(this.appliedCertificate.value, this.subtotal + this.deliveryCost)
-          certificateData = {
-            code: this.appliedCertificate.code,
-            discount: certificateDiscount,
-            value: this.appliedCertificate.value
-          }
-        }
-
-        let bonusesUsed = 0
-        if (this.bonusDiscount) {
-          bonusesUsed = this.bonusDiscount
-        }
-
         const order = await cartStore.createOrderFromCart(this.currentUser.id, {
-          certificateUsed: certificateData,
-          bonusesUsed: bonusesUsed,
-          deliveryDetails: {
-            recipientName: this.form.recipientName,
-            address: this.form.address,
-            deliveryTime: this.form.deliveryTime,
-            recipientPhone: this.form.recipientPhone,
-            deliveryDate: this.form.deliveryDate,
-            senderName: this.form.senderName,
-            senderPhone: this.form.senderPhone,
-            postcard: this.form.postcard
-          }
+          certificateUsed: this.appliedCertificate ? { code: this.appliedCertificate.code, discount: Math.min(this.appliedCertificate.value, this.subtotal + this.deliveryCost), value: this.appliedCertificate.value } : null,
+          bonusesUsed: this.bonusDiscount || 0,
+          deliveryDetails: { recipientName: this.form.recipientName, address: this.form.address, deliveryTime: this.form.deliveryTime, recipientPhone: this.form.recipientPhone, deliveryDate: this.form.deliveryDate, senderName: this.form.senderName, senderPhone: this.form.senderPhone, postcard: this.form.postcard }
         })
-
         if (order) {
-          console.log('✅ Заказ создан:', order.id)
-
-          if (this.appliedCertificate) {
-            await cartStore.useCertificate(this.appliedCertificate.code, this.currentUser.id, order.id)
-          }
-          if (this.bonusDiscount) {
-            await authStore.spendBonuses(this.bonusDiscount)
-          }
-          const bonusesToEarn = Math.floor(this.subtotal * 0.1)
-          await authStore.addBonuses(bonusesToEarn)
-
+          console.log('✅ Заказ:', order.id)
+          if (this.appliedCertificate) await cartStore.useCertificate(this.appliedCertificate.code, this.currentUser.id, order.id)
+          if (this.bonusDiscount) await authStore.spendBonuses(this.bonusDiscount)
+          await authStore.addBonuses(Math.floor(this.subtotal * 0.1))
           this.lastOrder = order
           this.showContactsModal = true
-        } else {
-          notifications.error('Не удалось создать заказ. Попробуйте позже.')
-        }
-      } catch (error) {
-        console.error('❌ Ошибка при оформлении заказа:', error)
-        notifications.error('Произошла ошибка при оформлении заказа. Попробуйте позже.')
-      } finally {
-        this.isProcessing = false
-      }
+
+          try {
+            await emailjs.send('service_1tid84l', 'template_44lwinv', {
+              customer_name: this.currentUser.name,
+              order_id: order.id,
+              order_date: new Date().toLocaleDateString('ru-RU'),
+              order_total: this.formatPrice(order.total) + ' ₽',
+              order_items: this.cartItems.map(i => i.title + ' × ' + i.quantity + ' = ' + this.formatPrice(i.price * i.quantity) + ' ₽').join(', '),
+              recipient_name: this.form.recipientName,
+              address: this.form.address,
+              recipient_phone: this.form.recipientPhone,
+              delivery_time: this.form.deliveryTime,
+              to_email: this.currentUser.email
+            }, 'TGK6ouWlaBymZ0nrM')
+            console.log('✅ Письмо отправлено')
+          } catch (e) { console.log('⚠️ Ошибка письма:', e) }
+        } else { notifications.error('Не удалось создать заказ') }
+      } catch (e) { console.error(e); notifications.error('Ошибка') }
+      finally { this.isProcessing = false }
     },
-    
-    openAuthModal() {
-      this.showAuthModal = true
-    },
-    
-    closeAuthModal() {
-      this.showAuthModal = false
-    },
-    
-    handleLoginSuccess() {
-      this.closeAuthModal()
-      this.loadCartData()
-    },
-    
-    hideContacts() {
-      this.showContactsModal = false
-    },
-    
-    goToHome() {
-      this.$router.push('/')
-    },
-    
-    goToOrders() {
-      this.$router.push('/orders')
-    }
+    openAuthModal() { this.showAuthModal = true },
+    closeAuthModal() { this.showAuthModal = false },
+    handleLoginSuccess() { this.closeAuthModal(); this.loadCartData() },
+    hideContacts() { this.showContactsModal = false },
+    goToHome() { this.$router.push('/') },
+    goToOrders() { this.$router.push('/orders') }
   },
-  
-  async mounted() {
-    await this.loadCartData()
-    window.addEventListener('cart-updated', async () => {
-      await this.loadCartData()
-    })
-  },
-  
-  beforeUnmount() {
-    window.removeEventListener('cart-updated', this.loadCartData)
-  }
+  async mounted() { await this.loadCartData(); window.addEventListener('cart-updated', async () => { await this.loadCartData() }) },
+  beforeUnmount() { window.removeEventListener('cart-updated', this.loadCartData) }
 }
 </script>
 
