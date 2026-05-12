@@ -80,6 +80,7 @@
 import { cartStore } from '@/stores/cart'
 import { authStore } from '@/stores/auth'
 import { notifications } from '@/services/notifications'
+import emailjs from '@emailjs/browser'
 
 export default {
   name: 'CertificateOrderView',
@@ -143,8 +144,23 @@ export default {
           ownerEmail: null,
           buyerName: this.currentUser?.name || this.payment.cardHolder
         })
-        if (newCertificate) { this.certificateNumber = newCertificate.code; this.showCertificateModal = true }
-        else { notifications.error('Ошибка при создании сертификата. Попробуйте позже.') }
+        if (newCertificate) {
+          this.certificateNumber = newCertificate.code;
+          this.showCertificateModal = true;
+          
+          try {
+            await emailjs.send('service_1tid84l', 'template_w0sp4q6', {
+              customer_name: this.currentUser?.name || 'Покупатель',
+              certificate_code: newCertificate.code,
+              certificate_value: this.formatPrice(this.selectedCertificate.value),
+              certificate_validity: this.selectedCertificate.validity,
+              to_email: this.currentUser?.email
+            }, 'TGK6ouWlaBymZ0nrM');
+            console.log('✅ Письмо с сертификатом отправлено');
+          } catch (e) {
+            console.log('⚠️ Ошибка отправки письма:', e);
+          }
+        } else { notifications.error('Ошибка при создании сертификата. Попробуйте позже.') }
       } catch (error) { console.error('Ошибка:', error); notifications.error('Произошла ошибка. Попробуйте позже.') }
       finally { this.isGenerating = false }
     },
