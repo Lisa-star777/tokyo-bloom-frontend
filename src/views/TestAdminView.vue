@@ -597,6 +597,7 @@
 
 <script>
 import { adminStore } from '@/stores/admin'
+import emailjs from '@emailjs/browser'
 import { notifications } from '@/services/notifications'
 
 export default {
@@ -897,32 +898,44 @@ export default {
       this.isSending = false
     },
 
-    async sendReply() {
-      if (!this.replyText.trim()) {
+   async sendReply() {
+    if (!this.replyText.trim()) {
         notifications.error('Введите текст ответа')
         return
-      }
-      if (!this.currentMessage) {
+    }
+    if (!this.currentMessage) {
         notifications.error('Ошибка: сообщение не найдено')
         return
-      }
-      this.isSending = true
-      try {
+    }
+    this.isSending = true
+    try {
         const result = await adminStore.sendFeedbackReply(this.currentMessage.id, this.replyText)
         if (result) {
-          notifications.success(`Ответ успешно отправлен на ${this.currentMessage.email}`)
-          await this.loadAllData()
-          this.closeReplyModal()
+            // Отправка письма через EmailJS
+            try {
+                await emailjs.send('service_1tid84l', 'template_iz121zx', {
+                    name: this.currentMessage.name,
+                    reply_text: this.replyText,
+                    to_email: this.currentMessage.email
+                }, 'TGK6ouWlaBymZ0nrM')
+                console.log('✅ Письмо с ответом отправлено')
+            } catch(e) {
+                console.log('⚠️ Ошибка отправки письма:', e)
+            }
+            
+            notifications.success(`Ответ успешно отправлен на ${this.currentMessage.email}`)
+            await this.loadAllData()
+            this.closeReplyModal()
         } else {
-          notifications.error('Ошибка при отправке ответа')
+            notifications.error('Ошибка при отправке ответа')
         }
-      } catch (error) {
+    } catch (error) {
         console.error('Ошибка:', error)
         notifications.error('Ошибка при отправке')
-      } finally {
+    } finally {
         this.isSending = false
-      }
     }
+},
   }
 }
 </script>
