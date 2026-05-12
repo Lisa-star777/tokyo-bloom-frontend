@@ -16,24 +16,6 @@ export const authStore = {
         return user?.is_admin === true;
     },
 
-    // Перенос гостевой корзины на сервер
-    async mergeGuestCart() {
-        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
-        const token = localStorage.getItem('auth_token');
-        if (guestCart.length === 0 || !token) return;
-        
-        for (const item of guestCart) {
-            try {
-                await api.post('/cart/items', 
-                    { product_id: item.id, quantity: item.quantity },
-                    { headers: { Authorization: 'Bearer ' + token } }
-                );
-            } catch (e) {
-                console.log('Ошибка переноса товара:', e.response?.status);
-            }
-        }
-        localStorage.removeItem('guest_cart');
-    },
 
     // Регистрация
     async register(name, email, password) {
@@ -46,7 +28,6 @@ export const authStore = {
             localStorage.setItem('auth_token', token);
             localStorage.setItem('current_user', JSON.stringify(user));
             
-            await this.mergeGuestCart();
             
             window.dispatchEvent(new CustomEvent('user-logged-in', { detail: user }));
             return { success: true, user, isAdmin: user.is_admin };
@@ -65,7 +46,6 @@ export const authStore = {
             localStorage.setItem('auth_token', token);
             localStorage.setItem('current_user', JSON.stringify(user));
             
-            await this.mergeGuestCart();
             
             window.dispatchEvent(new CustomEvent('user-logged-in', { detail: user }));
             return { success: true, user, isAdmin: user.is_admin };
