@@ -73,4 +73,14 @@ export const cartStore = {
         const count = await this.getTotalCount();
         window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count } }));
     }
+
+    async validateCertificate(code) {
+    try {
+        const response = await api.post('/certificates/validate', { code });
+        return response.data;
+    } catch (error) {
+        return { valid: false, error: 'Сертификат не найден' };
+    }
+},
+    
 };
