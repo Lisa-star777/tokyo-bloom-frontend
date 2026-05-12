@@ -78,6 +78,13 @@ export const cartStore = {
         }
     },
 
+    async useCertificate(code, userId, orderId) {
+        try {
+            await api.post('/certificates/use', { code, order_id: orderId });
+            return true;
+        } catch (error) { return false; }
+    },
+
     async emitCartUpdate() {
         const count = await this.getTotalCount();
         window.dispatchEvent(new CustomEvent('cart-updated', { detail: { count } }));
