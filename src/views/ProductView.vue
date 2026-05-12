@@ -183,31 +183,20 @@ export default {
       this.$router.push(`/product/${productId}`)
     },
     
-    async addToCart(product) {
-      if (!authStore.isAuthenticated()) {
-        this.$emit('open-auth-modal')
-        return
-      }
-      const success = await cartStore.addItem(product, 1)
-      if (success) {
-        notifications.success(`Товар ${product.title} теперь в корзине!`)
-      } else {
-        notifications.error(' Ошибка при добавлении в корзину')
-      }
+        async addToCart(product) {
+        const success = await cartStore.addItem(product, 1)
+        if (success) notifications.success(`Товар ${product.title} теперь в корзине!`)
+        else notifications.error('Ошибка при добавлении в корзину')
     },
-    
+
     async buyNow(product) {
-      if (!authStore.isAuthenticated()) {
-        this.$emit('open-auth-modal')
-        return
-      }
-      const success = await cartStore.addItem(product, 1)
-      if (success) {
-        this.$router.push('/checkout')
-      } else {
-        notifications.error(' Ошибка при добавлении в корзину')
-      }
-    }
+        if (!authStore.isAuthenticated()) {
+            this.$emit('open-auth-modal')
+            return
+        }
+        const success = await cartStore.addItem(product, 1)
+        if (success) this.$router.push('/checkout')
+    },
   }
 }
 </script>
