@@ -53,15 +53,15 @@ export const cartStore = {
         } catch (error) { return false; }
     },
 
-    async createCertificate(certificateData) {
-        try {
-            const response = await api.post('/certificates', certificateData);
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка создания сертификата:', error);
-            return null;
-        }
-    },
+async createCertificate(certificateData) {
+    try {
+        const response = await api.post('/certificates', certificateData);
+        return response.data;
+    } catch (error) {
+        console.error('Ошибка создания сертификата:', error);
+        return null;
+    }
+},
 
     async emitCartUpdate() {
         const count = await this.getTotalCount();
