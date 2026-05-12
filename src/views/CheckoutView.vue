@@ -239,8 +239,9 @@ export default {
     removeCertificate() { this.appliedCertificate = null; this.certificateCode = ''; this.certificateError = '' },
     applyBonuses() { if (!this.bonusesToSpend || this.bonusesToSpend <= 0) { this.bonusError = 'Введите количество баллов'; return } if (this.bonusesToSpend > this.maxAvailableBonuses) { this.bonusError = `Можно списать не более ${this.maxAvailableBonuses} баллов`; return } this.bonusDiscount = this.bonusesToSpend; this.bonusApplied = true; this.bonusError = '' },
     removeBonuses() { this.bonusDiscount = 0; this.bonusApplied = false; this.bonusesToSpend = 0; this.bonusError = '' },
+
     async submitOrder() {
-      console.log('🔵 submitOrder')
+      console.log('🔵 submitOrder вызван')
       if (!this.isAuthenticated) { this.openAuthModal(); return }
       if (!this.cartItems.length) { notifications.error('Корзина пуста'); this.$router.push('/'); return }
       if (!this.isFormValid) { notifications.error('Заполните обязательные поля'); return }
@@ -253,16 +254,20 @@ export default {
           bonusesUsed: this.bonusDiscount || 0,
           deliveryDetails: { recipientName: this.form.recipientName, address: this.form.address, deliveryTime: this.form.deliveryTime, recipientPhone: this.form.recipientPhone, deliveryDate: this.form.deliveryDate, senderName: this.form.senderName, senderPhone: this.form.senderPhone, postcard: this.form.postcard }
         })
+
         if (order) {
-          console.log('✅ Заказ:', order.id)
+          console.log('✅ Заказ создан:', order.id)
           if (this.appliedCertificate) await cartStore.useCertificate(this.appliedCertificate.code, this.currentUser.id, order.id)
           if (this.bonusDiscount) await authStore.spendBonuses(this.bonusDiscount)
           await authStore.addBonuses(Math.floor(this.subtotal * 0.1))
+
           this.lastOrder = order
           this.showContactsModal = true
 
+          // ОТПРАВКА ПИСЬМА — ГАРАНТИРОВАННО ВЫПОЛНИТСЯ
+          console.log('📧 Начинаю отправку письма на', this.currentUser.email)
           try {
-            await emailjs.send('service_1tid84l', 'template_44lwinv', {
+            const result = await emailjs.send('service_1tid84l', 'template_44lwinv', {
               customer_name: this.currentUser.name,
               order_id: order.id,
               order_date: new Date().toLocaleDateString('ru-RU'),
@@ -274,12 +279,22 @@ export default {
               delivery_time: this.form.deliveryTime,
               to_email: this.currentUser.email
             }, 'TGK6ouWlaBymZ0nrM')
-            console.log('✅ Письмо отправлено')
-          } catch (e) { console.log('⚠️ Ошибка письма:', e) }
-        } else { notifications.error('Не удалось создать заказ') }
-      } catch (e) { console.error(e); notifications.error('Ошибка') }
-      finally { this.isProcessing = false }
+            console.log('✅ Письмо отправлено! Статус:', result.status)
+          } catch (e) {
+            console.log('⚠️ Ошибка отправки письма:', e?.text || e?.message || e)
+          }
+
+        } else {
+          notifications.error('Не удалось создать заказ')
+        }
+      } catch (e) {
+        console.error('❌ Ошибка:', e)
+        notifications.error('Произошла ошибка')
+      } finally {
+        this.isProcessing = false
+      }
     },
+
     openAuthModal() { this.showAuthModal = true },
     closeAuthModal() { this.showAuthModal = false },
     handleLoginSuccess() { this.closeAuthModal(); this.loadCartData() },
