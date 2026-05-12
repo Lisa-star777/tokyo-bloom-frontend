@@ -29,7 +29,7 @@ export const authStore = {
                     { headers: { Authorization: 'Bearer ' + token } }
                 );
             } catch (e) {
-                console.log('Ошибка переноса товара:', e);
+                console.log('Ошибка переноса товара:', e.response?.status);
             }
         }
         localStorage.removeItem('guest_cart');
@@ -46,7 +46,6 @@ export const authStore = {
             localStorage.setItem('auth_token', token);
             localStorage.setItem('current_user', JSON.stringify(user));
             
-            // Переносим гостевую корзину
             await this.mergeGuestCart();
             
             window.dispatchEvent(new CustomEvent('user-logged-in', { detail: user }));
@@ -66,7 +65,6 @@ export const authStore = {
             localStorage.setItem('auth_token', token);
             localStorage.setItem('current_user', JSON.stringify(user));
             
-            // Переносим гостевую корзину
             await this.mergeGuestCart();
             
             window.dispatchEvent(new CustomEvent('user-logged-in', { detail: user }));
@@ -77,17 +75,11 @@ export const authStore = {
         }
     },
 
-    // Выход
     async logout() {
-        try {
-            await api.post('/logout');
-        } catch (error) {
-            console.error('Ошибка выхода:', error);
-        } finally {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('current_user');
-            window.dispatchEvent(new Event('user-logged-out'));
-        }
+        try { await api.post('/logout'); } catch (error) {}
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('current_user');
+        window.dispatchEvent(new Event('user-logged-out'));
         return { success: true };
     },
 
@@ -101,12 +93,8 @@ export const authStore = {
             const response = await api.put('/user', updatedData);
             const updatedUser = response.data;
             localStorage.setItem('current_user', JSON.stringify(updatedUser));
-            window.dispatchEvent(new CustomEvent('user-updated', { detail: updatedUser }));
             return updatedUser;
-        } catch (error) {
-            console.error('Ошибка обновления профиля:', error);
-            return null;
-        }
+        } catch (error) { return null; }
     },
 
     async addBonuses(amount) {
@@ -114,7 +102,6 @@ export const authStore = {
         if (user) {
             user.bonuses = (user.bonuses || 0) + amount;
             localStorage.setItem('current_user', JSON.stringify(user));
-            window.dispatchEvent(new CustomEvent('user-updated', { detail: user }));
         }
     },
 
@@ -123,7 +110,6 @@ export const authStore = {
         if (user && (user.bonuses || 0) >= amount) {
             user.bonuses = (user.bonuses || 0) - amount;
             localStorage.setItem('current_user', JSON.stringify(user));
-            window.dispatchEvent(new CustomEvent('user-updated', { detail: user }));
         }
     }
 };
