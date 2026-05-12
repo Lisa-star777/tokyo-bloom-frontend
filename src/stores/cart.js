@@ -6,10 +6,7 @@ export const cartStore = {
         try {
             const response = await api.get('/cart');
             return response.data.items || [];
-        } catch (error) {
-            console.error('Ошибка получения корзины:', error);
-            return [];
-        }
+        } catch (error) { return []; }
     },
 
     async getTotalCount() {
@@ -22,10 +19,7 @@ export const cartStore = {
             await api.post('/cart/items', { product_id: product.id, quantity });
             await this.emitCartUpdate();
             return true;
-        } catch (error) {
-            console.error('Ошибка добавления в корзину:', error);
-            return false;
-        }
+        } catch (error) { return false; }
     },
 
     async removeItem(productId) {
@@ -53,15 +47,27 @@ export const cartStore = {
         } catch (error) { return false; }
     },
 
-async createCertificate(certificateData) {
-    try {
-        const response = await api.post('/certificates', certificateData);
-        return response.data;
-    } catch (error) {
-        console.error('Ошибка создания сертификата:', error);
-        return null;
-    }
-},
+    async getUserOrders() {
+        try {
+            const response = await api.get('/orders');
+            return response.data;
+        } catch (error) { return []; }
+    },
+
+    async createOrderFromCart(userId, userInfo) {
+        try {
+            const response = await api.post('/orders', userInfo);
+            await this.clearCart();
+            return response.data;
+        } catch (error) { return null; }
+    },
+
+    async createCertificate(certificateData) {
+        try {
+            const response = await api.post('/certificates', certificateData);
+            return response.data;
+        } catch (error) { return null; }
+    },
 
     async emitCartUpdate() {
         const count = await this.getTotalCount();
