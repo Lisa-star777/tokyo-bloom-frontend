@@ -149,13 +149,13 @@ export default {
           this.showCertificateModal = true;
           
           try {
-            await emailjs.send('service_1tid84l', 'template_w0sp4q6', {
+            await emailjs.send('service_qderwir', 'template_w0sp4q6', {
               customer_name: this.currentUser?.name || 'Покупатель',
               certificate_code: newCertificate.code,
               certificate_value: this.formatPrice(this.selectedCertificate.value),
               certificate_validity: this.selectedCertificate.validity,
               to_email: this.currentUser?.email
-            }, 'TGK6ouWlaBymZ0nrM');
+            }, 's5AKvfbueLLR1VgMe');
             console.log('✅ Письмо с сертификатом отправлено');
           } catch (e) {
             console.log('⚠️ Ошибка отправки письма:', e);
