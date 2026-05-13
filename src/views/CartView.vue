@@ -147,9 +147,6 @@ export default {
     subtotal() {
       return this.cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     },
-    deliveryCost() {
-      return this.subtotal > 5000 ? 0 : 300
-    },
     maxAvailableBonuses() {
       return Math.min(this.userBonuses, Math.floor(this.subtotal / 2))
     },
@@ -157,7 +154,7 @@ export default {
       return Math.floor(this.subtotal * 0.1)
     },
     total() {
-      let total = this.subtotal + this.deliveryCost - this.bonusDiscount
+      let total = this.subtotal - this.bonusDiscount
       if (this.appliedCertificate) {
         total = Math.max(0, total - this.appliedCertificate.value)
       }
@@ -177,16 +174,11 @@ export default {
   },
   methods: {
     formatPrice(price) {
-        return Math.round(price).toLocaleString('ru-RU');
+      return Math.round(price).toLocaleString('ru-RU')
     },
-    
-    // Загрузить корзину из API
     async loadCart() {
       this.cartItems = await cartStore.getCart()
-      console.log('Корзина загружена:', this.cartItems)
     },
-    
-    // Увеличить количество
     async increaseQuantity(id) {
       const item = this.cartItems.find(i => i.id === id)
       if (item) {
@@ -194,8 +186,6 @@ export default {
         await this.loadCart()
       }
     },
-    
-    // Уменьшить количество
     async decreaseQuantity(id) {
       const item = this.cartItems.find(i => i.id === id)
       if (item && item.quantity > 1) {
@@ -203,91 +193,39 @@ export default {
         await this.loadCart()
       }
     },
-    
-    // Удалить товар
     async removeItem(id) {
       await cartStore.removeItem(id)
       await this.loadCart()
     },
-    
-    // Применить бонусы
     applyBonuses() {
-      if (this.bonusesToSpend < 0) {
-        this.bonusesToSpend = 0
-        return
-      }
-      
-      if (this.bonusesToSpend > this.maxAvailableBonuses) {
-        this.bonusesToSpend = this.maxAvailableBonuses
-      }
-      
+      if (this.bonusesToSpend < 0) { this.bonusesToSpend = 0; return }
+      if (this.bonusesToSpend > this.maxAvailableBonuses) { this.bonusesToSpend = this.maxAvailableBonuses }
       this.bonusDiscount = this.bonusesToSpend
-      
       if (this.bonusesToSpend > 0) {
         notifications.success(`Списано ${this.bonusesToSpend} баллов. Скидка: ${this.formatPrice(this.bonusDiscount)} ₽`)
       }
     },
-    
-    // Применить сертификат
     async applyCertificate() {
       if (!this.certificateCode) return
-      
       this.isApplyingCertificate = true
       this.certificateError = ''
-      
       const result = await cartStore.validateCertificate(this.certificateCode)
-      
-      if (result.valid) {
-        this.appliedCertificate = result.certificate
-        this.certificateCode = ''
-        this.certificateError = ''
-      } else {
-        this.certificateError = result.error
-      }
-      
+      if (result.valid) { this.appliedCertificate = result.certificate; this.certificateCode = ''; this.certificateError = '' }
+      else { this.certificateError = result.error }
       this.isApplyingCertificate = false
     },
-    
-    removeCertificate() {
-      this.appliedCertificate = null
-      this.certificateCode = ''
-      this.certificateError = ''
-    },
-    
-    // Перейти к оформлению заказа
+    removeCertificate() { this.appliedCertificate = null; this.certificateCode = ''; this.certificateError = '' },
     goToCheckout() {
-      if (!this.isAuthenticated) {
-        this.openAuthModal('login')
-        return
-      }
+      if (!this.isAuthenticated) { this.openAuthModal('login'); return }
       this.$router.push('/checkout')
     },
-    
-    // Открыть модальное окно авторизации
-    openAuthModal(tab) {
-      this.authModalTab = tab
-      this.showAuthModal = true
-    },
-    
-    // Закрыть модальное окно
-    closeAuthModal() {
-      this.showAuthModal = false
-    },
-    
-    // Обработчик успешного входа
-    async handleLoginSuccess() {
-      this.closeAuthModal()
-      await this.loadCart()
-    }
+    openAuthModal(tab) { this.authModalTab = tab; this.showAuthModal = true },
+    closeAuthModal() { this.showAuthModal = false },
+    async handleLoginSuccess() { this.closeAuthModal(); await this.loadCart() }
   },
   async mounted() {
     await this.loadCart()
-    
-    // Слушаем события обновления корзины
-    window.addEventListener('cart-updated', async () => {
-      console.log('Корзина обновлена')
-      await this.loadCart()
-    })
+    window.addEventListener('cart-updated', async () => { await this.loadCart() })
   },
   beforeUnmount() {
     window.removeEventListener('cart-updated', this.loadCart)
