@@ -89,7 +89,6 @@ import { authStore } from '@/stores/auth'
 import { API_BASE_URL } from '@/services/api'
 import { notifications } from '@/services/notifications'
 
-
 export default {
   name: 'ProductView',
   data() {
@@ -113,7 +112,6 @@ export default {
       }
       const productId = parseInt(this.$route.params.id)
       const product = this.allProducts.find(p => p.id === productId)
-      
       return product || {
         id: 0,
         title: 'Товар не найден',
@@ -145,21 +143,18 @@ export default {
       }
     },
     
-  recommendedProducts() {
+    recommendedProducts() {
       if (!this.allProducts || !Array.isArray(this.allProducts)) return []
       const category = this.currentProduct.category
-      
-      // Для букетов и цветов в коробках — подбираем подарки
       if (category === 'bouquets' || category === 'box-flowers') {
-          return this.allProducts.filter(p => p.category === 'gifts' && p.id !== this.currentProduct.id).slice(0, 5)
+        return this.allProducts.filter(p => p.category === 'gifts' && p.id !== this.currentProduct.id).slice(0, 5)
       }
-      // Для подарков — подбираем букеты и цветы в коробках
       if (category === 'gifts') {
-          return this.allProducts.filter(p => (p.category === 'bouquets' || p.category === 'box-flowers') && p.id !== this.currentProduct.id).slice(0, 5)
+        return this.allProducts.filter(p => (p.category === 'bouquets' || p.category === 'box-flowers') && p.id !== this.currentProduct.id).slice(0, 5)
       }
-      // Для остального — любые товары
       return this.allProducts.filter(p => p.id !== this.currentProduct.id).slice(0, 5)
-  }
+    }
+  },
   async mounted() {
     await this.loadProducts()
   },
@@ -174,7 +169,6 @@ export default {
       try {
         const products = await adminStore.getProducts()
         this.allProducts = Array.isArray(products) ? products : []
-        console.log('📦 Загружено товаров для ProductView:', this.allProducts.length)
       } catch (error) {
         console.error('Ошибка загрузки товаров:', error)
         this.allProducts = []
@@ -182,36 +176,32 @@ export default {
         this.loading = false
       }
     },
-    
     formatPrice(price) {
-        return Math.round(price).toLocaleString('ru-RU');
+      return Math.round(price).toLocaleString('ru-RU')
     },
-    
     goToProduct(productId) {
       this.$router.push(`/product/${productId}`)
     },
-    
-async addToCart(product) {
-    if (!authStore.isAuthenticated()) {
+    async addToCart(product) {
+      if (!authStore.isAuthenticated()) {
         notifications.warning('Войдите или зарегистрируйтесь, чтобы добавлять товары в корзину')
         this.$emit('open-auth-modal')
         return
-    }
-    const success = await cartStore.addItem(product, 1)
-    if (success) notifications.success(`${product.title} теперь в корзине!`)
-    else notifications.error('Ошибка при добавлении в корзину')
-},
-
-async buyNow(product) {
-    if (!authStore.isAuthenticated()) {
+      }
+      const success = await cartStore.addItem(product, 1)
+      if (success) notifications.success(`${product.title} теперь в корзине!`)
+      else notifications.error('Ошибка при добавлении в корзину')
+    },
+    async buyNow(product) {
+      if (!authStore.isAuthenticated()) {
         notifications.warning('Войдите или зарегистрируйтесь, чтобы оформить заказ')
         this.$emit('open-auth-modal')
         return
+      }
+      const success = await cartStore.addItem(product, 1)
+      if (success) this.$router.push('/checkout')
+      else notifications.error('Ошибка при добавлении в корзину')
     }
-    const success = await cartStore.addItem(product, 1)
-    if (success) this.$router.push('/checkout')
-    else notifications.error('Ошибка при добавлении в корзину')
-},
   }
 }
 </script>
