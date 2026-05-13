@@ -27,7 +27,7 @@
       <div v-else-if="cartItems.length === 0" class="empty-cart">
         <div class="empty-cart-icon">🛒</div>
         <h2 class="empty-cart-title">Корзина пуста</h2>
-        <p class="empty-cart-text">Но это никогда не поздно исправить :)</p>
+        <p class="empty-cart-text">Но это никогда не поздно исправить</p>
         <router-link to="/bouquets" class="continue-shopping-btn">
           Перейти к покупкам
         </router-link>
@@ -74,10 +74,7 @@
               <span>Товары ({{ totalItems }} шт.)</span>
               <span>{{ formatPrice(subtotal) }} ₽</span>
             </div>
-            <div class="summary-row">
-              <span>Доставка</span>
-              <span>{{ formatPrice(deliveryCost) }} ₽</span>
-            </div>
+
             <div v-if="bonusDiscount > 0" class="summary-row discount">
               <span>Скидка баллами</span>
               <span>-{{ formatPrice(bonusDiscount) }} ₽</span>
