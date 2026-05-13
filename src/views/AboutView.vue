@@ -42,12 +42,12 @@
                 <span class="contact-value">tokyobloom@mail.ru</span>
               </div>
               <div class="contact-item">
-                <span class="contact-label">✦ Адрес:</span>
+                <span class="contact-label">✦ Адрес офиса:</span>
                 <span class="contact-value">г. Владивосток, ул.Шепеткова, д.60</span>
               </div>
               <div class="contact-item">
-                <span class="contact-label">✦ Время работы:</span>
-                <span class="contact-value">Ежедневно с 8:00 до 22:00</span>
+                <span class="contact-label">✦ Время доставки:</span>
+                <span class="contact-value">Ежедневно с 6:00 до 22:00</span>
               </div>
             </div>
           </div>
