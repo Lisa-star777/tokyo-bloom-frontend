@@ -52,7 +52,7 @@
 
     <section class="recommended-section">
       <div class="container">
-        <h2 class="recommended-title">К букету можно добавить</h2>
+        <h2 class="recommended-title">Можно добавить</h2>
         
         <div class="recommended-grid">
           <div 
@@ -145,13 +145,21 @@ export default {
       }
     },
     
-    recommendedProducts() {
+  recommendedProducts() {
       if (!this.allProducts || !Array.isArray(this.allProducts)) return []
-      return this.allProducts
-        .filter(p => p.id !== this.currentProduct.id)
-        .slice(0, 5)
-    }
-  },
+      const category = this.currentProduct.category
+      
+      // Для букетов и цветов в коробках — подбираем подарки
+      if (category === 'bouquets' || category === 'box-flowers') {
+          return this.allProducts.filter(p => p.category === 'gifts' && p.id !== this.currentProduct.id).slice(0, 5)
+      }
+      // Для подарков — подбираем букеты и цветы в коробках
+      if (category === 'gifts') {
+          return this.allProducts.filter(p => (p.category === 'bouquets' || p.category === 'box-flowers') && p.id !== this.currentProduct.id).slice(0, 5)
+      }
+      // Для остального — любые товары
+      return this.allProducts.filter(p => p.id !== this.currentProduct.id).slice(0, 5)
+  }
   async mounted() {
     await this.loadProducts()
   },
