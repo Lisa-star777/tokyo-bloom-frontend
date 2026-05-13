@@ -114,7 +114,10 @@ export default {
   computed: {
     promotionProducts() {
       if (!this.allProducts || !Array.isArray(this.allProducts)) return []
-      return this.allProducts.slice(0, 4)
+      const bouquets = this.allProducts.filter(p => p.category === 'bouquets').slice(0, 2)
+      const gifts = this.allProducts.filter(p => p.category === 'gifts').slice(0, 1)
+      const boxFlowers = this.allProducts.filter(p => p.category === 'box-flowers').slice(0, 1)
+      return [...bouquets, ...gifts, ...boxFlowers]
     },
     bouquetProducts() {
       if (!this.allProducts || !Array.isArray(this.allProducts)) return []
