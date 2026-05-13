@@ -93,10 +93,7 @@
               <span class="summary-label">Сумма заказа</span>
               <span class="summary-value">{{ formatPrice(subtotal) }} ₽</span>
             </div>
-            <div class="summary-row">
-              <span class="summary-label">Доставка</span>
-              <span class="summary-value">{{ formatPrice(deliveryCost) }} ₽</span>
-            </div>
+
             <div class="promo-block">
               <div class="promo-header"><span class="promo-title">Подарочный сертификат</span></div>
               <div v-if="!appliedCertificate" class="promo-input-group">
@@ -220,7 +217,8 @@ export default {
   },
   computed: {
     subtotal() { return this.cartItems.reduce((s, i) => s + (i.price * i.quantity), 0) },
-    deliveryCost() { return this.subtotal > 5000 ? 0 : 300 },
+    deliveryCost() {
+    return 0; },
     userBonuses() { return this.currentUser?.bonuses || 0 },
     maxAvailableBonuses() { return Math.min(this.userBonuses, Math.floor((this.subtotal + this.deliveryCost) / 2)) },
     bonusesToEarn() { return Math.floor(this.subtotal * 0.1) },
