@@ -280,11 +280,12 @@ export default {
   .product-card {
     padding: 8px !important;
     border-radius: 8px !important;
+    height: 100px !important;
   }
   .product-card .product-image {
     width: 100% !important;
     height: auto !important;
-    aspect-ratio: 4 / 3 !important;
+    aspect-ratio: 1 / 1 !important;
     border-radius: 6px !important;
     overflow: hidden !important;
   }
