@@ -323,7 +323,7 @@ export default {
     padding: 0 10px !important;
   }
   .product-card {
-    padding: 6px 5px !important;
+    padding: 5px 8px !important;
     border-radius: 10px !important;
   }
   .product-card .product-image {
