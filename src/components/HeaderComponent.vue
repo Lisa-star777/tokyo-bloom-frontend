@@ -161,5 +161,15 @@ export default {
   .auth-btn { padding: 5px 10px; font-size: 12px; }
   .auth-buttons { gap: 5px; }
   .cart-icon { font-size: 18px; }
+  .auth-buttons {
+    flex-direction: row !important;
+}
+  .auth-btn {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+}
+  .header-actions {
+    gap: 5px !important;
+}
 }
 </style>
