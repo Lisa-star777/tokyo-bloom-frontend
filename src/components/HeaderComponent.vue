@@ -2,10 +2,13 @@
   <header class="header">
     <div class="container">
       <div class="header-content">
+        <button class="burger" @click="menuOpen = !menuOpen">
+            <span></span><span></span><span></span>
+        </button>
         <router-link to="/" class="logo">Тоkyo Bloom</router-link>
         
         <nav>
-          <ul class="nav-menu">
+          <ul class="nav-menu" :class="{ open: menuOpen }">
             <li><router-link to="/">ГЛАВНАЯ</router-link></li>
             <li><router-link to="/bouquets">БУКЕТЫ</router-link></li>
             <li><router-link to="/gifts">ПОДАРКИ</router-link></li>
@@ -91,6 +94,7 @@ export default {
       authModalTab: 'login',
       showUserMenu: false,
       user: null,
+      menuOpen: false,
       cartCount: 0
     }
   },
