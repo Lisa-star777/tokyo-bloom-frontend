@@ -285,7 +285,7 @@ export default {
   .product-card .product-image {
     width: 100% !important;
     height: auto !important;
-    aspect-ratio: 1 / 1 !important;
+
     border-radius: 6px !important;
     overflow: hidden !important;
   }
