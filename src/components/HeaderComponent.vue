@@ -164,6 +164,12 @@ export default {
   .cart-btn { padding: 3px !important; }
   .auth-btn { padding: 4px 7px !important; font-size: 10px !important; }
   .header-actions { gap: 4px !important; }
-  .auth-buttons { gap: 3px !important; }
+  .auth-buttons { gap: 3px !important; }.header-content {
+    padding: 0 5px !important;
+    }
+    .container {
+        padding: 0 5px !important;
+        max-width: 100% !important;
+    }
 }
 </style>
