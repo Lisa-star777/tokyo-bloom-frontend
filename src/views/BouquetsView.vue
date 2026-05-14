@@ -327,7 +327,8 @@ export default {
     border-radius: 10px !important;
   }
   .product-card .product-image {
-    height: 100px !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
     border-radius: 8px !important;
     overflow: hidden !important;
   }
