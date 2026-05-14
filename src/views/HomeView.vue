@@ -383,64 +383,63 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .hero {
-    margin-top: 140px;
-    padding: 80px 0;
+  .catalog-page, .home-page {
+    margin-top: 100px !important;
   }
-  
-  .hero h1 {
-    font-size: 36px;
-  }
-  
-  .cta-button {
-    padding: 14px 35px;
-    font-size: 16px;
-  }
-  
-  .section-title {
-    font-size: 36px;
-    margin-bottom: 40px;
-    padding: 0 15px;
-  }
-  
-  .products-section {
-    padding: 70px 0;
-  }
-  
   .products-grid {
-    grid-template-columns: 1fr;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
   }
-  
-  .section-footer {
-    justify-content: center;
+  .product-card {
+    padding: 10px !important;
+    border-radius: 10px !important;
+  }
+  .product-card .product-image {
+    height: 140px !important;
+    border-radius: 6px !important;
+  }
+  .product-card .product-image img {
+    object-fit: cover !important;
+  }
+  .product-card h3, .product-card .product-title {
+    font-size: 13px !important;
+    margin: 6px 0 3px !important;
+    line-height: 1.2 !important;
+  }
+  .product-card .product-price {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+  }
+  .product-card .product-description {
+    display: none !important;
+  }
+  .section-title {
+    font-size: 22px !important;
+    margin-bottom: 15px !important;
+  }
+  .view-more-link {
+    font-size: 13px !important;
   }
 }
 
 @media (max-width: 480px) {
-  .hero {
-    margin-top: 160px;
-    padding: 60px 0;
+  .products-grid {
+    gap: 8px !important;
   }
-  
-  .hero h1 {
-    font-size: 28px;
+  .product-card {
+    padding: 8px !important;
   }
-  
-  .cta-button {
-    padding: 12px 30px;
-    font-size: 15px;
+  .product-card .product-image {
+    height: 120px !important;
   }
-  
+  .product-card h3, .product-card .product-title {
+    font-size: 12px !important;
+  }
+  .product-card .product-price {
+    font-size: 12px !important;
+  }
   .section-title {
-    font-size: 32px;
-    margin-bottom: 35px;
-  }
-  
-  .products-section {
-    padding: 60px 0;
+    font-size: 20px !important;
   }
 }
 </style>
