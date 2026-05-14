@@ -323,7 +323,7 @@ export default {
     padding: 0 10px !important;
   }
   .product-card {
-    padding: 10px !important;
+    padding: 5px 8px !important;
     border-radius: 10px !important;
   }
   .product-card .product-image {
@@ -338,7 +338,7 @@ export default {
   }
   .product-card h3, .product-card .product-title {
     font-size: 14px !important;
-    margin: 6px 0 3px !important;
+    margin: 3px 0 1px !important;
     line-height: 1.2 !important;
   }
   .product-card .product-price {
