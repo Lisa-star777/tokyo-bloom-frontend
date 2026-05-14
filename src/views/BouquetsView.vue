@@ -281,6 +281,7 @@ export default {
     padding: 8px !important;
     border-radius: 8px !important;
     height: 50px !important;
+    aspect-ratio: 1 / 1 !important;
   }
   .product-card .product-image {
     width: 100% !important;
