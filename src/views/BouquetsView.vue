@@ -346,6 +346,7 @@ export default {
   .product-card .product-price {
     font-size: 15px !important;
     font-weight: 700 !important;
+    margin-bottom: 0 !important;
   }
   .product-card .product-description {
     display: none !important;
