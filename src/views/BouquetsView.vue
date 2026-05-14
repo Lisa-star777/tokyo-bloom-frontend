@@ -316,22 +316,20 @@ export default {
   }
 }
 
-/* iPhone 15 и похожие */
 @media (max-width: 430px) and (min-width: 380px) {
   .products-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 6px !important;
-    padding: 0 8px !important;
+    gap: 10px !important;
+    padding: 0 10px !important;
   }
   .product-card {
-    padding: 4px 6px !important;
-    border-radius: 8px !important;
+    padding: 8px !important;
+    border-radius: 10px !important;
   }
   .product-card .product-image {
-    max-height: 100px !important;
     aspect-ratio: 1 / 1 !important;
     height: auto !important;
-    border-radius: 6px !important;
+    border-radius: 8px !important;
     overflow: hidden !important;
   }
   .product-card .product-image img {
@@ -340,12 +338,12 @@ export default {
     object-fit: cover !important;
   }
   .product-card h3, .product-card .product-title {
-    font-size: 11px !important;
-    margin: 2px 0 1px !important;
+    font-size: 12px !important;
+    margin: 4px 0 2px !important;
     line-height: 1.2 !important;
   }
   .product-card .product-price {
-    font-size: 12px !important;
+    font-size: 13px !important;
     font-weight: 700 !important;
     margin-bottom: 0 !important;
   }
@@ -353,11 +351,11 @@ export default {
     display: none !important;
   }
   .section-title {
-    font-size: 18px !important;
-    margin-bottom: 10px !important;
+    font-size: 20px !important;
+    margin-bottom: 12px !important;
   }
   .catalog-page, .home-page {
-    margin-top: 70px !important;
+    margin-top: 80px !important;
   }
 }
 </style>
