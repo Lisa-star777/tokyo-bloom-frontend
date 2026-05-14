@@ -156,20 +156,14 @@ export default {
   .logo { font-size: 18px; }
   .header-content { gap: 8px; padding: 0 10px; }
 }
-@media (max-width: 480px) {
-  .logo { font-size: 18px; }
-  .auth-btn { padding: 5px 10px; font-size: 12px; }
-  .auth-buttons { gap: 5px; }
-  .cart-icon { font-size: 18px; }
-  .auth-buttons {
-    flex-direction: row !important;
-}
-  .auth-btn {
-    padding: 5px 8px !important;
-    font-size: 11px !important;
-}
-  .header-actions {
-    gap: 5px !important;
-}
+@media (max-width: 430px) and (min-width: 380px) {
+  .header { padding: 5px 0 !important; }
+  .logo { font-size: 15px !important; }
+  .burger span { width: 20px; height: 2px; }
+  .cart-icon { font-size: 16px !important; }
+  .cart-btn { padding: 3px !important; }
+  .auth-btn { padding: 4px 7px !important; font-size: 10px !important; }
+  .header-actions { gap: 4px !important; }
+  .auth-buttons { gap: 3px !important; }
 }
 </style>
