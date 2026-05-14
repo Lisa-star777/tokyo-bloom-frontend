@@ -275,7 +275,8 @@ export default {
   }
   
   .products-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
     max-width: 400px;
   }
   
