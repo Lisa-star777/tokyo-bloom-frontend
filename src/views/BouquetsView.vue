@@ -317,7 +317,7 @@ export default {
     padding: 8px !important;
   }
   .product-card .product-image {
-    height: 120px !important;
+    height: 80px !important;
   }
   .product-card h3, .product-card .product-title {
     font-size: 12px !important;
