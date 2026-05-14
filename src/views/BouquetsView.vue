@@ -325,6 +325,7 @@ export default {
   .product-card {
     padding: 6px !important;
     border-radius: 10px !important;
+    min-width: 0 !important;
   }
   .product-card .product-image {
     aspect-ratio: 1 / 1 !important;
@@ -355,7 +356,7 @@ export default {
     margin-bottom: 10px !important;
   }
   .catalog-page, .home-page {
-    margin-top: 75px !important;
+    margin-top: 80px !important;
   }
 }
 </style>
