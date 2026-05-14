@@ -282,7 +282,7 @@ export default {
     border-radius: 10px !important;
   }
   .product-card .product-image {
-    height: 140px !important;
+    height: 100px !important;
     border-radius: 6px !important;
   }
   .product-card .product-image img {
