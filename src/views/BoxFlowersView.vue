@@ -277,7 +277,7 @@ export default {
   .products-grid {
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 10px;
-    max-width: 400px;
+
   }
   
   .catalog-main-title {
