@@ -146,7 +146,7 @@ export default {
 
 /* Адаптив */
 @media (max-width: 768px) {
-  .header { padding: 8px 0 !important; }
+  .header { padding: 6px 0 !important; }
   .burger { display: flex; }
   .nav-menu { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background: #333333; padding: 15px; gap: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.3); z-index: 999; }
   .nav-menu.open { display: flex; }
