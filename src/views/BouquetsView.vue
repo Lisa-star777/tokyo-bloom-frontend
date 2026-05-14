@@ -319,18 +319,22 @@ export default {
 @media (max-width: 430px) and (min-width: 380px) {
   .products-grid {
     grid-template-columns: 1fr 1fr !important;
-    gap: 6px !important;
-    padding: 0 6px !important;
+    gap: 8px !important;
+    padding: 0 12px !important;
+    max-width: 100% !important;
   }
   .product-card {
-    padding: 4px !important;
-    border-radius: 8px !important;
+    padding: 3px !important;
+    border-radius: 6px !important;
     min-width: 0 !important;
+    max-width: 160px !important;
+    margin: 0 auto !important;
   }
   .product-card .product-image {
+    max-width: 100% !important;
     aspect-ratio: 1 / 1 !important;
     height: auto !important;
-    border-radius: 6px !important;
+    border-radius: 5px !important;
     overflow: hidden !important;
   }
   .product-card .product-image img {
@@ -340,7 +344,7 @@ export default {
   }
   .product-card h3, .product-card .product-title {
     font-size: 9px !important;
-    margin: 2px 0 1px !important;
+    margin: 2px 0 0 !important;
     line-height: 1.1 !important;
   }
   .product-card .product-price {
