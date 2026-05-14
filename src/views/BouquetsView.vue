@@ -315,18 +315,42 @@ export default {
   }
 }
 
-@media (max-width: 480px) {
+/* iPhone 15 и похожие */
+@media (max-width: 430px) and (min-width: 380px) {
   .products-grid {
-    gap: 6px !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    padding: 0 10px !important;
   }
   .product-card {
-    padding: 6px !important;
+    padding: 10px !important;
+    border-radius: 10px !important;
+  }
+  .product-card .product-image {
+    height: 130px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+  }
+  .product-card .product-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
   }
   .product-card h3, .product-card .product-title {
-    font-size: 11px !important;
+    font-size: 14px !important;
+    margin: 6px 0 3px !important;
+    line-height: 1.2 !important;
   }
   .product-card .product-price {
-    font-size: 12px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+  }
+  .product-card .product-description {
+    display: none !important;
+  }
+  .section-title {
+    font-size: 22px !important;
+    margin-bottom: 12px !important;
   }
 }
 </style>
