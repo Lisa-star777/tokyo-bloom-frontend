@@ -295,19 +295,19 @@ export default {
     object-fit: cover !important;
   }
   .product-card h3, .product-card .product-title {
-    font-size: 12px !important;
+    font-size: 14px !important;
     margin: 5px 0 2px !important;
     line-height: 1.2 !important;
   }
   .product-card .product-price {
-    font-size: 13px !important;
+    font-size: 15px !important;
     font-weight: 700 !important;
   }
   .product-card .product-description {
     display: none !important;
   }
   .section-title {
-    font-size: 20px !important;
+    font-size: 18px !important;
     margin-bottom: 12px !important;
   }
   .view-more-link {
