@@ -146,14 +146,15 @@ export default {
 
 /* Адаптив */
 @media (max-width: 768px) {
+  .header { padding: 10px 0 !important; }
   .burger { display: flex; }
   .nav-menu { display: none; flex-direction: column; position: absolute; top: 100%; left: 0; width: 100%; background: #333333; padding: 15px; gap: 10px; box-shadow: 0 5px 10px rgba(0,0,0,0.3); z-index: 999; }
   .nav-menu.open { display: flex; }
   .nav-menu a { font-size: 13px; }
   .user-name { display: none; }
   .auth-btn { padding: 6px 12px; font-size: 13px; }
-  .logo { font-size: 20px; }
-  .header-content { gap: 10px; }
+  .logo { font-size: 18px; }
+  .header-content { gap: 8px; padding: 0 10px; }
 }
 @media (max-width: 480px) {
   .logo { font-size: 18px; }
