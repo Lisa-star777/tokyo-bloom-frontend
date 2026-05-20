@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /cart
+Disallow: /checkout
+Disallow: /profile
+Disallow: /orders
+Disallow: /admin
+Disallow: /certificate-order
+
+Host: https://tokyo-bloom-777.onrender.com
+Sitemap: https://tokyo-bloom-777.onrender.com/sitemap.xml
