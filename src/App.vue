@@ -71,4 +71,23 @@ body {
   margin-top: 15px;
 }
 
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+.product-card .product-image,
+.product-image {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background-color: #f0f0f0;
+}
+.product-card .product-image img,
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
 </style>
