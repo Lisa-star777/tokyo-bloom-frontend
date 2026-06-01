@@ -11,14 +11,11 @@ export const adminStore = {
         return JSON.parse(localStorage.getItem('current_user'));
     },
 
-    async getProducts(forceRefresh = false) {
+    async getProducts() {
         try {
             const response = await api.get('/products');
             return response.data;
-        } catch (error) {
-            console.error('Ошибка получения товаров:', error);
-            return [];
-        }
+        } catch (error) { return []; }
     },
 
     async addProduct(product, imageFile = null) {
@@ -31,22 +28,14 @@ export const adminStore = {
             formData.append('materials', product.materials || '');
             formData.append('image', imageFile);
             try {
-                const response = await api.post('/admin/products', formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                const response = await api.post('/admin/products', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 return response.data;
-            } catch (error) {
-                console.error('Ошибка добавления товара:', error);
-                return null;
-            }
+            } catch (error) { return null; }
         }
         try {
             const response = await api.post('/admin/products', product);
             return response.data;
-        } catch (error) {
-            console.error('Ошибка добавления товара:', error);
-            return null;
-        }
+        } catch (error) { return null; }
     },
 
     async updateProduct(productId, updatedData, imageFile = null) {
@@ -60,22 +49,14 @@ export const adminStore = {
             formData.append('materials', updatedData.materials || '');
             formData.append('image', imageFile);
             try {
-                const response = await api.post('/admin/products/' + productId, formData, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                const response = await api.post('/admin/products/' + productId, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 return response.data;
-            } catch (error) {
-                console.error('Ошибка обновления товара:', error);
-                return null;
-            }
+            } catch (error) { return null; }
         }
         try {
             const response = await api.put('/admin/products/' + productId, updatedData);
             return response.data;
-        } catch (error) {
-            console.error('Ошибка обновления товара:', error);
-            return null;
-        }
+        } catch (error) { return null; }
     },
 
     async deleteProduct(productId) {
@@ -89,112 +70,57 @@ export const adminStore = {
     },
 
     async getUsers() {
-        try {
-            const response = await api.get('/admin/users');
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка получения пользователей:', error);
-            return [];
-        }
+        try { const response = await api.get('/admin/users'); return response.data; }
+        catch (error) { return []; }
     },
 
     async updateUserBonuses(userId, newBonuses) {
-        try {
-            await api.put('/admin/users/' + userId + '/bonuses', { bonuses: newBonuses });
-            return true;
-        } catch (error) {
-            console.error('Ошибка обновления бонусов:', error);
-            return false;
-        }
+        try { await api.put('/admin/users/' + userId + '/bonuses', { bonuses: newBonuses }); return true; }
+        catch (error) { return false; }
     },
 
     async getOrders() {
-        try {
-            const response = await api.get('/admin/orders');
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка получения заказов:', error);
-            return [];
-        }
+        try { const response = await api.get('/admin/orders'); return response.data; }
+        catch (error) { return []; }
     },
 
     async updateOrderStatus(orderId, newStatus, statusText) {
-        try {
-            await api.put('/admin/orders/' + orderId, { status: newStatus, status_text: statusText });
-            return true;
-        } catch (error) {
-            console.error('Ошибка обновления статуса заказа:', error);
-            return false;
-        }
+        try { await api.put('/admin/orders/' + orderId, { status: newStatus, status_text: statusText }); return true; }
+        catch (error) { return false; }
     },
 
     async getCertificates() {
-        try {
-            const response = await api.get('/admin/certificates');
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка получения сертификатов:', error);
-            return [];
-        }
+        try { const response = await api.get('/admin/certificates'); return response.data; }
+        catch (error) { return []; }
     },
 
     async createCertificate(certificateData) {
-        try {
-            const response = await api.post('/admin/certificates', certificateData);
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка создания сертификата:', error);
-            return null;
-        }
+        try { const response = await api.post('/admin/certificates', certificateData); return response.data; }
+        catch (error) { return null; }
     },
 
     async deactivateCertificate(certificateId) {
-        try {
-            await api.delete('/admin/certificates/' + certificateId);
-            return true;
-        } catch (error) {
-            console.error('Ошибка деактивации сертификата:', error);
-            return false;
-        }
+        try { await api.delete('/admin/certificates/' + certificateId); return true; }
+        catch (error) { return false; }
     },
 
     async getFeedback() {
-        try {
-            const response = await api.get('/admin/feedback');
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка получения сообщений:', error);
-            return [];
-        }
+        try { const response = await api.get('/admin/feedback'); return response.data; }
+        catch (error) { return []; }
     },
 
     async markFeedbackAsRead(messageId) {
-        try {
-            await api.put('/admin/feedback/' + messageId + '/read');
-            return true;
-        } catch (error) {
-            console.error('Ошибка отметки сообщения:', error);
-            return false;
-        }
+        try { await api.put('/admin/feedback/' + messageId + '/read'); return true; }
+        catch (error) { return false; }
     },
 
     async sendFeedbackReply(messageId, replyText) {
-        try {
-            const response = await api.post('/admin/feedback/' + messageId + '/reply', { reply_text: replyText });
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка отправки ответа:', error);
-            return null;
-        }
+        try { const response = await api.post('/admin/feedback/' + messageId + '/reply', { reply_text: replyText }); return response.data; }
+        catch (error) { return null; }
     },
 
     async getStats() {
-        try {
-            const response = await api.get('/admin/stats');
-            return response.data;
-        } catch (error) {
-            console.error('Ошибка получения статистики:', error);
-            return { totalUsers: 0, totalOrders: 0, totalProducts: 0, totalCertificates: 0, totalFeedback: 0, newFeedback: 0, totalRevenue: 0, activeCertificates: 0 };
-        }
+        try { const response = await api.get('/admin/stats'); return response.data; }
+        catch (error) { return { totalUsers: 0, totalOrders: 0, totalProducts: 0, totalCertificates: 0, totalFeedback: 0, newFeedback: 0, totalRevenue: 0, activeCertificates: 0 }; }
     }
 };
