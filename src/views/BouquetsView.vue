@@ -269,50 +269,79 @@ export default {
   }
 }
 
+/* Мобильные стили для карточек (3 в ряд) */
 @media (max-width: 768px) {
-  .catalog-page, .home-page {
-    margin-top: 100px !important;
-  }
   .products-grid {
+    display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
     gap: 8px !important;
   }
+  
   .product-card {
-    padding: 8px !important;
+    padding: 6px !important;
     border-radius: 8px !important;
-    height: 50px !important;
-    aspect-ratio: 1 / 1 !important;
+    min-height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
+  
   .product-card .product-image {
-    width: 100% !important;
     height: auto !important;
-
+    aspect-ratio: 1 / 1 !important;
     border-radius: 6px !important;
-    overflow: hidden !important;
+    margin-bottom: 6px !important;
   }
+  
   .product-card .product-image img {
-    width: 100% !important;
-    height: 100% !important;
     object-fit: cover !important;
   }
-  .product-card h3, .product-card .product-title {
-    font-size: 14px !important;
-    margin: 5px 0 2px !important;
-    line-height: 1.2 !important;
+  
+  .product-card h3, 
+  .product-card .product-title {
+    font-size: 11px !important;
+    margin: 4px 0 2px !important;
+    line-height: 1.3 !important;
+    min-height: 28px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
   }
+  
   .product-card .product-price {
-    font-size: 15px !important;
-    font-weight: 700 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    margin: 4px 0 6px !important;
+    color: #292966 !important;
   }
+  
   .product-card .product-description {
     display: none !important;
   }
+  
   .section-title {
-    font-size: 18px !important;
-    margin-bottom: 12px !important;
+    font-size: 22px !important;
+    margin-bottom: 15px !important;
   }
-  .view-more-link {
-    font-size: 12px !important;
+}
+
+@media (max-width: 400px) {
+  .products-grid {
+    gap: 5px !important;
+  }
+  
+  .product-card {
+    padding: 4px !important;
+  }
+  
+  .product-card h3, 
+  .product-card .product-title {
+    font-size: 10px !important;
+    min-height: 24px !important;
+  }
+  
+  .product-card .product-price {
+    font-size: 11px !important;
   }
 }
 
