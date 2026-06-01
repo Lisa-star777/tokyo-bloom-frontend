@@ -384,41 +384,77 @@ export default {
 
 @media (max-width: 768px) {
   .catalog-page, .home-page {
-    margin-top: 100px !important;
+    margin-top: 80px !important;
   }
+  
+  /* ГЛАВНОЕ: 3 карточки в ряд (как на Wildberries) */
   .products-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
   }
+  
   .product-card {
-    padding: 10px !important;
-    border-radius: 10px !important;
+    padding: 6px !important;
+    border-radius: 8px !important;
+    min-height: auto !important;
   }
+  
   .product-card .product-image {
-    height: 140px !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
     border-radius: 6px !important;
   }
+  
   .product-card .product-image img {
     object-fit: cover !important;
   }
-  .product-card h3, .product-card .product-title {
-    font-size: 13px !important;
-    margin: 6px 0 3px !important;
+  
+  .product-card h3, 
+  .product-card .product-title {
+    font-size: 11px !important;
+    margin: 5px 0 2px !important;
     line-height: 1.2 !important;
   }
+  
   .product-card .product-price {
-    font-size: 14px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
+    margin-bottom: 5px !important;
   }
+  
   .product-card .product-description {
     display: none !important;
   }
+  
   .section-title {
     font-size: 22px !important;
     margin-bottom: 15px !important;
   }
+  
   .view-more-link {
-    font-size: 13px !important;
+    font-size: 12px !important;
+    padding: 8px 16px !important;
+  }
+  
+  .section-footer {
+    margin-top: 10px !important;
+  }
+}
+
+/* Для очень маленьких телефонов (до 400px) */
+@media (max-width: 400px) {
+  .products-grid {
+    gap: 6px !important;
+  }
+  
+  .product-card h3, 
+  .product-card .product-title {
+    font-size: 10px !important;
+  }
+  
+  .product-card .product-price {
+    font-size: 11px !important;
   }
 }
 
