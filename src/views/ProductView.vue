@@ -599,7 +599,7 @@ export default {
   /* Сетка рекомендаций - 4 карточки в ряд */
   .recommended-grid {
     display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-columns: repeat(5, 1fr) !important;
     gap: 8px !important;
   }
   
