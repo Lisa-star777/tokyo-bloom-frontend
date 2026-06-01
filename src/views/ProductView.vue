@@ -593,4 +593,97 @@ export default {
     font-size: 32px;
   }
 }
+
+/* ========== МОБИЛЬНЫЕ СТИЛИ ДЛЯ БЛОКА "МОЖНО ДОБАВИТЬ" ========== */
+@media (max-width: 768px) {
+  /* Сетка рекомендаций - 4 карточки в ряд */
+  .recommended-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+  }
+  
+  /* Карточка рекомендации */
+  .recommended-card {
+    padding: 6px !important;
+    border-radius: 6px !important;
+    text-align: center !important;
+    background-color: #9887bc63 !important;
+  }
+  
+  /* Квадратное фото */
+  .recommended-image {
+    aspect-ratio: 1 / 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 4px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .recommended-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+  }
+  
+  /* Название товара */
+  .recommended-product-title {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+    margin: 3px 0 !important;
+    min-height: 22px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+  }
+  
+  /* Цена */
+  .recommended-price {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    margin: 2px 0 !important;
+  }
+  
+  /* Кнопка "Посмотреть" */
+  .recommended-order-button {
+    font-size: 8px !important;
+    padding: 4px 0 !important;
+    margin-top: 4px !important;
+    width: 100% !important;
+    border-radius: 3px !important;
+  }
+  
+  /* Заголовок секции */
+  .recommended-title {
+    font-size: 18px !important;
+    margin-bottom: 15px !important;
+    text-align: center !important;
+  }
+}
+
+/* Для очень маленьких телефонов (320-400px) */
+@media (max-width: 400px) {
+  .recommended-grid {
+    gap: 5px !important;
+  }
+  
+  .recommended-card {
+    padding: 4px !important;
+  }
+  
+  .recommended-product-title {
+    font-size: 8px !important;
+    min-height: 20px !important;
+  }
+  
+  .recommended-price {
+    font-size: 9px !important;
+  }
+  
+  .recommended-order-button {
+    font-size: 7px !important;
+    padding: 3px 0 !important;
+  }
+}
 </style>
