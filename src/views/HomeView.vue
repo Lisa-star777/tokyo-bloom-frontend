@@ -441,7 +441,7 @@ export default {
   }
   
   .section-title {
-    font-size: 22px !important;
+    font-size: 30px !important;
     margin-bottom: 15px !important;
   }
   
