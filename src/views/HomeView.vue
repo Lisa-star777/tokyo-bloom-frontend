@@ -387,72 +387,112 @@ export default {
     margin-top: 80px !important;
   }
   
-  /* 3 карточки в ряд, вытянутые */
+  /* Сетка: 3 карточки в ряд */
   .products-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 8px !important;
+    gap: 12px !important;
   }
   
+  /* Карточка как на скриншоте */
   .product-card {
-    padding: 6px !important;
-    border-radius: 8px !important;
+    background: white !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    text-align: left !important;
     min-height: auto !important;
-    display: flex !important;
-    flex-direction: column !important;
+    cursor: pointer;
   }
   
   /* Квадратное изображение */
-.product-card .product-image {
-  height: auto !important;
-  aspect-ratio: 1 / 1 !important;
-}
-  
-  .product-card .product-image img {
-    object-fit: cover !important;
-  }
-  
-  /* Заголовок - 2 строки, вытягивает карточку */
-  .product-card h3, 
-  .product-card .product-title {
-    font-size: 11px !important;
-    margin: 4px 0 2px !important;
-    line-height: 1.3 !important;
-    min-height: 28px !important;
-    display: -webkit-box !important;
-    -webkit-line-clamp: 2 !important;
-    -webkit-box-orient: vertical !important;
+  .product-card .product-image {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    background-color: #f5f5f5 !important;
+    border-radius: 0 !important;
+    margin-bottom: 8px !important;
     overflow: hidden !important;
   }
   
-  /* Цена - крупная и жирная */
-  .product-card .product-price {
-    font-size: 13px !important;
-    font-weight: 800 !important;
-    margin: 4px 0 6px !important;
-    color: #292966 !important;
+  .product-card .product-image img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
   }
   
-  /* Описание скрываем */
+  /* Название товара */
+  .product-card h3, 
+  .product-card .product-title {
+    font-family: 'Albert Sans', sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #000000 !important;
+    margin: 0 0 4px 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
+    text-align: left !important;
+  }
+  
+  /* Цена */
+  .product-card .product-price {
+    font-family: 'Albert Sans', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+  
+  /* Описание - скрываем */
   .product-card .product-description {
     display: none !important;
   }
   
+  /* Заголовки секций */
   .section-title {
-    font-size: 22px !important;
-    margin-bottom: 15px !important;
+    font-family: 'Russo One', sans-serif !important;
+    font-size: 24px !important;
+    text-align: left !important;
+    margin-bottom: 20px !important;
+    padding: 0 !important;
+    color: #292966 !important;
   }
   
+  /* Кнопка "Смотреть больше" */
   .view-more-link {
-    font-size: 12px !important;
-    padding: 8px 16px !important;
+    font-size: 14px !important;
+    padding: 10px 20px !important;
+    color: #292966 !important;
+    border: 1px solid #292966 !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
   }
   
   .section-footer {
-    margin-top: 10px !important;
+    margin-top: 20px !important;
+    display: flex !important;
+    justify-content: flex-start !important;
   }
 }
 
+/* Для экранов уже 400px */
+@media (max-width: 400px) {
+  .products-grid {
+    gap: 8px !important;
+  }
+  
+  .product-card h3, 
+  .product-card .product-title {
+    font-size: 12px !important;
+  }
+  
+  .product-card .product-price {
+    font-size: 14px !important;
+  }
+}
 /* Для очень маленьких телефонов (320-400px) */
 @media (max-width: 400px) {
   .products-grid {
