@@ -406,8 +406,7 @@ export default {
   .product-card .product-image {
     height: auto !important;
     aspect-ratio: 1 / 1 !important;
-    border-radius: 6px !important;
-    margin-bottom: 6px !important;
+
   }
   
   .product-card .product-image img {
