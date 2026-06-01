@@ -596,17 +596,17 @@ export default {
 
 /* ========== МОБИЛЬНЫЕ СТИЛИ ДЛЯ БЛОКА "МОЖНО ДОБАВИТЬ" ========== */
 @media (max-width: 768px) {
-  /* Сетка рекомендаций - 4 карточки в ряд */
+  /* Сетка рекомендаций - 3 карточки в ряд */
   .recommended-grid {
     display: grid !important;
-    grid-template-columns: repeat(5, 1fr) !important;
-    gap: 8px !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
   }
   
   /* Карточка рекомендации */
   .recommended-card {
-    padding: 6px !important;
-    border-radius: 6px !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
     text-align: center !important;
     background-color: #9887bc63 !important;
   }
@@ -616,8 +616,8 @@ export default {
     aspect-ratio: 1 / 1 !important;
     width: 100% !important;
     height: auto !important;
-    border-radius: 4px !important;
-    margin-bottom: 4px !important;
+    border-radius: 6px !important;
+    margin-bottom: 6px !important;
   }
   
   .recommended-image img {
@@ -628,10 +628,10 @@ export default {
   
   /* Название товара */
   .recommended-product-title {
-    font-size: 9px !important;
-    line-height: 1.2 !important;
-    margin: 3px 0 !important;
-    min-height: 22px !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    margin: 4px 0 !important;
+    min-height: 28px !important;
     display: -webkit-box !important;
     -webkit-line-clamp: 2 !important;
     -webkit-box-orient: vertical !important;
@@ -640,18 +640,18 @@ export default {
   
   /* Цена */
   .recommended-price {
-    font-size: 10px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
-    margin: 2px 0 !important;
+    margin: 4px 0 !important;
   }
   
   /* Кнопка "Посмотреть" */
   .recommended-order-button {
-    font-size: 8px !important;
-    padding: 4px 0 !important;
-    margin-top: 4px !important;
+    font-size: 10px !important;
+    padding: 6px 0 !important;
+    margin-top: 6px !important;
     width: 100% !important;
-    border-radius: 3px !important;
+    border-radius: 4px !important;
   }
   
   /* Заголовок секции */
@@ -662,28 +662,28 @@ export default {
   }
 }
 
-/* Для очень маленьких телефонов (320-400px) */
-@media (max-width: 400px) {
+/* Для очень маленьких телефонов (320-380px) */
+@media (max-width: 380px) {
   .recommended-grid {
-    gap: 5px !important;
+    gap: 8px !important;
   }
   
   .recommended-card {
-    padding: 4px !important;
+    padding: 6px !important;
   }
   
   .recommended-product-title {
-    font-size: 8px !important;
-    min-height: 20px !important;
+    font-size: 10px !important;
+    min-height: 26px !important;
   }
   
   .recommended-price {
-    font-size: 9px !important;
+    font-size: 11px !important;
   }
   
   .recommended-order-button {
-    font-size: 7px !important;
-    padding: 3px 0 !important;
+    font-size: 9px !important;
+    padding: 5px 0 !important;
   }
 }
 </style>
