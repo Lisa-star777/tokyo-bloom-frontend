@@ -398,7 +398,7 @@ export default {
   .product-card {
     background-color: #9887bc63 !important;
     border-radius: 12px !important;
-    padding: 12px !important;
+    padding: 5px !important;
     text-align: center !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
     cursor: pointer;
