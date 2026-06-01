@@ -387,21 +387,20 @@ export default {
     margin-top: 80px !important;
   }
   
-  /* Сетка: 3 карточки в ряд */
+  /* Сетка: 2 карточки в ряд */
   .products-grid {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px !important;
+    gap: 15px !important;
   }
   
-  /* Карточка как на скриншоте */
+  /* Карточка - ВАШ СТИЛЬ (фиолетовая, с тенью) */
   .product-card {
-    background: white !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    text-align: left !important;
-    min-height: auto !important;
+    background-color: #9887bc63 !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    text-align: center !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
     cursor: pointer;
   }
   
@@ -410,10 +409,10 @@ export default {
     width: 100% !important;
     height: auto !important;
     aspect-ratio: 1 / 1 !important;
-    background-color: #f5f5f5 !important;
-    border-radius: 0 !important;
-    margin-bottom: 8px !important;
+    border-radius: 8px !important;
+    margin-bottom: 10px !important;
     overflow: hidden !important;
+    background-color: #A3A3CC !important;
   }
   
   .product-card .product-image img {
@@ -426,24 +425,20 @@ export default {
   .product-card h3, 
   .product-card .product-title {
     font-family: 'Albert Sans', sans-serif !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    color: #000000 !important;
-    margin: 0 0 4px 0 !important;
-    padding: 0 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #292966 !important;
+    margin: 0 0 5px 0 !important;
     line-height: 1.3 !important;
-    text-align: left !important;
   }
   
   /* Цена */
   .product-card .product-price {
     font-family: 'Albert Sans', sans-serif !important;
     font-size: 16px !important;
-    font-weight: 600 !important;
-    color: #000000 !important;
+    font-weight: 700 !important;
+    color: #292966 !important;
     margin: 0 !important;
-    padding: 0 !important;
-    text-align: left !important;
   }
   
   /* Описание - скрываем */
@@ -454,10 +449,9 @@ export default {
   /* Заголовки секций */
   .section-title {
     font-family: 'Russo One', sans-serif !important;
-    font-size: 24px !important;
-    text-align: left !important;
-    margin-bottom: 20px !important;
-    padding: 0 !important;
+    font-size: 28px !important;
+    text-align: center !important;
+    margin-bottom: 25px !important;
     color: #292966 !important;
   }
   
@@ -465,19 +459,34 @@ export default {
   .view-more-link {
     font-size: 14px !important;
     padding: 10px 20px !important;
-    color: #292966 !important;
-    border: 1px solid #292966 !important;
-    border-radius: 4px !important;
-    text-decoration: none !important;
   }
   
   .section-footer {
-    margin-top: 20px !important;
+    margin-top: 15px !important;
     display: flex !important;
-    justify-content: flex-start !important;
+    justify-content: flex-end !important;
   }
 }
 
+/* Для очень маленьких телефонов */
+@media (max-width: 450px) {
+  .products-grid {
+    gap: 10px !important;
+  }
+  
+  .product-card {
+    padding: 8px !important;
+  }
+  
+  .product-card h3, 
+  .product-card .product-title {
+    font-size: 13px !important;
+  }
+  
+  .product-card .product-price {
+    font-size: 14px !important;
+  }
+}
 /* Для экранов уже 400px */
 @media (max-width: 400px) {
   .products-grid {
