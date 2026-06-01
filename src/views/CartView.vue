@@ -17,7 +17,6 @@
       <div v-if="!isAuthenticated" class="not-auth">
         <div class="not-auth-icon">🛒</div>
         <h2 class="not-auth-title">Войдите, чтобы увидеть корзину</h2>
-        <p class="not-auth-text">Ваши товары сохранятся и будут ждать вас</p>
         <div class="not-auth-buttons">
           <button class="login-btn" @click="openAuthModal('login')">Войти</button>
           <button class="register-btn" @click="openAuthModal('register')">Регистрация</button>
