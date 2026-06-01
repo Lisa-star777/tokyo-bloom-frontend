@@ -403,11 +403,10 @@ export default {
   }
   
   /* Квадратное изображение */
-  .product-card .product-image {
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important;
-
-  }
+.product-card .product-image {
+  height: auto !important;
+  aspect-ratio: 1 / 1 !important;
+}
   
   .product-card .product-image img {
     object-fit: cover !important;
