@@ -458,6 +458,22 @@ export default {
   }
 }
 
+/* Для очень маленьких телефонов (до 400px) */
+@media (max-width: 400px) {
+  .products-grid {
+    gap: 6px !important;
+  }
+  
+  .product-card h3, 
+  .product-card .product-title {
+    font-size: 10px !important;
+  }
+  
+  .product-card .product-price {
+    font-size: 11px !important;
+  }
+}
+
 @media (max-width: 480px) {
   .products-grid {
     gap: 8px !important;
