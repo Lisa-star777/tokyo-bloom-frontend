@@ -390,7 +390,7 @@ export default {
   /* ГЛАВНОЕ: 3 карточки в ряд (как на Wildberries) */
   .products-grid {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: 8px !important;
   }
   
