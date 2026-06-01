@@ -387,40 +387,55 @@ export default {
     margin-top: 80px !important;
   }
   
+  /* 3 карточки в ряд, вытянутые */
   .products-grid {
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: 8px !important;
   }
   
   .product-card {
     padding: 6px !important;
     border-radius: 8px !important;
+    min-height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   
-  /* ЭТО ГЛАВНОЕ - квадратное фото */
+  /* Квадратное изображение */
   .product-card .product-image {
     height: auto !important;
     aspect-ratio: 1 / 1 !important;
     border-radius: 6px !important;
+    margin-bottom: 6px !important;
   }
   
   .product-card .product-image img {
     object-fit: cover !important;
   }
   
+  /* Заголовок - 2 строки, вытягивает карточку */
   .product-card h3, 
   .product-card .product-title {
     font-size: 11px !important;
-    margin: 5px 0 2px !important;
-    line-height: 1.2 !important;
+    margin: 4px 0 2px !important;
+    line-height: 1.3 !important;
+    min-height: 28px !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
   }
   
+  /* Цена - крупная и жирная */
   .product-card .product-price {
-    font-size: 12px !important;
-    font-weight: 700 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    margin: 4px 0 6px !important;
+    color: #292966 !important;
   }
   
+  /* Описание скрываем */
   .product-card .product-description {
     display: none !important;
   }
@@ -434,24 +449,30 @@ export default {
     font-size: 12px !important;
     padding: 8px 16px !important;
   }
+  
+  .section-footer {
+    margin-top: 10px !important;
+  }
 }
-/* Для очень маленьких телефонов */
-@media (max-width: 450px) {
+
+/* Для очень маленьких телефонов (320-400px) */
+@media (max-width: 400px) {
   .products-grid {
-    gap: 10px !important;
+    gap: 5px !important;
   }
   
   .product-card {
-    padding: 8px !important;
+    padding: 4px !important;
   }
   
   .product-card h3, 
   .product-card .product-title {
-    font-size: 13px !important;
+    font-size: 10px !important;
+    min-height: 24px !important;
   }
   
   .product-card .product-price {
-    font-size: 14px !important;
+    font-size: 11px !important;
   }
 }
 /* Для экранов уже 400px */
