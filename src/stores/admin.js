@@ -27,6 +27,7 @@ export const adminStore = {
             formData.append('description', product.description || '');
             formData.append('materials', product.materials || '');
             formData.append('image', imageFile);
+            if (product.image_url) formData.append('image_url', product.image_url);
             try {
                 const response = await api.post('/admin/products', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 return response.data;
@@ -48,13 +49,14 @@ export const adminStore = {
             formData.append('description', updatedData.description || '');
             formData.append('materials', updatedData.materials || '');
             formData.append('image', imageFile);
+            if (updatedData.image_url) formData.append('image_url', updatedData.image_url);
             try {
                 const response = await api.post('/admin/products/' + productId, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
                 return response.data;
             } catch (error) { return null; }
         }
         try {
-            const response = await api.put('/admin/products/' + productId, updatedData);
+            const response = await api.post('/admin/products/' + productId, { ...updatedData, _method: 'PUT' });
             return response.data;
         } catch (error) { return null; }
     },
