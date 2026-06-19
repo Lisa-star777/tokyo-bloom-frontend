@@ -37,7 +37,8 @@
         <div class="cart-items">
           <div v-for="item in cartItems" :key="item.id" class="cart-item">
             <div class="item-image">
-              <div class="image-placeholder">{{ item.title }}</div>
+                <img v-if="item.image_url" :src="item.image_url" :alt="item.title" style="width:100%;height:100%;object-fit:cover;">
+                <div v-else class="image-placeholder">{{ item.title }}</div>
             </div>
             
             <div class="item-details">
