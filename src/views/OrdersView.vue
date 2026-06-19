@@ -99,52 +99,38 @@ import { cartStore } from '@/stores/cart'
 import { notifications } from '@/services/notifications'
 import AuthModal from '@/components/AuthModal.vue'
 
-
 export default {
   name: 'OrdersView',
-  components: {
-    AuthModal
-  },
+  components: { AuthModal },
   data() {
     return {
       showAuthModal: false,
       authModalTab: 'login',
       orders: [],
-      loading: true
+      loading: true,
+      autoRefresh: null
     }
   },
   computed: {
-    isAuthenticated() {
-      return authStore.isAuthenticated()
-    },
-    currentUser() {
-      return authStore.getCurrentUser()
-    }
+    isAuthenticated() { return authStore.isAuthenticated() },
+    currentUser() { return authStore.getCurrentUser() }
   },
   methods: {
-    formatPrice(price) {
-        return Math.round(price).toLocaleString('ru-RU');
-    },
-    
+    formatPrice(price) { return Math.round(price).toLocaleString('ru-RU') },
     formatDate(dateStr) {
       if (!dateStr) return 'Дата не указана'
       return new Date(dateStr).toLocaleString('ru-RU')
     },
-
     async loadOrders() {
-      this.loading = true
-      try {
-        if (this.currentUser) {
+      if (this.currentUser) {
+        try {
           this.orders = await cartStore.getUserOrders(this.currentUser.id)
-          console.log('📋 Загружено заказов:', this.orders.length)
+        } catch (error) {
+          console.error('Ошибка загрузки заказов:', error)
         }
-      } catch (error) {
-        console.error(' Ошибка загрузки заказов:', error)
-      } finally {
-        this.loading = false
       }
+      this.loading = false
     },
-
     async repeatOrder(order) {
       if (!order.items) return
       for (const item of order.items) {
@@ -153,31 +139,18 @@ export default {
       notifications.success('Товары добавлены в корзину')
       this.$router.push('/cart')
     },
-
-    openAuthModal(tab) {
-      this.authModalTab = tab
-      this.showAuthModal = true
-    },
-
-    closeAuthModal() {
-      this.showAuthModal = false
-    },
-
-    async handleLoginSuccess() {
-      this.closeAuthModal()
-      await this.loadOrders()
-    }
+    openAuthModal(tab) { this.authModalTab = tab; this.showAuthModal = true },
+    closeAuthModal() { this.showAuthModal = false },
+    async handleLoginSuccess() { this.closeAuthModal(); await this.loadOrders() }
   },
   async mounted() {
     await this.loadOrders()
-    
-    // Слушаем обновление заказов
-    window.addEventListener('orders-updated', async () => {
-      await this.loadOrders()
-    })
+    window.addEventListener('orders-updated', async () => { await this.loadOrders() })
+    this.autoRefresh = setInterval(() => { this.loadOrders() }, 10000)
   },
   beforeUnmount() {
     window.removeEventListener('orders-updated', this.loadOrders)
+    clearInterval(this.autoRefresh)
   }
 }
 </script>
