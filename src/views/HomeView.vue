@@ -195,4 +195,4 @@ export default {
 @media (max-width: 768px) { .hero h1 { font-size: 32px; } .cta-button { padding: 20px 40px; font-size: 18px; } .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .product-card { padding: 8px; min-height: auto; } .product-image { height: auto; aspect-ratio: 1/1; } .product-title { font-size: 14px; } .product-price { font-size: 16px; } .section-title { font-size: 28px; margin-bottom: 30px; } }
 @media (max-width: 480px) { .hero h1 { font-size: 26px; } .cta-button { padding: 15px 30px; font-size: 16px; } .section-title { font-size: 22px; } .products-grid { gap: 6px; } .product-card { padding: 6px; } .product-title { font-size: 12px; } .product-price { font-size: 14px; } }
 </style>
-</style>
+
