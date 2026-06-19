@@ -531,4 +531,37 @@ export default {
     font-size: 20px !important;
   }
 }
+
+
+.loading-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 60px 0 !important;
+  text-align: center !important;
+}
+
+.loading-container p {
+  font-family: 'Albert Sans', sans-serif;
+  font-size: 16px;
+  color: #666;
+  margin-top: 15px;
+}
+
+.spinner {
+  width: 40px !important;
+  height: 40px !important;
+  border: 4px solid #e0e0e0 !important;
+  border-top: 4px solid #292966 !important;
+  border-radius: 50% !important;
+  animation: spin 0.8s linear infinite !important;
+  margin: 40px auto !important;
+  display: block !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
