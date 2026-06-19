@@ -184,13 +184,11 @@ export default {
 .section-footer { display: flex; justify-content: flex-end; margin-top: 20px; }
 .view-more-link { color: #292966; text-decoration: none; font-weight: 600; font-size: 16px; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border: 2px solid #292966; border-radius: 8px; }
 
-/* Спиннер */
 .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; text-align: center; }
 .loading-container p { font-family: 'Albert Sans', sans-serif; font-size: 16px; color: #666; margin-top: 15px; }
 .spinner { width: 40px; height: 40px; border: 4px solid #e0e0e0; border-top: 4px solid #292966; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* Адаптивность */
 @media (max-width: 992px) { .products-grid { grid-template-columns: repeat(2, 1fr); } .section-title { font-size: 40px; } }
 @media (max-width: 768px) { .hero h1 { font-size: 32px; } .cta-button { padding: 20px 40px; font-size: 18px; } .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } .product-card { padding: 8px; min-height: auto; } .product-image { height: auto; aspect-ratio: 1/1; } .product-title { font-size: 14px; } .product-price { font-size: 16px; } .section-title { font-size: 28px; margin-bottom: 30px; } }
 @media (max-width: 480px) { .hero h1 { font-size: 26px; } .cta-button { padding: 15px 30px; font-size: 16px; } .section-title { font-size: 22px; } .products-grid { gap: 6px; } .product-card { padding: 6px; } .product-title { font-size: 12px; } .product-price { font-size: 14px; } }
